@@ -13,5 +13,10 @@ task verifyDictionary {
 		index, words ->
 			//def words = dict.words[index]
 			assert words instanceof ArrayList
+			words.each {
+				word ->
+					// each word should have the attribute 'w' defined.
+					assert word.w != null : "attribute 'w' missing for entry in '" + index + "'"
+			}
 	}
 }

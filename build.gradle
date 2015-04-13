@@ -1,0 +1,17 @@
+import groovy.json.JsonSlurper
+
+description = 'javascript spellchecker'
+
+task verifyDictionary {
+	description = 'verifies the dictionary to be syntactical correct'
+	def jsonSlurper = new JsonSlurper()
+	def dict = jsonSlurper.parse(new File("${projectDir}/dict/alltiny.dict.base.de_de.json"))
+
+	assert dict instanceof Map
+	assert dict.words instanceof Map
+	dict.words.each {
+		index, words ->
+			//def words = dict.words[index]
+			assert words instanceof ArrayList
+	}
+}

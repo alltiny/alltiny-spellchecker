@@ -1,0 +1,32 @@
+<html>
+<head>
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="src/alltiny-spellchecker.js"></script>
+<style type="text/css">
+body { background-color: #7797d7; color: #efefef; font-family: tahoma; }
+h1 { text-align: center; text-shadow: 0 0 7px #303030; }
+div.editor { background-color: #efefef; color: #404040; border: 1px solid #aaaaaa; padding: 7px; width: 66%; margin: auto; box-shadow: 0 0 10px #4772a8; }
+span.spellcheck.ok { background-color: #99ee99;}
+span.spellcheck.error { background-color: #ee9999;}
+span.spellcheck.error.unknown { background-color: #c0c0c0; color:#505050;}
+span.spellcheck.warn { background-color: #eeee99;}
+</style>
+</head>
+<body>
+<h1>alltiny spellchecker</h1>
+<div id="content" class="editor" contenteditable="true">
+Das Haus steht schief!
+</div>
+<script type="text/javascript">
+// initialize the spellchecker.
+var spellchecker = new alltiny.Spellchecker();
+// load the german dictionary.
+jQuery.getJSON("dict/alltiny.dict.base.de_de.json", function(dict) {
+	spellchecker.addDictionary(dict);
+});
+jQuery('#content').keyup(function(e) {
+	jQuery(e.target).html(spellchecker.check(jQuery(e.target).text()));
+});
+</script>
+</body>
+</html>

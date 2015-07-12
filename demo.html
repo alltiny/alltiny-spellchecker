@@ -3,9 +3,10 @@
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 <script type="text/javascript" src="src/alltiny-spellchecker.js"></script>
 <style type="text/css">
-body { background-color: #7797d7; color: #efefef; font-family: tahoma; }
+body { background-color: #7797d7; color: #efefef; font-family: tahoma; width: 66%; margin: auto; }
 h1 { text-align: center; text-shadow: 0 0 7px #303030; }
-div.editor { background-color: #efefef; color: #404040; border: 1px solid #aaaaaa; padding: 7px; width: 66%; margin: auto; box-shadow: 0 0 10px #4772a8; }
+div.editor { background-color: #efefef; color: #404040; border: 1px solid #aaaaaa; padding: 7px; box-shadow: 0 0 10px #4772a8; }
+div.report { margin: 10px 0 10px 0; }
 span.spellcheck.ok { background-color: #99ee99;}
 span.spellcheck.error { background-color: #ee9999;}
 span.spellcheck.error.unknown { background-color: #c0c0c0; color:#505050;}
@@ -17,6 +18,7 @@ span.spellcheck.warn { background-color: #eeee99;}
 <div id="content" class="editor" contenteditable="true">
 Das Haus steht schief!
 </div>
+<div class="report"></div>
 <script type="text/javascript">
 // initialize the spellchecker.
 var spellchecker = new alltiny.Spellchecker();
@@ -24,8 +26,21 @@ var spellchecker = new alltiny.Spellchecker();
 jQuery.getJSON("dict/alltiny.dict.base.de_de.json", function(dict) {
 	spellchecker.addDictionary(dict);
 });
+var check = function(target) {
+	jQuery(target).html(spellchecker.check(jQuery(target).text()));
+	// create reports.
+	var unknownWords = [];
+	jQuery(target).find('span.error.unknown').each(function(index, span) {
+		var word = jQuery(span).text();
+		if (unknownWords.indexOf(word) < 0) {
+			unknownWords.push(word);
+		}
+	});
+	unknownWords = unknownWords.sort();
+	jQuery('div.report').empty().text(unknownWords.join(' '));
+};
 jQuery('#content').keyup(function(e) {
-	jQuery(e.target).html(spellchecker.check(jQuery(e.target).text()));
+	check(e.target);
 });
 </script>
 </body>

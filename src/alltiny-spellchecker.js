@@ -158,7 +158,12 @@ alltiny.Spellchecker.prototype.lookupExact = function(dictionary, word, fracture
 				var composits = [];
 				for (var i = 0; i < foundWords.length; i++) {
 					for (var f = 0; f < foundFractures.length; f++) {
-						composits.push({w:foundWords[i].w+foundFractures[f].w.toLowerCase(),type:foundFractures[f].type,composits:[foundWords[i],foundFractures[f]]});
+						composits.push({
+							w: foundWords[i].w+foundFractures[f].w.toLowerCase(),
+							type: foundFractures[f].type,
+							composits: [foundWords[i],foundFractures[f]],
+							endOfSentence: foundFractures[f].endOfSentence == true ? true : undefined
+						});
 					}
 				}
 				return dictionary.processor(composits);

@@ -50,7 +50,7 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 	var checkOptions = jQuery.extend(options, this.options);
 
 	// build the regular expression to search words in the given text.
-	var groups = '\\.\\-\\u00ad';
+	var groups = '\\.\\?\\!\\-\\u00ad';
 	for (var fragment in this.fragments) {
 		groups += fragment;
 	}

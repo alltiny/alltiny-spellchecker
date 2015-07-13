@@ -6,11 +6,11 @@ alltiny.Spellchecker = function(options) {
 		highlightUnknownWords : true,
 		highlightKnownWords : false,
 		highlightMismatches : true,
-		highlightCaseWarnings : true,
-		assumeStartOfSentence : true // if true the first word in a check is assumed to be the start of a sentence.
+		highlightCaseWarnings : true
 	};
 	this.dictionaries = [];
 	this.fragments = {};
+	this.assumeStartOfSentence = true // if true the first word in a check is assumed to be the start of a sentence.
 };
 
 /**
@@ -71,7 +71,7 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 				for (var f = 0; f < foundWords.length; f++) {
 					if (foundWords[f].w) {
 						var foundWord = jQuery.extend(true, {}, foundWords[f]);
-						if (checkOptions.assumeStartOfSentence) {
+						if (this.assumeStartOfSentence) {
 							foundWord.w = foundWord.w[0].toUpperCase() + foundWord.w.substring(1, foundWord.w.length);
 						}
 						variants.push(foundWord);
@@ -80,7 +80,7 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 			}
 		}
 		if (variants.length == 0) {
-			checkOptions.assumeStartOfSentence = false;
+			this.assumeStartOfSentence = false;
 			return (checkOptions.highlighting && checkOptions.highlightUnknownWords) ? '<span class="spellcheck highlight error unknown">'+word+'</span>' : word;
 		}
 		// check whether one of the variants is an exact hit.
@@ -89,9 +89,9 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 				// apply the word from the dictionary, to apply hyphenation.
 				var content = (checkOptions.hyphenation) ? variants[v].w.replace(/\|/g,'\u00ad') : word;
 				if (variants[v].endOfSentence == true) {
-					checkOptions.assumeStartOfSentence = true;
+					this.assumeStartOfSentence = true;
 				} else {
-					checkOptions.assumeStartOfSentence = false;
+					this.assumeStartOfSentence = false;
 				}
 				// highlight the word if option tells so.
 				return (checkOptions.highlighting && checkOptions.highlightKnownWords) ? '<span class="spellcheck highlight ok">'+content+'</span>' : content;
@@ -102,15 +102,15 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 		for (var v = 0; v < variants.length; v++) {
 			if (variants[v].w.replace(/\|/g,'').toLowerCase() == lowerCaseWord) { // is this variant an exact hit?
 				if (variants[v].endOfSentence == true) {
-					checkOptions.assumeStartOfSentence = true;
+					this.assumeStartOfSentence = true;
 				} else {
-					checkOptions.assumeStartOfSentence = false;
+					this.assumeStartOfSentence = false;
 				}
 				// highlight the word if option tells so.
 				return (checkOptions.highlighting && checkOptions.highlightCaseWarnings) ? '<span class="spellcheck highlight warn case" data-spellcheck-correction="'+variants[v].w+'">'+word+'</span>' : word;
 			}
 		}
-		checkOptions.assumeStartOfSentence = false;
+		this.assumeStartOfSentence = false;
 		return (checkOptions.highlighting && checkOptions.highlightMismatches) ? '<span class="spellcheck highlight warn mismatch">'+word+'</span>' : word;
 	});
 	return text;
@@ -178,4 +178,8 @@ alltiny.Spellchecker.prototype.lookupExact = function(dictionary, word, fracture
 	} else {
 		return null; // unknown word.
 	}
+};
+
+alltiny.Spellchecker.prototype.setAssumeStartOfSentence = function(isStart) {
+	this.assumeStartOfSentence = isStart
 };

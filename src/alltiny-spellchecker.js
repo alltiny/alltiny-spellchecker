@@ -148,7 +148,7 @@ alltiny.Spellchecker.prototype.lookupExact = function(dictionary, word, fracture
 	if (foundWords) {
 		if (!fracture) { // no fracture left?
 			return dictionary.processor(foundWords);
-		} else if (fracture == '.') { // if the fracture is just a period from the sentence then append it to the found word.
+		} else if (fracture == '.' || fracture == '?' || fracture == '!') { // if the fracture is just a period from the sentence then append it to the found word.
 			var composits = [];
 			for (var i = 0; i < foundWords.length; i++) {
 				var foundWord = jQuery.extend(true, {}, foundWords[i]); // deep-copy the word to avoid that the following operation alters the dictionary entry.

@@ -80,7 +80,12 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 			}
 		}
 		if (variants.length == 0) {
-			this.assumeStartOfSentence = false;
+			var lastChar = cleanWord.length > 0 ? cleanWord[cleanWord.length - 1] : '';
+			if (lastChar == '.' || lastChar == '!' || lastChar == '?') {
+				this.assumeStartOfSentence = true;
+			} else {
+				this.assumeStartOfSentence = false;
+			}
 			return (checkOptions.highlighting && checkOptions.highlightUnknownWords) ? '<span class="spellcheck highlight error unknown">'+word+'</span>' : word;
 		}
 		// check whether one of the variants is an exact hit.

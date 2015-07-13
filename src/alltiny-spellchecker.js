@@ -6,7 +6,8 @@ alltiny.Spellchecker = function(options) {
 		highlightUnknownWords : true,
 		highlightKnownWords : false,
 		highlightMismatches : true,
-		highlightCaseWarnings : true
+		highlightCaseWarnings : true,
+		assumeStartOfSentence : true // if true the first word in a check is assumed to be the start of a sentence.
 	};
 	this.dictionaries = [];
 	this.fragments = {};
@@ -69,12 +70,17 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 			if (foundWords != null) {
 				for (var f = 0; f < foundWords.length; f++) {
 					if (foundWords[f].w) {
-						variants.push(foundWords[f]);
+						var foundWord = jQuery.extend(true, {}, foundWords[f]);
+						if (checkOptions.assumeStartOfSentence) {
+							foundWord.w = foundWord.w[0].toUpperCase() + foundWord.w.substring(1, foundWord.w.length);
+						}
+						variants.push(foundWord);
 					}
 				}
 			}
 		}
 		if (variants.length == 0) {
+			checkOptions.assumeStartOfSentence = false;
 			return (checkOptions.highlighting && checkOptions.highlightUnknownWords) ? '<span class="spellcheck highlight error unknown">'+word+'</span>' : word;
 		}
 		// check whether one of the variants is an exact hit.
@@ -82,6 +88,11 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 			if (variants[v].w.replace(/\|/g,'') == cleanWord) { // is this variant an exact hit?
 				// apply the word from the dictionary, to apply hyphenation.
 				var content = (checkOptions.hyphenation) ? variants[v].w.replace(/\|/g,'\u00ad') : word;
+				if (variants[v].endOfSentence == true) {
+					checkOptions.assumeStartOfSentence = true;
+				} else {
+					checkOptions.assumeStartOfSentence = false;
+				}
 				// highlight the word if option tells so.
 				return (checkOptions.highlighting && checkOptions.highlightKnownWords) ? '<span class="spellcheck highlight ok">'+content+'</span>' : content;
 			}
@@ -90,10 +101,16 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 		var lowerCaseWord = cleanWord.toLowerCase();
 		for (var v = 0; v < variants.length; v++) {
 			if (variants[v].w.replace(/\|/g,'').toLowerCase() == lowerCaseWord) { // is this variant an exact hit?
+				if (variants[v].endOfSentence == true) {
+					checkOptions.assumeStartOfSentence = true;
+				} else {
+					checkOptions.assumeStartOfSentence = false;
+				}
 				// highlight the word if option tells so.
 				return (checkOptions.highlighting && checkOptions.highlightCaseWarnings) ? '<span class="spellcheck highlight warn case" data-spellcheck-correction="'+variants[v].w+'">'+word+'</span>' : word;
 			}
 		}
+		checkOptions.assumeStartOfSentence = false;
 		return (checkOptions.highlighting && checkOptions.highlightMismatches) ? '<span class="spellcheck highlight warn mismatch">'+word+'</span>' : word;
 	});
 	return text;
@@ -131,6 +148,7 @@ alltiny.Spellchecker.prototype.lookupExact = function(dictionary, word, fracture
 			for (var i = 0; i < foundWords.length; i++) {
 				var foundWord = jQuery.extend(true, {}, foundWords[i]); // deep-copy the word to avoid that the following operation alters the dictionary entry.
 				foundWord.w = foundWord.w + fracture;
+				foundWord.endOfSentence = true;
 				composits.push(foundWord);
 			}
 			return dictionary.processor(composits);

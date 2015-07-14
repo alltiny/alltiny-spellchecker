@@ -71,7 +71,7 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 				for (var f = 0; f < foundWords.length; f++) {
 					if (foundWords[f].w) {
 						var foundWord = jQuery.extend(true, {}, foundWords[f]);
-						if (this.assumeStartOfSentence) {
+						if (thisObj.assumeStartOfSentence) {
 							foundWord.w = foundWord.w[0].toUpperCase() + foundWord.w.substring(1, foundWord.w.length);
 						}
 						variants.push(foundWord);

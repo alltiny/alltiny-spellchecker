@@ -10,7 +10,7 @@ alltiny.Spellchecker = function(options) {
 	};
 	this.dictionaries = [];
 	this.fragments = {};
-	this.assumeStartOfSentence = true // if true the first word in a check is assumed to be the start of a sentence.
+	this.assumeStartOfSentence = true; // if true the first word in a check is assumed to be the start of a sentence.
 };
 
 /**
@@ -81,11 +81,7 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 		}
 		if (variants.length == 0) {
 			var lastChar = cleanWord.length > 0 ? cleanWord[cleanWord.length - 1] : '';
-			if (lastChar == '.' || lastChar == '!' || lastChar == '?') {
-				this.assumeStartOfSentence = true;
-			} else {
-				this.assumeStartOfSentence = false;
-			}
+			thisObj.assumeStartOfSentence = lastChar == '.' || lastChar == '!' || lastChar == '?';
 			return (checkOptions.highlighting && checkOptions.highlightUnknownWords) ? '<span class="spellcheck highlight error unknown">'+word+'</span>' : word;
 		}
 		// check whether one of the variants is an exact hit.
@@ -93,11 +89,7 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 			if (variants[v].w.replace(/\|/g,'') == cleanWord) { // is this variant an exact hit?
 				// apply the word from the dictionary, to apply hyphenation.
 				var content = (checkOptions.hyphenation) ? variants[v].w.replace(/\|/g,'\u00ad') : word;
-				if (variants[v].endOfSentence == true) {
-					this.assumeStartOfSentence = true;
-				} else {
-					this.assumeStartOfSentence = false;
-				}
+				thisObj.assumeStartOfSentence = variants[v].endOfSentence == true;
 				// highlight the word if option tells so.
 				return (checkOptions.highlighting && checkOptions.highlightKnownWords) ? '<span class="spellcheck highlight ok">'+content+'</span>' : content;
 			}
@@ -106,16 +98,12 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 		var lowerCaseWord = cleanWord.toLowerCase();
 		for (var v = 0; v < variants.length; v++) {
 			if (variants[v].w.replace(/\|/g,'').toLowerCase() == lowerCaseWord) { // is this variant an exact hit?
-				if (variants[v].endOfSentence == true) {
-					this.assumeStartOfSentence = true;
-				} else {
-					this.assumeStartOfSentence = false;
-				}
+				thisObj.assumeStartOfSentence = variants[v].endOfSentence == true;
 				// highlight the word if option tells so.
 				return (checkOptions.highlighting && checkOptions.highlightCaseWarnings) ? '<span class="spellcheck highlight warn case" data-spellcheck-correction="'+variants[v].w+'">'+word+'</span>' : word;
 			}
 		}
-		this.assumeStartOfSentence = false;
+		thisObj.assumeStartOfSentence = false;
 		return (checkOptions.highlighting && checkOptions.highlightMismatches) ? '<span class="spellcheck highlight warn mismatch">'+word+'</span>' : word;
 	});
 	return text;

@@ -152,7 +152,7 @@ alltiny.Spellchecker.prototype.lookupExact = function(dictionary, word, fracture
 				for (var i = 0; i < foundWords.length; i++) {
 					for (var f = 0; f < foundFractures.length; f++) {
 						composits.push({
-							w: foundWords[i].w+foundFractures[f].w.toLowerCase(),
+							w: (foundWords[i].w + '|' + foundFractures[f].w).toLowerCase(),
 							type: foundFractures[f].type,
 							composits: [foundWords[i],foundFractures[f]],
 							endOfSentence: foundFractures[f].endOfSentence == true ? true : undefined

@@ -6,7 +6,8 @@ alltiny.Spellchecker = function(options) {
 		highlightUnknownWords : true,
 		highlightKnownWords : false,
 		highlightMismatches : true,
-		highlightCaseWarnings : true
+		highlightCaseWarnings : true,
+		cursorCharacter : '\u2038'
 	};
 	this.dictionaries = [];
 	this.fragments = {};
@@ -50,7 +51,7 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 	var checkOptions = jQuery.extend(options, this.options);
 
 	// build the regular expression to search words in the given text.
-	var groups = '\\.\\?\\!\\-\\u00ad';
+	var groups = '\\.\\?\\!\\-\\u00ad' + this.options.cursorCharacter;
 	for (var fragment in this.fragments) {
 		groups += fragment;
 	}
@@ -63,7 +64,11 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 	var text = $filter.text();
 	// use the word regex to split text into words.
 	text = text.replace(wordsRegEx, function(word, contents, offset, s) {
-		var cleanWord = word.replace(/\u00ad/g,''); // remove all soft-hyphens from the word.
+		var cursorPos = word.indexOf(thisObj.options.cursorCharacter);
+		var isCursorAtBeginning = cursorPos == 0;
+		var isCursorAtEnding = cursorPos == word.length - thisObj.options.cursorCharacter.length;
+		var isCursorInMiddle = cursorPos >= 0 && !isCursorAtBeginning && !isCursorAtEnding;
+		var cleanWord = word.replace(thisObj.options.cursorCharacter, '').replace(/\u00ad/g,''); // remove all soft-hyphens from the word.
 		var variants = [];
 		for (var i = 0; i < thisObj.dictionaries.length; i++) {
 			var foundWords = thisObj.lookupExact(thisObj.dictionaries[i], cleanWord);
@@ -87,9 +92,11 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 		// check whether one of the variants is an exact hit.
 		for (var v = 0; v < variants.length; v++) {
 			if (variants[v].w.replace(/\|/g,'') == cleanWord) { // is this variant an exact hit?
-				// apply the word from the dictionary, to apply hyphenation.
-				var content = (checkOptions.hyphenation) ? variants[v].w.replace(/\|/g,'\u00ad') : word;
 				thisObj.assumeStartOfSentence = variants[v].endOfSentence == true;
+				// apply the word from the dictionary, to apply hyphenation.
+				var content = (checkOptions.hyphenation && !isCursorInMiddle)
+					? ((isCursorAtBeginning ? thisObj.options.cursorCharacter : '') + variants[v].w.replace(/\|/g,'\u00ad') + (isCursorAtEnding ? thisObj.options.cursorCharacter : ''))
+					: word;
 				// highlight the word if option tells so.
 				return (checkOptions.highlighting && checkOptions.highlightKnownWords) ? '<span class="spellcheck highlight ok">'+content+'</span>' : content;
 			}

@@ -51,7 +51,7 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 	var checkOptions = jQuery.extend(true, jQuery.extend(true, {}, this.options), options); // deep copy to avoid overrides. uses this.options as defaults.
 
 	// build the regular expression to search words in the given text.
-	var groups = '\\.\\?\\!\\-\\u00ad' + this.options.cursorCharacter;
+	var groups = '\\.\\?\\!\\-\\u00ad' + checkOptions.cursorCharacter;
 	for (var fragment in this.fragments) {
 		groups += fragment;
 	}
@@ -64,11 +64,11 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 	var text = $filter.text();
 	// use the word regex to split text into words.
 	text = text.replace(wordsRegEx, function(word, contents, offset, s) {
-		var cursorPos = word.indexOf(thisObj.options.cursorCharacter);
+		var cursorPos = word.indexOf(checkOptions.cursorCharacter);
 		var isCursorAtBeginning = cursorPos == 0;
-		var isCursorAtEnding = cursorPos == word.length - thisObj.options.cursorCharacter.length;
+		var isCursorAtEnding = cursorPos == word.length - checkOptions.cursorCharacter.length;
 		var isCursorInMiddle = cursorPos >= 0 && !isCursorAtBeginning && !isCursorAtEnding;
-		var cleanWord = word.replace(thisObj.options.cursorCharacter, '').replace(/\u00ad/g,''); // remove all soft-hyphens from the word.
+		var cleanWord = word.replace(checkOptions.cursorCharacter, '').replace(/\u00ad/g,''); // remove all soft-hyphens from the word.
 		var variants = [];
 		for (var i = 0; i < thisObj.dictionaries.length; i++) {
 			var foundWords = thisObj.lookupExact(thisObj.dictionaries[i], cleanWord);
@@ -95,7 +95,7 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 				thisObj.assumeStartOfSentence = variants[v].endOfSentence == true;
 				// apply the word from the dictionary, to apply hyphenation.
 				var content = (checkOptions.hyphenation && !isCursorInMiddle)
-					? ((isCursorAtBeginning ? thisObj.options.cursorCharacter : '') + variants[v].w.replace(/\|/g,'\u00ad') + (isCursorAtEnding ? thisObj.options.cursorCharacter : ''))
+					? ((isCursorAtBeginning ? checkOptions.cursorCharacter : '') + variants[v].w.replace(/\|/g,'\u00ad') + (isCursorAtEnding ? checkOptions.cursorCharacter : ''))
 					: word;
 				// highlight the word if option tells so.
 				return (checkOptions.highlighting && checkOptions.highlightKnownWords) ? '<span class="spellcheck highlight ok">'+content+'</span>' : content;

@@ -48,7 +48,7 @@ alltiny.Spellchecker.prototype.addDictionary = function(dictionary) {
  */
 alltiny.Spellchecker.prototype.check = function(text, options) {
 	var thisObj = this;
-	var checkOptions = jQuery.extend(true, this.options, options);
+	var checkOptions = jQuery.extend(true, jQuery.extend(true, {}, this.options), options); // deep copy to avoid overrides. uses this.options as defaults.
 
 	// build the regular expression to search words in the given text.
 	var groups = '\\.\\?\\!\\-\\u00ad' + this.options.cursorCharacter;

@@ -19,6 +19,8 @@ task verifyDictionary {
 					assert word.w != null : "attribute 'w' missing for entry in '" + index + "'"
 					// verify that the word corresponds to the index.
 					assert word.w.toLowerCase().replace("|", "").equals(index) : "word '" + word.w + "' does not correspond to entry in '" + index + "'"
+					// verify that each word has its type defined.
+					assert word.type != null : "word '" + word.w + "' is lacking a type defintion"
 			}
 	}
 }

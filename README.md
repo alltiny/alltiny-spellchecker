@@ -1,6 +1,9 @@
 # alltiny-spellchecker
 Is a dictionary-based spellchecker written in JavaScript and ready to be build into your page.
-Integration is fairly easy:
+It not only offers spellchecking but also hyphenation/syllabification of the words in your text.
+All checks are done completely in the clients browser. Nothing is transmitted to a server.
+
+Integration in your page is fairly easy:
 
     // initialize the spellchecker.
     var spellchecker = new alltiny.Spellchecker();
@@ -22,8 +25,8 @@ For instance if you know already some keywords from the context our user is curr
         words: {}
     };
     // 'words' is an index. spellchecker's convention is that the key is always lower case.
-    dict.words[customer.firstName.toLocaleLowerCase()] = [{type:'name', w:customer.firstName}];
-    dict.words[customer.lastName.toLocaleLowerCase()] = [{type:'name', w:customer.lastName}];
+    dict.words[customer.firstName.toLowerCase()] = [{type:'name', w:customer.firstName}];
+    dict.words[customer.lastName.toLowerCase()] = [{type:'name', w:customer.lastName}];
 
 # Dictionaries
 Right now only a German base dictionary exists. But this will change soon.

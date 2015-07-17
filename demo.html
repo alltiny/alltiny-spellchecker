@@ -7,7 +7,8 @@ body { background-color: #7797d7; color: #efefef; font-family: tahoma; width: 66
 h1 { text-align: center; text-shadow: 0 0 7px #303030; }
 div.editor { background-color: #efefef; color: #404040; border: 1px solid #aaaaaa; padding: 7px; box-shadow: 0 0 10px #4772a8; }
 div.report { margin: 10px 0 10px 0; }
-span.spellcheck.ok { background-color: #99ee99;}
+div.statistics table { width: 100%; color: #404040;}
+//span.spellcheck.ok { background-color: #99ee99;}
 span.spellcheck.error { background-color: #ee9999;}
 span.spellcheck.error.unknown { background-color: #c0c0c0; color:#505050;}
 span.spellcheck.warn { background-color: #eeee99;}
@@ -18,10 +19,11 @@ span.spellcheck.warn { background-color: #eeee99;}
 <div id="content" class="editor" contenteditable="true">
 Das Haus steht schief!
 </div>
+<div class="statistics"></div>
 <div class="report"></div>
 <script type="text/javascript">
 // initialize the spellchecker.
-var spellchecker = new alltiny.Spellchecker();
+var spellchecker = new alltiny.Spellchecker({highlightKnownWords: true});
 // load the german dictionary.
 jQuery.getJSON("dict/alltiny.dict.base.de_de.json", function(dict) {
 	spellchecker.addDictionary(dict);
@@ -30,6 +32,18 @@ var check = function(target) {
 	jQuery(target).html(spellchecker.check(jQuery(target).text()));
 	// create reports.
 	var unknownWords = [];
+	// calculate some statistics.
+	var countKnown = jQuery(target).find('span.spellcheck.highlight.ok').length;
+	var countUnknown = jQuery(target).find('span.spellcheck.highlight.unknown').length;
+	var countWarning = jQuery(target).find('span.spellcheck.highlight.warn').length;
+	var countSum = countKnown + countUnknown + countWarning;
+	// render a table as diagram.
+	var $tbody = jQuery('<tbody></tbody>');
+	jQuery('div.statistics').empty().append(jQuery('<table cellspacing="0"></table>').append($tbody));
+	$tbody.append(jQuery('<td></td>').text('OK (' + (100 * countKnown / countSum) + '%)').attr('title','OK - Words found in the dictionary assuming they are correct').css({'width': ((100 * countKnown / countSum) + '%'), 'background-color': '#99ee99'}));
+	$tbody.append(jQuery('<td></td>').attr('title','Warning - Words found but not matching the dictionary entry').css({'width': ((100 * countWarning / countSum) + '%'), 'background-color': '#eeee99'}));
+	$tbody.append(jQuery('<td></td>').attr('title','Unknown - Words could not be found in dictionary').css({'width': 100 * countUnknown / countSum + '%', 'background-color': '#ee9999'}));
+	// write donw all unknown word into a separate div.
 	jQuery(target).find('span.error.unknown').each(function(index, span) {
 		var word = jQuery(span).text();
 		if (unknownWords.indexOf(word) < 0) {

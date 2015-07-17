@@ -1,6 +1,6 @@
 var alltiny = alltiny || {};
 alltiny.Spellchecker = function(options) {
-	this.options = {
+	this.options = jQuery.extend(true, {
 		hyphenation : true,
 		highlighting : true,
 		highlightUnknownWords : true,
@@ -8,7 +8,7 @@ alltiny.Spellchecker = function(options) {
 		highlightMismatches : true,
 		highlightCaseWarnings : true,
 		cursorCharacter : '\u2038'
-	};
+	}, options);
 	this.dictionaries = [];
 	this.fragments = {};
 	this.assumeStartOfSentence = true; // if true the first word in a check is assumed to be the start of a sentence.

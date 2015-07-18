@@ -40,7 +40,7 @@ var check = function(target) {
 	// render a table as diagram.
 	var $tbody = jQuery('<tbody></tbody>');
 	jQuery('div.statistics').empty().append(jQuery('<table cellspacing="0"></table>').append($tbody));
-	$tbody.append(jQuery('<td></td>').text('OK (' + (100 * countKnown / countSum) + '%)').attr('title','OK - Words found in the dictionary assuming they are correct').css({'width': ((100 * countKnown / countSum) + '%'), 'background-color': '#99ee99'}));
+	$tbody.append(jQuery('<td></td>').text('OK (' + (100 * countKnown / countSum).toFixed(2) + '%)').attr('title','OK - Words found in the dictionary assuming they are correct').css({'width': ((100 * countKnown / countSum) + '%'), 'background-color': '#99ee99'}));
 	$tbody.append(jQuery('<td></td>').attr('title','Warning - Words found but not matching the dictionary entry').css({'width': ((100 * countWarning / countSum) + '%'), 'background-color': '#eeee99'}));
 	$tbody.append(jQuery('<td></td>').attr('title','Unknown - Words could not be found in dictionary').css({'width': 100 * countUnknown / countSum + '%', 'background-color': '#ee9999'}));
 	// write donw all unknown word into a separate div.

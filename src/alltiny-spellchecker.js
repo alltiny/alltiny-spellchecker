@@ -130,14 +130,18 @@ alltiny.Spellchecker.prototype.lookupExact = function(dictionary, word, fracture
 	var lowerCaseWord = word.toLowerCase();
 	if (dictionary.dateformats) {
 		for (var i = 0; i < dictionary.dateformats.length; i++) {
-			if (word.match(new RegExp('^' + dictionary.dateformats[i] +"$"))) {
+			if (word.match(new RegExp('^' + dictionary.dateformats[i] + '$'))) {
 				return [{w:word,type:'date'}];
 			}
 		}
 	}
 	// check whether it is a number, a hyphen or a period.
-	if (lowerCaseWord.match(/^([0-9]+|[\-]+|[\.]+)$/)) {
-		return [{w:word,type:'numerical'}];
+	if (dictionary.numberformats) {
+		for (var i = 0; i < dictionary.numberformats.length; i++) {
+			if (word.match(new RegExp('^' + dictionary.numberformats[i] + '$'))) {
+				return [{w:word,type:'numerical'}];
+			}
+		}
 	}
 	var foundWords = dictionary.words[lowerCaseWord];
 	if (foundWords) {

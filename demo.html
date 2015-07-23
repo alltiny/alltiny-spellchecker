@@ -3,11 +3,17 @@
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 <script type="text/javascript" src="src/alltiny-spellchecker.js"></script>
 <style type="text/css">
-body { background-color: #7797d7; color: #efefef; font-family: tahoma; width: 66%; margin: auto; }
+body { background-color: #506070; color: #efefef; font-family: tahoma; width: 66%; margin: auto; }
 h1 { text-align: center; text-shadow: 0 0 7px #303030; }
-div.editor { background-color: #efefef; color: #404040; border: 1px solid #aaaaaa; padding: 7px; box-shadow: 0 0 10px #4772a8; }
+div.editor { background-color: #383838; color: #a8a8a0; border-radius: 5px; padding: 7px; box-shadow: inset 0 0 10px #181810; }
 div.report { margin: 10px 0 10px 0; }
+div.statistics { border-radius: 5px; margin: 10px 0 10px 0; box-shadow: inset 0 0 10px #181810; overflow: hidden; background-color: #f0f0f0; }
 div.statistics table { width: 100%; color: #404040;}
+div.statistics table td { padding-left: 5px;}
+td.ok { background-color: rgba(140, 240, 140, 1); }
+td.warn { background-color: rgba(240, 240, 140, 1); }
+td.error { background-color: rgba(240, 140, 140, 1); }
+span.spellcheck { border-radius: 5px;}
 //span.spellcheck.ok { background-color: #99ee99;}
 span.spellcheck.error { background-color: #ee9999;}
 span.spellcheck.error.unknown { background-color: #c0c0c0; color:#505050;}
@@ -40,9 +46,9 @@ var check = function(target) {
 	// render a table as diagram.
 	var $tbody = jQuery('<tbody></tbody>');
 	jQuery('div.statistics').empty().append(jQuery('<table cellspacing="0"></table>').append($tbody));
-	$tbody.append(jQuery('<td></td>').text('OK (' + (100 * countKnown / countSum).toFixed(2) + '%)').attr('title','OK - Words found in the dictionary assuming they are correct').css({'width': ((100 * countKnown / countSum) + '%'), 'background-color': '#99ee99'}));
-	$tbody.append(jQuery('<td></td>').attr('title','Warning - Words found but not matching the dictionary entry').css({'width': ((100 * countWarning / countSum) + '%'), 'background-color': '#eeee99'}));
-	$tbody.append(jQuery('<td></td>').attr('title','Unknown - Words could not be found in dictionary').css({'width': 100 * countUnknown / countSum + '%', 'background-color': '#ee9999'}));
+	$tbody.append(jQuery('<td class="ok"></td>').text('OK (' + (100 * countKnown / countSum).toFixed(2) + '%)').attr('title','OK - Words found in the dictionary assuming they are correct').css({'width': ((100 * countKnown / countSum) + '%')}));
+	$tbody.append(jQuery('<td class="warn"></td>').attr('title','Warning - Words found but not matching the dictionary entry').css({'width': ((100 * countWarning / countSum) + '%')}));
+	$tbody.append(jQuery('<td class="error"></td>').attr('title','Unknown - Words could not be found in dictionary').css({'width': 100 * countUnknown / countSum + '%'}));
 	// write donw all unknown word into a separate div.
 	jQuery(target).find('span.error.unknown').each(function(index, span) {
 		var word = jQuery(span).text();

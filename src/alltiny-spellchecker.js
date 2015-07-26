@@ -24,15 +24,11 @@ alltiny.Spellchecker = function(options) {
  * }
  */
 alltiny.Spellchecker.prototype.addDictionary = function(dictionary) {
-	if (dictionary.processor && dictionary.processor.length > 0) {
-		dictionary.processor = new Function('variants', dictionary.processor);
-	} else {
-		dictionary.processor = new Function('variants', 'return variants;');
-	}
 	this.dictionaries.push(dictionary);
-	if (dictionary && dictionary.fragments) {
-		for (var i = 0; i < dictionary.fragments.length; i++) {
-			var fragment = dictionary.fragments[i];
+	if (dictionary) {
+		var fragments = dictionary.getFragments();
+		for (var i = 0; i < fragments.length; i++) {
+			var fragment = fragments[i];
 			this.fragments[fragment] = fragment;
 		}
 	}
@@ -71,7 +67,7 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 		var cleanWord = word.replace(checkOptions.cursorCharacter, '').replace(/\u00ad/g,''); // remove all soft-hyphens from the word.
 		var variants = [];
 		for (var i = 0; i < thisObj.dictionaries.length; i++) {
-			var foundWords = thisObj.lookupExact(thisObj.dictionaries[i], cleanWord);
+			var foundWords = thisObj.dictionaries[i].findWord(cleanWord);
 			if (foundWords != null) {
 				for (var f = 0; f < foundWords.length; f++) {
 					if (foundWords[f].w) {
@@ -125,28 +121,50 @@ alltiny.Spellchecker.prototype.removeAnyHighlights = function(target) {
 	});
 };
 
+alltiny.Spellchecker.prototype.setAssumeStartOfSentence = function(isStart) {
+	this.assumeStartOfSentence = isStart
+};
+
+alltiny.Dictionary = function(customOptions) {
+	if (customOptions.processor && customOptions.processor.length > 0) {
+		customOptions.processor = new Function('variants', customOptions.processor);
+	} else {
+		customOptions.processor = new Function('variants', 'return variants;');
+	}
+	this.options = jQuery.extend(true, {
+		name         : '',
+		language     : '',
+		dateformats  : [],
+		numberformats: [],
+		words        : [],
+		fragments    : [],
+		processor    : function(words){ return words; }
+	}, customOptions);
+};
+
+alltiny.Dictionary.prototype.getFragments = function() {
+	return this.options.fragments;
+};
+
+/**
+ * This method adds the given word to the dictionary.
+ */
+alltiny.Dictionary.prototype.addWord = function(word) {
+	if (word && word.w && word.w.length > 0 && word.type) {
+		var lowerCaseWord = word.w.toLowerCase();
+		if (!this.options.words[lowerCaseWord]) {
+			this.options.words[lowerCaseWord] = [];
+		}
+		this.options.words[lowerCaseWord].push(word);
+	}
+};
+
 /* this method will return null if the word is unknown. */
-alltiny.Spellchecker.prototype.lookupExact = function(dictionary, word, fracture) {
-	var lowerCaseWord = word.toLowerCase();
-	if (dictionary.dateformats) {
-		for (var i = 0; i < dictionary.dateformats.length; i++) {
-			if (word.match(new RegExp('^' + dictionary.dateformats[i] + '$'))) {
-				return [{w:word,type:'date'}];
-			}
-		}
-	}
-	// check whether it is a number, a hyphen or a period.
-	if (dictionary.numberformats) {
-		for (var i = 0; i < dictionary.numberformats.length; i++) {
-			if (word.match(new RegExp('^' + dictionary.numberformats[i] + '$'))) {
-				return [{w:word,type:'numerical'}];
-			}
-		}
-	}
-	var foundWords = dictionary.words[lowerCaseWord];
+alltiny.Dictionary.prototype.findWord = function(word, fracture) {
+	var foundWords = this.lookupWord(word);
 	if (foundWords) {
 		if (!fracture) { // no fracture left?
-			return dictionary.processor(foundWords);
+			return this.process(foundWords);
 		} else if (fracture == '.' || fracture == '?' || fracture == '!') { // if the fracture is just a period from the sentence then append it to the found word.
 			var composits = [];
 			for (var i = 0; i < foundWords.length; i++) {
@@ -155,35 +173,61 @@ alltiny.Spellchecker.prototype.lookupExact = function(dictionary, word, fracture
 				foundWord.endOfSentence = true;
 				composits.push(foundWord);
 			}
-			return dictionary.processor(composits);
+			return this.process(composits);
 		} else {
-			var foundFractures = this.lookupExact(dictionary, fracture);
+			var foundFractures = this.findWord(fracture);
 			if (foundFractures) {
 				var composits = [];
 				for (var i = 0; i < foundWords.length; i++) {
 					for (var f = 0; f < foundFractures.length; f++) {
 						composits.push({
 							w: (foundWords[i].w + '|' + foundFractures[f].w).toLowerCase(),
-							type: foundFractures[f].type,
+							type: foundFractures[f].type == 'hyphen' ? foundWords[i].type : foundFractures[f].type,
 							composits: [foundWords[i],foundFractures[f]],
 							endOfSentence: foundFractures[f].endOfSentence == true ? true : undefined
 						});
 					}
 				}
-				return dictionary.processor(composits);
+				return this.process(composits);
 			} else {
-				return this.lookupExact(dictionary, word.substring(0, word.length - 1), word[word.length - 1] + fracture);
+				return this.findWord(word.substring(0, word.length - 1), word[word.length - 1] + fracture);
 			}
 		}
 	} else if (word.length > 1) { // start splitting the word.
 		// define fracture if it is not yet defined.
 		fracture = fracture || '';
-		return this.lookupExact(dictionary, word.substring(0, word.length - 1), word[word.length - 1] + fracture);
+		return this.findWord(word.substring(0, word.length - 1), word[word.length - 1] + fracture);
 	} else {
 		return null; // unknown word.
 	}
 };
 
-alltiny.Spellchecker.prototype.setAssumeStartOfSentence = function(isStart) {
-	this.assumeStartOfSentence = isStart
+/**
+ * This method looks up a word in the dictionary's index.
+*/
+alltiny.Dictionary.prototype.lookupWord = function(word) {
+	if (word === '-') {
+		return [{w:word,type:'hyphen'}];
+	}
+	// check whether it is a date.
+	if (this.options.dateformats) {
+		for (var i = 0; i < this.options.dateformats.length; i++) {
+			if (word.match(new RegExp('^' + this.options.dateformats[i] + '$'))) {
+				return [{w:word,type:'date'}];
+			}
+		}
+	}
+	// check whether it is a number.
+	if (this.options.numberformats) {
+		for (var i = 0; i < this.options.numberformats.length; i++) {
+			if (word.match(new RegExp('^' + this.options.numberformats[i] + '$'))) {
+				return [{w:word,type:'numerical'}];
+			}
+		}
+	}
+	return this.options.words[word.toLowerCase()];
+};
+
+alltiny.Dictionary.prototype.process = function(words) {
+	return this.options.processor(words);
 };

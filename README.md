@@ -10,7 +10,7 @@ Integration in your page is fairly easy:
 
     // load all the distionaries you want to use.
     jQuery.getJSON("dict/alltiny.dict.base.de_de.json", function(dict) {
-        spellchecker.addDictionary(dict);
+        spellchecker.addDictionary(new alltiny.Dictionary(dict));
     });
 
     // let the spellchecker perform a spell check.

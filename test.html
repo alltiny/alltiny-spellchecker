@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>QUnit Example</title>
+	<link rel="stylesheet" href="http://code.jquery.com/qunit/qunit-1.18.0.css">
+	<script type="text/javascript" src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+	<script type="text/javascript" src="http://code.jquery.com/qunit/qunit-1.18.0.js"></script>
+	<script type="text/javascript" src="src/alltiny-spellchecker.js"></script>
+</head>
+<body>
+	<div id="qunit"></div>
+	<div id="qunit-fixture"></div>
+	<script type="text/javascript">
+		// initialize the spellchecker.
+		var spellchecker = new alltiny.Spellchecker({hyphenation : false, highlightKnownWords: false});
+		// load the german dictionary.
+		jQuery.getJSON("dict/alltiny.dict.base.de_de.json", function(dict) {
+			spellchecker.addDictionary(new alltiny.Dictionary(dict));
+		});
+	</script>
+	
+	<script type="text/javascript" src="src/test/js/test.de.js"></script>
+</body>
+</html>

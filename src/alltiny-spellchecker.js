@@ -180,12 +180,20 @@ alltiny.Dictionary.prototype.findWord = function(word, fracture) {
 				var composits = [];
 				for (var i = 0; i < foundWords.length; i++) {
 					for (var f = 0; f < foundFractures.length; f++) {
-						composits.push({
+						var composit = {
 							w: (foundWords[i].w + '|' + foundFractures[f].w).toLowerCase(),
 							type: foundFractures[f].type == 'hyphen' ? foundWords[i].type : foundFractures[f].type,
-							composits: [foundWords[i],foundFractures[f]],
+							composits: [foundWords[i]],
 							endOfSentence: foundFractures[f].endOfSentence == true ? true : undefined
-						});
+						};
+						if (foundFractures[f].composits) {
+							for (var c = 0; c < foundFractures[f].composits.length; c++) {
+								composit.composits.push(foundFractures[f].composits[c]);
+							}
+						} else {
+							composit.composits.push(foundFractures[f]);
+						}
+						composits.push(composit);
 					}
 				}
 				return this.process(composits);

@@ -20,13 +20,10 @@ The spellchecker can use multiple dictionaries at once. You can also build a dic
 For instance if you know already some keywords from the context our user is currently in.
 
     // building a dictionary on the fly
-    var dict = {
-        name: 'Customer Dictionary',
-        words: {}
-    };
-    // 'words' is an index. spellchecker's convention is that the key is always lower case.
-    dict.words[customer.firstName.toLowerCase()] = [{type:'name', w:customer.firstName}];
-    dict.words[customer.lastName.toLowerCase()] = [{type:'name', w:customer.lastName}];
+    var dict = new alltiny.Dictionary({name: 'Customer Dictionary'});
+    // add words to the dictionary.
+    dict.addWord({type: 'name', w: customer.firstName});
+    dict.addWord({type: 'name', w: customer.lastName});
 
 # Dictionaries
 Right now only a German base dictionary exists. But this will change soon.

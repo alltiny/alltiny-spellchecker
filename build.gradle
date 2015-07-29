@@ -2,11 +2,7 @@ import groovy.json.JsonSlurper
 
 description = 'javascript spellchecker'
 
-task verifyDictionary {
-	description = 'verifies the dictionary to be syntactical correct'
-	def jsonSlurper = new JsonSlurper()
-	def dict = jsonSlurper.parse(new File("${projectDir}/dict/alltiny.dict.base.de_de.json"))
-
+def verifyDictionary(dict) {
 	assert dict instanceof Map
 	assert dict.words instanceof Map
 	dict.words.each {
@@ -23,4 +19,14 @@ task verifyDictionary {
 					assert word.type != null : "word '" + word.w + "' is lacking a type defintion"
 			}
 	}
+}
+
+task verifyDictionaryDeDE {
+	description = 'verifies the dictionary to be syntactical correct'
+	verifyDictionary(new JsonSlurper().parse(new File("${projectDir}/dict/alltiny.dict.base.de_de.json")))
+}
+
+task verifyDictionaryEnGB {
+	description = 'verifies the dictionary to be syntactical correct'
+	verifyDictionary(new JsonSlurper().parse(new File("${projectDir}/dict/alltiny.dict.base.en_gb.json")))
 }

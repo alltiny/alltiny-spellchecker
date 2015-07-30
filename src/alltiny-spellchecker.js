@@ -12,6 +12,7 @@ alltiny.Spellchecker = function(options) {
 	this.dictionaries = [];
 	this.fragments = {};
 	this.assumeStartOfSentence = true; // if true the first word in a check is assumed to be the start of a sentence.
+	this.caseInsensitiveForNextWord = false; // if true then for the next upcoming word case-sensitivity is disabled.
 };
 
 /**
@@ -60,6 +61,8 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 	var text = $filter.text();
 	// use the word regex to split text into words.
 	text = text.replace(wordsRegEx, function(word, contents, offset, s) {
+		var caseInsensitiveForNextWord = thisObj.caseInsensitiveForNextWord;
+		thisObj.caseInsensitiveForNextWord = false;
 		var cursorPos = word.indexOf(checkOptions.cursorCharacter);
 		var isCursorAtBeginning = cursorPos == 0;
 		var isCursorAtEnding = cursorPos == word.length - checkOptions.cursorCharacter.length;
@@ -103,7 +106,7 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 			if (variants[v].w.replace(/\|/g,'').toLowerCase() == lowerCaseWord) { // is this variant an exact hit?
 				thisObj.assumeStartOfSentence = variants[v].endOfSentence == true;
 				// highlight the word if option tells so.
-				return (checkOptions.highlighting && checkOptions.highlightCaseWarnings) ? '<span class="spellcheck highlight warn case" data-spellcheck-correction="'+variants[v].w+'">'+word+'</span>' : word;
+				return (checkOptions.highlighting && checkOptions.highlightCaseWarnings && !caseInsensitiveForNextWord) ? '<span class="spellcheck highlight warn case" data-spellcheck-correction="'+variants[v].w+'">'+word+'</span>' : word;
 			}
 		}
 		thisObj.assumeStartOfSentence = false;
@@ -123,6 +126,10 @@ alltiny.Spellchecker.prototype.removeAnyHighlights = function(target) {
 
 alltiny.Spellchecker.prototype.setAssumeStartOfSentence = function(isStart) {
 	this.assumeStartOfSentence = isStart
+};
+
+alltiny.Spellchecker.prototype.setCaseInsensitiveForNextWord = function(isInsensitive) {
+	this.caseInsensitiveForNextWord = isInsensitive;
 };
 
 alltiny.Dictionary = function(customOptions) {

@@ -13,3 +13,8 @@ QUnit.test("test composit of name and noun", function(assert) {
 	var output = spellchecker.check('EU-Kommission');
 	assert.equal(output, 'EU-Kommission', "Should not contain any spellcheck spans." );
 });
+QUnit.test("test composit of abbreviation and adjectiv", function(assert) {
+	// let the spellchecker run.
+	var output = spellchecker.check('IT-gestützte');
+	assert.equal(output, 'IT-gestützte', "Should not contain any spellcheck spans." );
+});

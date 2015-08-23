@@ -18,3 +18,13 @@ QUnit.test("test composit of abbreviation and adjectiv", function(assert) {
 	var output = spellchecker.check('IT-gestützte');
 	assert.equal(output, 'IT-gestützte', "Should not contain any spellcheck spans." );
 });
+QUnit.test("test finding the correct compositum", function(assert) {
+	// let the spellchecker run.
+	var output = spellchecker.check('Trampolinspringen');
+	assert.equal(output, 'Trampolinspringen', "Should not contain any spellcheck spans." );
+});
+QUnit.test("test finding the correct compositum", function(assert) {
+	// let the spellchecker run.
+	var output = spellchecker.check('Fertigteilen');
+	assert.equal(output, 'Fertigteilen', "Should not contain any spellcheck spans." );
+});

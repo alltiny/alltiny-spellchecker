@@ -147,10 +147,12 @@ alltiny.Dictionary = function(customOptions) {
 		fragments    : [],
 		processor    : function(words){ return words; }
 	}, customOptions);
+	this.usedCharacters = [];
+	this.usedCharactersFragment = '';
 };
 
 alltiny.Dictionary.prototype.getFragments = function() {
-	return this.options.fragments;
+	return this.options.fragments.concat(this.usedCharactersFragment);
 };
 
 /**
@@ -158,11 +160,37 @@ alltiny.Dictionary.prototype.getFragments = function() {
  */
 alltiny.Dictionary.prototype.addWord = function(word) {
 	if (word && word.w && word.w.length > 0 && word.type) {
+		// updated the used characters
+		this.updateUsedCharacters(word.w);
+		// add the given word to the index.
 		var lowerCaseWord = word.w.toLowerCase();
 		if (!this.options.words[lowerCaseWord]) {
 			this.options.words[lowerCaseWord] = [];
 		}
 		this.options.words[lowerCaseWord].push(word);
+	}
+};
+
+alltiny.Dictionary.prototype.updateUsedCharacters = function(word) {
+	var hasChanged = false;
+	for (var i = 0; i < word.length; i++) {
+		var character = word.charAt(i);
+		if (character != ' ' && this.usedCharacters.indexOf(character) < 0) {
+			this.usedCharacters.push(character);
+			hasChanged = true;
+		}
+	}
+	if (hasChanged) { // update the fragments string as well.
+		this.usedCharacters.sort();
+		this.usedCharactersFragment = '';
+		for (var c = 0; c < this.usedCharacters.length; c++) {
+			var character = this.usedCharacters[c];
+			if (['.','-','+','!','?','[',']','{','}','(',')','\\'].indexOf(character) >= 0) {
+				this.usedCharactersFragment += '\\' + character; // escape the character in RegEx-style.
+			} else {
+				this.usedCharactersFragment += character;
+			}
+		}
 	}
 };
 

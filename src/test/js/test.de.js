@@ -28,3 +28,8 @@ QUnit.test("test finding the correct compositum", function(assert) {
 	var output = spellchecker.check('Fertigteilen');
 	assert.equal(output, 'Fertigteilen', "Should not contain any spellcheck spans." );
 });
+QUnit.test("test no soft-hyphen are introduced around regular hyphen", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	var output = spellchecker.check('IT-Kenntnisse', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, 'IT-Kennt|nis|se', "Should not contain any spellcheck spans." );
+});

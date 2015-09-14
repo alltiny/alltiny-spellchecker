@@ -218,7 +218,7 @@ alltiny.Dictionary.prototype.findWord = function(word, fracture) {
 						// only insert a split character if word or fracture do not have a hyphen next to it.
 						var splitCharacter = (foundWords[i].w[foundWords[i].w.length - 1] == '-' || foundFractures[f].w[0] == '-') ? '' : '|';
 						var composit = {
-							w: (foundWords[i].w + splitCharacter + foundFractures[f].w).toLowerCase(),
+							w: (foundWords[i].w + splitCharacter + foundFractures[f].w),
 							type: foundFractures[f].type == 'hyphen' ? foundWords[i].type : foundFractures[f].type,
 							composits: [foundWords[i]],
 							endOfSentence: foundFractures[f].endOfSentence == true ? true : undefined

@@ -18,6 +18,16 @@ QUnit.test("test composit of abbreviation and adjectiv", function(assert) {
 	var output = spellchecker.check('IT-gestützte');
 	assert.equal(output, 'IT-gestützte', "Should not contain any spellcheck spans." );
 });
+QUnit.test("test composit of noun and adjectiv", function(assert) {
+	// let the spellchecker run.
+	var output = spellchecker.check('menschenunwürdig');
+	assert.equal(output, 'menschenunwürdig', "Should not contain any spellcheck spans." );
+});
+QUnit.test("test composit of noun and adjectiv with hyphen", function(assert) {
+	// let the spellchecker run.
+	var output = spellchecker.check('Menschen-unwürdig');
+	assert.equal(output, 'Menschen-unwürdig', "Should not contain any spellcheck spans." );
+});
 QUnit.test("test finding the correct compositum", function(assert) {
 	// let the spellchecker run.
 	var output = spellchecker.check('Trampolinspringen');

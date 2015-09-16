@@ -269,7 +269,9 @@ alltiny.Dictionary.prototype.lookupWord = function(word) {
 			}
 		}
 	}
-	return this.options.words[word.toLowerCase()];
+	// if undefined in the dictionary, this call can return the prototype functions of arrays (filter, concat, join, ...).
+	var words = this.options.words[word.toLowerCase()];
+	return typeof words === 'function' ? null : words;
 };
 
 alltiny.Dictionary.prototype.process = function(words) {

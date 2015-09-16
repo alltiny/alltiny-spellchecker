@@ -133,11 +133,6 @@ alltiny.Spellchecker.prototype.setCaseInsensitiveForNextWord = function(isInsens
 };
 
 alltiny.Dictionary = function(customOptions) {
-	if (customOptions.processor && customOptions.processor.length > 0) {
-		customOptions.processor = new Function('variants', customOptions.processor);
-	} else {
-		customOptions.processor = new Function('variants', 'return variants;');
-	}
 	this.options = jQuery.extend(true, {
 		name         : '',
 		language     : '',
@@ -145,8 +140,12 @@ alltiny.Dictionary = function(customOptions) {
 		numberformats: [],
 		words        : [],
 		fragments    : [],
-		processor    : function(words){ return words; }
+		processor    : function(variants){ return variants; }
 	}, customOptions);
+	// check whether process was given as string; interpret it as function if so.
+	if (typeof this.options.processor === 'string') {
+		this.options.processor = new Function('variants', this.options.processor);
+	}
 	this.usedCharacters = [];
 	this.usedCharactersFragment = '';
 };

@@ -1,0 +1,25 @@
+{
+"name": "Trademarks and Tradenames",
+"syntax": [1,0],
+"dateformats": ["[0-9]{1,2}\\.[0-9]{1,2}\\.[0-9]{2,4}"],
+"fragments": ["a-z","A-Z","0-9"],
+"processor": "return variants;",
+"words":{
+"adobe":[{"w":"Adobe","type":"name"}],
+"apple":[{"w":"Apple","type":"name"}],
+"audi":[{"w":"Audi","type":"name"}],
+"bmw":[{"w":"BMW","type":"name"}],
+"excel":[{"w":"Excel","type":"name"}],
+"hp":[{"w":"HP","type":"name"}],
+"ipad":[{"w":"iPad","type":"name"}],
+"iphone":[{"w":"iPhone","type":"name"}],
+"ipod":[{"w":"iPod","type":"name"}],
+"microsoft":[{"w":"Microsoft","type":"name"}],
+"photoshop":[{"w":"Photoshop","type":"name"}],
+"powerpoint":[{"w":"PowerPoint","type":"name"}],
+"sap":[{"w":"SAP","type":"name"}],
+"vw":[{"w":"VW","type":"name"}],
+"windows":[{"w":"Windows","type":"name"}],
+"word":[{"w":"Word","type":"name"}]
+}
+}

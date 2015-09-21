@@ -2,7 +2,7 @@
 "name": "Trademarks and Tradenames",
 "syntax": [1,0],
 "dateformats": ["[0-9]{1,2}\\.[0-9]{1,2}\\.[0-9]{2,4}"],
-"fragments": ["a-z","A-Z","0-9"],
+"fragments": ["a-z","A-Z","0-9","ä"],
 "processor": "return variants;",
 "words":{
 "a320":[{"w":"A320","type":"name"}],
@@ -21,6 +21,8 @@
 "facebook":[{"w":"Facebook","type":"name"}],
 "flash":[{"w":"Flash","type":"name"}],
 "freehand":[{"w":"Freehand","type":"name"}],
+"google":[{"w":"Google","type":"name"}],
+"hofbräu":[{"w":"Hofbräu","type":"name"}],
 "heidenhain":[{"w":"Heidenhain","type":"name"}],
 "hp":[{"w":"HP","type":"name"}],
 "iaa":[{"w":"IAA","type":"abbreviation","abreviation":"Internationale Automobilausstellung"}],
@@ -48,6 +50,8 @@
 "v7":[{"w":"V7","type":"name"}],
 "vw":[{"w":"VW","type":"name"}],
 "windows":[{"w":"Windows","type":"name"}],
-"word":[{"w":"Word","type":"name"}]
+"word":[{"w":"Word","type":"name"}],
+"yahoo":[{"w":"Yahoo","type":"name"}],
+"youtube":[{"w":"Youtube","type":"name"}]
 }
 }

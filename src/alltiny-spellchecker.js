@@ -47,20 +47,14 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 	var thisObj = this;
 	var checkOptions = jQuery.extend(true, jQuery.extend(true, {}, this.options), options); // deep copy to avoid overrides. uses this.options as defaults.
 
-	// build the regular expression to search words in the given text.
-	var groups = '\\.\\?\\!\\-\\u00ad' + checkOptions.cursorCharacter;
-	for (var fragment in this.fragments) {
-		groups += fragment;
-	}
-	var wordsRegEx = new RegExp('[' + groups + ']+', 'g');
-
 	// remove previous spellcheck-spans.
 	var $filter = jQuery('<div></div>').text(text);
 	this.removeAnyHighlights($filter);
 	// get the targets text.
 	var text = $filter.text();
+
 	// use the word regex to split text into words.
-	text = text.replace(wordsRegEx, function(word, contents, offset, s) {
+	text = text.replace(/[^\s]+/ig, function(word, contents, offset, s) {
 		var caseInsensitiveForNextWord = thisObj.caseInsensitiveForNextWord;
 		thisObj.caseInsensitiveForNextWord = false;
 		var cursorPos = word.indexOf(checkOptions.cursorCharacter);
@@ -68,21 +62,9 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 		var isCursorAtEnding = cursorPos == word.length - checkOptions.cursorCharacter.length;
 		var isCursorInMiddle = cursorPos >= 0 && !isCursorAtBeginning && !isCursorAtEnding;
 		var cleanWord = word.replace(checkOptions.cursorCharacter, '').replace(/\u00ad/g,''); // remove all soft-hyphens from the word.
-		var variants = [];
-		for (var i = 0; i < thisObj.dictionaries.length; i++) {
-			var foundWords = thisObj.dictionaries[i].findWord(cleanWord);
-			if (foundWords != null) {
-				for (var f = 0; f < foundWords.length; f++) {
-					if (foundWords[f].w) {
-						var foundWord = jQuery.extend(true, {}, foundWords[f]);
-						if (thisObj.assumeStartOfSentence) {
-							foundWord.w = foundWord.w[0].toUpperCase() + foundWord.w.substring(1, foundWord.w.length);
-						}
-						variants.push(foundWord);
-					}
-				}
-			}
-		}
+		// ask the dictionaries
+		var variants = thisObj.askDictionaries(cleanWord);
+
 		if (variants.length == 0) {
 			var lastChar = cleanWord.length > 0 ? cleanWord[cleanWord.length - 1] : '';
 			thisObj.assumeStartOfSentence = lastChar == '.' || lastChar == '!' || lastChar == '?';
@@ -90,11 +72,12 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 		}
 		// check whether one of the variants is an exact hit.
 		for (var v = 0; v < variants.length; v++) {
-			if (variants[v].w.replace(/\|/g,'') == cleanWord) { // is this variant an exact hit?
+			var foundWord = thisObj.assumeStartOfSentence ? variants[v].w[0].toUpperCase() + variants[v].w.substring(1) : variants[v].w;
+			if (foundWord.replace(/\|/g,'') == cleanWord) { // is this variant an exact hit?
 				thisObj.assumeStartOfSentence = variants[v].endOfSentence == true;
 				// apply the word from the dictionary, to apply hyphenation.
 				var content = (checkOptions.hyphenation && !isCursorInMiddle)
-					? ((isCursorAtBeginning ? checkOptions.cursorCharacter : '') + variants[v].w.replace(/\|/g,'\u00ad') + (isCursorAtEnding ? checkOptions.cursorCharacter : ''))
+					? ((isCursorAtBeginning ? checkOptions.cursorCharacter : '') + foundWord.replace(/\|/g,'\u00ad') + (isCursorAtEnding ? checkOptions.cursorCharacter : ''))
 					: word;
 				// highlight the word if option tells so.
 				return (checkOptions.highlighting && checkOptions.highlightKnownWords) ? '<span class="spellcheck highlight ok">'+content+'</span>' : content;
@@ -113,6 +96,21 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 		return (checkOptions.highlighting && checkOptions.highlightMismatches) ? '<span class="spellcheck highlight warn mismatch">'+word+'</span>' : word;
 	});
 	return text;
+};
+
+alltiny.Spellchecker.prototype.askDictionaries = function(word) {
+	var variants = [];
+	for (var i = 0; i < this.dictionaries.length; i++) {
+		var foundWords = this.dictionaries[i].findWord(word);
+		if (foundWords != null) {
+			for (var f = 0; f < foundWords.length; f++) {
+				if (foundWords[f].w) {
+					variants.push(jQuery.extend(true, {}, foundWords[f])); // create a copy of that word.
+				}
+			}
+		}
+	}
+	return variants;
 };
 
 /**
@@ -194,55 +192,43 @@ alltiny.Dictionary.prototype.updateUsedCharacters = function(word) {
 };
 
 /* this method will return null if the word is unknown. */
-alltiny.Dictionary.prototype.findWord = function(word, fracture) {
+alltiny.Dictionary.prototype.findWord = function(word) {
+	if (word == '.' || word == '?' || word == '!') { // if the word is just a period from the sentence then append it to the found word.
+		return [{w:word, type:'interpunction', endOfSentence:true}];
+	} else if (word == ':' || word == ',' || word == ';') {
+		return [{w:word, type:'interpunction'}];
+	} else if (word == '-') {
+		return [{w:word, type:'hyphen'}];
+	} else if (word == '(' || word == ')' || word == '{' || word == '}' || word == '[' || word == ']' || word == '<' || word == '>' || word == '"') {
+		return [{w:word, type:'structure', endOfSentence:true}];
+	}
 	var foundWords = this.lookupWord(word);
 	if (foundWords) {
-		if (!fracture) { // no fracture left?
-			return this.process(foundWords);
-		} else if (fracture == '.' || fracture == '?' || fracture == '!') { // if the fracture is just a period from the sentence then append it to the found word.
-			var composits = [];
-			for (var i = 0; i < foundWords.length; i++) {
-				var foundWord = jQuery.extend(true, {}, foundWords[i]); // deep-copy the word to avoid that the following operation alters the dictionary entry.
-				foundWord.w = foundWord.w + fracture;
-				foundWord.endOfSentence = true;
-				composits.push(foundWord);
-			}
-			return this.process(composits);
-		} else {
-			var foundFractures = this.findWord(fracture);
-			if (foundFractures) {
-				var composits = [];
-				for (var i = 0; i < foundWords.length; i++) {
-					for (var f = 0; f < foundFractures.length; f++) {
-						// only insert a split character if word or fracture do not have a hyphen next to it.
-						var splitCharacter = (foundWords[i].w[foundWords[i].w.length - 1] == '-' || foundFractures[f].w[0] == '-') ? '' : '|';
-						var composit = {
-							w: (foundWords[i].w + splitCharacter + foundFractures[f].w),
-							type: foundFractures[f].type == 'hyphen' ? foundWords[i].type : foundFractures[f].type,
-							composits: [foundWords[i]],
-							endOfSentence: foundFractures[f].endOfSentence == true ? true : undefined
-						};
-						if (foundFractures[f].composits) {
-							for (var c = 0; c < foundFractures[f].composits.length; c++) {
-								composit.composits.push(foundFractures[f].composits[c]);
-							}
-						} else {
-							composit.composits.push(foundFractures[f]);
+		return this.process(foundWords);
+	} else {
+		var variants = [];
+		for (var i = word.length - 1; i > 0; i--) {
+			var leading = this.lookupWord(word.substring(0, i));
+			if (leading && leading.length > 0) {
+				var trailing = this.findWord(word.substring(i));
+				if (trailing && trailing.length > 0) {
+					for (var l = 0; l < leading.length; l++) {
+						for (var t = 0; t < trailing.length; t++) {
+							// only insert a split character if leading or trailing do not have a hyphen next to it.
+							var splitCharacter = (leading[l].w[leading[l].w.length - 1] == '-' || trailing[t].w[0] == '-') ? '' : '|';
+							// create a composit of leading and trailing.
+							variants.push({
+								w: leading[l].w + splitCharacter + trailing[t].w,
+								type: trailing[t].type == 'hyphen' ? leading[l].type : trailing[t].type,
+								composits: [].concat(leading[l].composits ? leading[l].composits : leading[l]).concat(trailing[t].composits ? trailing[t].composits : trailing[t]),
+								endOfSentence: trailing[t].endOfSentence == true ? true : undefined
+							});
 						}
-						composits.push(composit);
 					}
 				}
-				return this.process(composits);
-			} else {
-				return this.findWord(word.substring(0, word.length - 1), word[word.length - 1] + fracture);
 			}
 		}
-	} else if (word.length > 1) { // start splitting the word.
-		// define fracture if it is not yet defined.
-		fracture = fracture || '';
-		return this.findWord(word.substring(0, word.length - 1), word[word.length - 1] + fracture);
-	} else {
-		return null; // unknown word.
+		return this.process(variants);
 	}
 };
 

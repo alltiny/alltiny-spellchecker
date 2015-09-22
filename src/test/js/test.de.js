@@ -46,5 +46,10 @@ QUnit.test("test no soft-hyphen are introduced around regular hyphen", function(
 QUnit.test("test no soft-hyphen are introduced around regular hyphen", function(assert) {
 	// let the spellchecker run. replace soft-hyphen back to pipe characters.
 	var output = spellchecker.check('Lösungsvorschläge', {hyphenation: true}).replace(/\u00ad/g, '|');
-	assert.equal(output, 'Lö|sungs|vor|schlä|ge', "Soft-hyphen hould not contain any spellcheck spans." );
+	assert.equal(output, 'Lö|sungs|vor|schlä|ge', "Soft-hyphen should be set correctly." );
+});
+QUnit.test("test construct is found correctly", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	var output = spellchecker.check('Texte/Berichte', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, 'Tex|te/Be|rich|te', "Soft-hyphen should not contain any spellcheck spans. Soft-hyphen should be placed correctly." );
 });

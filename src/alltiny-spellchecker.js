@@ -193,15 +193,6 @@ alltiny.Dictionary.prototype.updateUsedCharacters = function(word) {
 
 /* this method will return null if the word is unknown. */
 alltiny.Dictionary.prototype.findWord = function(word) {
-	if (word == '.' || word == '?' || word == '!') { // if the word is just a period from the sentence then append it to the found word.
-		return [{w:word, type:'interpunction', endOfSentence:true}];
-	} else if (word == ':' || word == ',' || word == ';') {
-		return [{w:word, type:'interpunction'}];
-	} else if (word == '-') {
-		return [{w:word, type:'hyphen'}];
-	} else if (word == '(' || word == ')' || word == '{' || word == '}' || word == '[' || word == ']' || word == '<' || word == '>' || word == '"') {
-		return [{w:word, type:'structure', endOfSentence:true}];
-	}
 	var foundWords = this.lookupWord(word);
 	if (foundWords) {
 		return this.process(foundWords);
@@ -236,8 +227,14 @@ alltiny.Dictionary.prototype.findWord = function(word) {
  * This method looks up a word in the dictionary's index.
 */
 alltiny.Dictionary.prototype.lookupWord = function(word) {
-	if (word === '-') {
-		return [{w:word,type:'hyphen'}];
+	if (word == '.' || word == '?' || word == '!') { // if the word is just a period from the sentence then append it to the found word.
+		return [{w:word, type:'interpunction', endOfSentence:true}];
+	} else if (word == ':' || word == ',' || word == ';') {
+		return [{w:word, type:'interpunction'}];
+	} else if (word == '-') {
+		return [{w:word, type:'hyphen'}];
+	} else if (word == '(' || word == ')' || word == '{' || word == '}' || word == '[' || word == ']' || word == '<' || word == '>' || word == '"' || word == '/' || word == '\\') {
+		return [{w:word, type:'structure', endOfSentence:true}];
 	}
 	// check whether it is a date.
 	if (this.options.dateformats) {

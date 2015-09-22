@@ -234,7 +234,7 @@ alltiny.Dictionary.prototype.lookupWord = function(word) {
 	} else if (word == '-') {
 		return [{w:word, type:'hyphen'}];
 	} else if (word == '(' || word == ')' || word == '{' || word == '}' || word == '[' || word == ']' || word == '<' || word == '>' || word == '"' || word == '/' || word == '\\') {
-		return [{w:word, type:'structure', endOfSentence:true}];
+		return [{w:word, type:'structure'}];
 	}
 	// check whether it is a date.
 	if (this.options.dateformats) {

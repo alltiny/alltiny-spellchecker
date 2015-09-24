@@ -37,6 +37,9 @@ jQuery.getJSON("dict/alltiny.dict.base.de_de.json", function(dict) {
 jQuery.getJSON("dict/alltiny.dict.base.en_gb.json", function(dict) {
 	spellchecker.addDictionary(new alltiny.Dictionary(dict));
 });
+jQuery.getJSON("dict/alltiny.dict.tradenames.json", function(dict) {
+	spellchecker.addDictionary(new alltiny.Dictionary(dict));
+});
 var check = function(target) {
 	jQuery(target).html(spellchecker.check(jQuery(target).text()));
 	// create reports.

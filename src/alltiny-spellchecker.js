@@ -10,7 +10,6 @@ alltiny.Spellchecker = function(options) {
 		cursorCharacter : '\u2038'
 	}, options);
 	this.dictionaries = [];
-	this.fragments = {};
 	this.assumeStartOfSentence = true; // if true the first word in a check is assumed to be the start of a sentence.
 	this.caseInsensitiveForNextWord = false; // if true then for the next upcoming word case-sensitivity is disabled.
 };
@@ -20,18 +19,12 @@ alltiny.Spellchecker = function(options) {
  * A dictionary looks like this:
  * {
  *   name: 'trademarks'
- *   fragments: ['a-z','A-Z','0-9']
  *   words:
  * }
  */
 alltiny.Spellchecker.prototype.addDictionary = function(dictionary) {
-	this.dictionaries.push(dictionary);
 	if (dictionary) {
-		var fragments = dictionary.getFragments();
-		for (var i = 0; i < fragments.length; i++) {
-			var fragment = fragments[i];
-			this.fragments[fragment] = fragment;
-		}
+		this.dictionaries.push(dictionary);
 	}
 };
 
@@ -137,19 +130,12 @@ alltiny.Dictionary = function(customOptions) {
 		dateformats  : [],
 		numberformats: [],
 		words        : [],
-		fragments    : [],
 		processor    : function(variants){ return variants; }
 	}, customOptions);
 	// check whether process was given as string; interpret it as function if so.
 	if (typeof this.options.processor === 'string') {
 		this.options.processor = new Function('variants', this.options.processor);
 	}
-	this.usedCharacters = [];
-	this.usedCharactersFragment = '';
-};
-
-alltiny.Dictionary.prototype.getFragments = function() {
-	return this.options.fragments.concat(this.usedCharactersFragment);
 };
 
 /**
@@ -157,37 +143,12 @@ alltiny.Dictionary.prototype.getFragments = function() {
  */
 alltiny.Dictionary.prototype.addWord = function(word) {
 	if (word && word.w && word.w.length > 0 && word.type) {
-		// updated the used characters
-		this.updateUsedCharacters(word.w);
 		// add the given word to the index.
 		var lowerCaseWord = word.w.toLowerCase();
 		if (!this.options.words[lowerCaseWord]) {
 			this.options.words[lowerCaseWord] = [];
 		}
 		this.options.words[lowerCaseWord].push(word);
-	}
-};
-
-alltiny.Dictionary.prototype.updateUsedCharacters = function(word) {
-	var hasChanged = false;
-	for (var i = 0; i < word.length; i++) {
-		var character = word.charAt(i);
-		if (character != ' ' && this.usedCharacters.indexOf(character) < 0) {
-			this.usedCharacters.push(character);
-			hasChanged = true;
-		}
-	}
-	if (hasChanged) { // update the fragments string as well.
-		this.usedCharacters.sort();
-		this.usedCharactersFragment = '';
-		for (var c = 0; c < this.usedCharacters.length; c++) {
-			var character = this.usedCharacters[c];
-			if (['.','-','+','!','?','[',']','{','}','(',')','\\'].indexOf(character) >= 0) {
-				this.usedCharactersFragment += '\\' + character; // escape the character in RegEx-style.
-			} else {
-				this.usedCharactersFragment += character;
-			}
-		}
 	}
 };
 

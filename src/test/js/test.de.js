@@ -53,3 +53,8 @@ QUnit.test("test construct is found correctly", function(assert) {
 	var output = spellchecker.check('Texte/Berichte', {hyphenation: true}).replace(/\u00ad/g, '|');
 	assert.equal(output, 'Tex|te/Be|rich|te', "Soft-hyphen should not contain any spellcheck spans. Soft-hyphen should be placed correctly." );
 });
+QUnit.test("test composit with special characters", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	var output = spellchecker.check('"Natur"');
+	assert.equal(output, '"Natur"', "Output should not contain any spellcheck spans." );
+});

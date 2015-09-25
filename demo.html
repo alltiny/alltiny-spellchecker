@@ -2,6 +2,9 @@
 <head>
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 <script type="text/javascript" src="src/alltiny-spellchecker.js"></script>
+<script type="text/javascript" src="src/rangy-core.js"></script>
+<script type="text/javascript" src="src/rangy-selectionsaverestore.js"></script>
+<script type="text/javascript" src="src/alltiny-editor.js"></script>
 <style type="text/css">
 body { background-color: #506070; color: #efefef; font-family: tahoma; width: 66%; margin: auto; }
 h1 { text-align: center; text-shadow: 0 0 7px #303030; }
@@ -40,33 +43,32 @@ jQuery.getJSON("dict/alltiny.dict.base.en_gb.json", function(dict) {
 jQuery.getJSON("dict/alltiny.dict.tradenames.json", function(dict) {
 	spellchecker.addDictionary(new alltiny.Dictionary(dict));
 });
-var check = function(target) {
-	jQuery(target).html(spellchecker.check(jQuery(target).text()));
-	// create reports.
-	var unknownWords = [];
-	// calculate some statistics.
-	var countKnown = jQuery(target).find('span.spellcheck.highlight.ok').length;
-	var countUnknown = jQuery(target).find('span.spellcheck.highlight.unknown').length;
-	var countWarning = jQuery(target).find('span.spellcheck.highlight.warn').length;
-	var countSum = countKnown + countUnknown + countWarning;
-	// render a table as diagram.
-	var $tbody = jQuery('<tbody></tbody>');
-	jQuery('div.statistics').empty().append(jQuery('<table cellspacing="0"></table>').append($tbody));
-	$tbody.append(jQuery('<td class="ok"></td>').text('OK (' + (100 * countKnown / countSum).toFixed(2) + '%)').attr('title','OK - Words found in the dictionary assuming they are correct').css({'width': ((100 * countKnown / countSum) + '%')}));
-	$tbody.append(jQuery('<td class="warn"></td>').attr('title','Warning - Words found but not matching the dictionary entry').css({'width': ((100 * countWarning / countSum) + '%')}));
-	$tbody.append(jQuery('<td class="error"></td>').attr('title','Unknown - Words could not be found in dictionary').css({'width': 100 * countUnknown / countSum + '%'}));
-	// write donw all unknown word into a separate div.
-	jQuery(target).find('span.error.unknown').each(function(index, span) {
-		var word = jQuery(span).text();
-		if (unknownWords.indexOf(word) < 0) {
-			unknownWords.push(word);
-		}
-	});
-	unknownWords = unknownWords.sort();
-	jQuery('div.report').empty().text(unknownWords.join(' '));
-};
-jQuery('#content').keyup(function(e) {
-	check(e.target);
+var editor = new alltiny.Editor(jQuery('#content'), {
+	spellchecker: spellchecker,
+	afterCheck  : function(target) {
+		// create reports.
+		var unknownWords = [];
+		// calculate some statistics.
+		var countKnown = jQuery(target).find('span.spellcheck.highlight.ok').length;
+		var countUnknown = jQuery(target).find('span.spellcheck.highlight.unknown').length;
+		var countWarning = jQuery(target).find('span.spellcheck.highlight.warn').length;
+		var countSum = countKnown + countUnknown + countWarning;
+		// render a table as diagram.
+		var $tbody = jQuery('<tbody></tbody>');
+		jQuery('div.statistics').empty().append(jQuery('<table cellspacing="0"></table>').append($tbody));
+		$tbody.append(jQuery('<td class="ok"></td>').text('OK (' + (100 * countKnown / countSum).toFixed(2) + '%)').attr('title','OK - Words found in the dictionary assuming they are correct').css({'width': ((100 * countKnown / countSum) + '%')}));
+		$tbody.append(jQuery('<td class="warn"></td>').attr('title','Warning - Words found but not matching the dictionary entry').css({'width': ((100 * countWarning / countSum) + '%')}));
+		$tbody.append(jQuery('<td class="error"></td>').attr('title','Unknown - Words could not be found in dictionary').css({'width': 100 * countUnknown / countSum + '%'}));
+		// write donw all unknown word into a separate div.
+		jQuery(target).find('span.error.unknown').each(function(index, span) {
+			var word = jQuery(span).text();
+			if (unknownWords.indexOf(word) < 0) {
+				unknownWords.push(word);
+			}
+		});
+		unknownWords = unknownWords.sort();
+		jQuery('div.report').empty().text(unknownWords.join(' '));
+	}
 });
 </script>
 </body>

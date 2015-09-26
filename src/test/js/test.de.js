@@ -58,3 +58,8 @@ QUnit.test("test composit with special characters", function(assert) {
 	var output = spellchecker.check('"Natur"');
 	assert.equal(output, '"Natur"', "Output should not contain any spellcheck spans." );
 });
+QUnit.test("test multi-dictionary-composit", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	var output = spellchecker.check('IOC-Präsident');
+	assert.equal(output, 'IOC-Präsident', "Output should not contain any spellcheck spans." );
+});

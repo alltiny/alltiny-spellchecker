@@ -18,6 +18,10 @@
 		jQuery.getJSON("dict/alltiny.dict.base.de_de.json", function(dict) {
 			spellchecker.addDictionary(new alltiny.Dictionary(dict));
 		});
+		// load the tradenames dictionary.
+		jQuery.getJSON("dict/alltiny.dict.tradenames.json", function(dict) {
+			spellchecker.addDictionary(new alltiny.Dictionary(dict));
+		});
 	</script>
 	
 	<script type="text/javascript" src="src/test/js/test.de.js"></script>

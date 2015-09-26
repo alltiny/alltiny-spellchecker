@@ -57,6 +57,8 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 		var cleanWord = word.replace(checkOptions.cursorCharacter, '').replace(/\u00ad/g,''); // remove all soft-hyphens from the word.
 		// ask the dictionaries
 		var variants = thisObj.askDictionaries(cleanWord);
+		// check for composits of words out of multiple dictionarys (like language and tradenames)
+		variants = variants.concat(thisObj.askCrossDictionaries(cleanWord));
 
 		if (variants.length == 0) {
 			var lastChar = cleanWord.length > 0 ? cleanWord[cleanWord.length - 1] : '';
@@ -99,6 +101,33 @@ alltiny.Spellchecker.prototype.askDictionaries = function(word) {
 			for (var f = 0; f < foundWords.length; f++) {
 				if (foundWords[f].w) {
 					variants.push(jQuery.extend(true, {}, foundWords[f])); // create a copy of that word.
+				}
+			}
+		}
+	}
+	return variants;
+};
+
+alltiny.Spellchecker.prototype.askCrossDictionaries = function(word) {
+	var variants = [];
+	var i = word.indexOf('-');
+	if (i < 0) {
+		return this.askDictionaries(word);
+	} else {
+		var leading = this.askDictionaries(word.substring(0, i + 1));
+		if (leading && leading.length > 0) {
+			var trailing = this.askCrossDictionaries(word.substring(i + 1));
+			if (trailing && trailing.length > 0) {
+				for (var l = 0; l < leading.length; l++) {
+					for (var t = 0; t < trailing.length; t++) {
+						// create a composit of leading and trailing.
+						variants.push({
+							w: leading[l].w + trailing[t].w,
+							type: trailing[t].type == 'hyphen' ? leading[l].type : trailing[t].type,
+							composits: [].concat(leading[l].composits ? leading[l].composits : leading[l]).concat(trailing[t].composits ? trailing[t].composits : trailing[t]),
+							endOfSentence: trailing[t].endOfSentence == true ? true : undefined
+						});
+					}
 				}
 			}
 		}

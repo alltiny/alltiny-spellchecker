@@ -50,11 +50,21 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 	text = text.replace(/[^\s]+/ig, function(word, contents, offset, s) {
 		var caseInsensitiveForNextWord = thisObj.caseInsensitiveForNextWord;
 		thisObj.caseInsensitiveForNextWord = false;
-		var cursorPos = word.indexOf(checkOptions.cursorCharacter);
-		var isCursorAtBeginning = cursorPos == 0;
-		var isCursorAtEnding = cursorPos == word.length - checkOptions.cursorCharacter.length;
-		var isCursorInMiddle = cursorPos >= 0 && !isCursorAtBeginning && !isCursorAtEnding;
-		var cleanWord = word.replace(checkOptions.cursorCharacter, '').replace(/\u00ad/g,''); // remove all soft-hyphens from the word.
+		var cursorPos = thisObj.getCursorPositions(word, checkOptions.cursorCharacter);
+		var isCursorAtBeginning = false;
+		var isCursorAtEnding = false;
+		var isCursorInMiddle = false;
+		var lastPossiblePos = word.length - checkOptions.cursorCharacter.length;
+		for (var i = 0; i < cursorPos.length; i++) {
+			if (i == 0 && cursorPos[i] == 0) {
+				isCursorAtBeginning = true;
+			} else if (i == cursorPos.length - 1 && cursorPos[i] == lastPossiblePos) {
+				isCursorAtEnding = true;
+			} else {
+				isCursorInMiddle = true
+			}
+		}
+		var cleanWord = word.replace(new RegExp(checkOptions.cursorCharacter, 'g'), '').replace(/\u00ad/g,''); // remove all soft-hyphens from the word.
 		// ask the dictionaries
 		var variants = thisObj.askDictionaries(cleanWord);
 		// check for composits of words out of multiple dictionarys (like language and tradenames)
@@ -63,7 +73,7 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 		if (variants.length == 0) {
 			var lastChar = cleanWord.length > 0 ? cleanWord[cleanWord.length - 1] : '';
 			thisObj.assumeStartOfSentence = lastChar == '.' || lastChar == '!' || lastChar == '?';
-			return (checkOptions.highlighting && checkOptions.highlightUnknownWords) ? '<span class="spellcheck highlight error unknown">'+word+'</span>' : word;
+			return (checkOptions.highlighting && checkOptions.highlightUnknownWords) ? '<span class="spellcheck highlight error unknown">'+alltiny.encodeAsHTML(word)+'</span>' : word;
 		}
 		// check whether one of the variants is an exact hit.
 		for (var v = 0; v < variants.length; v++) {
@@ -75,7 +85,7 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 					? ((isCursorAtBeginning ? checkOptions.cursorCharacter : '') + foundWord.replace(/\|/g,'\u00ad') + (isCursorAtEnding ? checkOptions.cursorCharacter : ''))
 					: word;
 				// highlight the word if option tells so.
-				return (checkOptions.highlighting && checkOptions.highlightKnownWords) ? '<span class="spellcheck highlight ok">'+content+'</span>' : content;
+				return (checkOptions.highlighting && checkOptions.highlightKnownWords) ? '<span class="spellcheck highlight ok">'+alltiny.encodeAsHTML(content)+'</span>' : content;
 			}
 		}
 		// if this point is reached then none of the found variants did match exactly. Do a case-insensitive check.
@@ -84,13 +94,26 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 			if (variants[v].w.replace(/\|/g,'').toLowerCase() == lowerCaseWord) { // is this variant an exact hit?
 				thisObj.assumeStartOfSentence = variants[v].endOfSentence == true;
 				// highlight the word if option tells so.
-				return (checkOptions.highlighting && checkOptions.highlightCaseWarnings && !caseInsensitiveForNextWord) ? '<span class="spellcheck highlight warn case" data-spellcheck-correction="'+variants[v].w+'">'+word+'</span>' : word;
+				return (checkOptions.highlighting && checkOptions.highlightCaseWarnings && !caseInsensitiveForNextWord) ? '<span class="spellcheck highlight warn case" data-spellcheck-correction="'+variants[v].w+'">'+alltiny.encodeAsHTML(word)+'</span>' : word;
 			}
 		}
 		thisObj.assumeStartOfSentence = false;
-		return (checkOptions.highlighting && checkOptions.highlightMismatches) ? '<span class="spellcheck highlight warn mismatch">'+word+'</span>' : word;
+		return (checkOptions.highlighting && checkOptions.highlightMismatches) ? '<span class="spellcheck highlight warn mismatch">'+alltiny.encodeAsHTML(word)+'</span>' : word;
 	});
 	return text;
+};
+
+/**
+ * This method determines all cursor postions. Note that with multiselection
+ * more than one cursor position can exist.
+ */
+alltiny.Spellchecker.prototype.getCursorPositions = function(word, cursorCharacter) {
+	var positions = [];
+	var index = -1;
+	while ((index = word.indexOf(cursorCharacter, index + 1)) >= 0) {
+		positions.push(index);
+	}
+	return positions;
 };
 
 alltiny.Spellchecker.prototype.askDictionaries = function(word) {
@@ -249,4 +272,8 @@ alltiny.Dictionary.prototype.lookupWord = function(word) {
 
 alltiny.Dictionary.prototype.process = function(words) {
 	return this.options.processor(words);
+};
+
+alltiny.encodeAsHTML = function(text) {
+	return text && text.length > 0 ? text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;') : text;
 };

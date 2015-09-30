@@ -248,7 +248,12 @@ alltiny.Dictionary.prototype.lookupWord = function(word) {
 		return [{w:word, type:'hyphen'}];
 	} else if (word == '(' || word == ')' || word == '{' || word == '}' || word == '[' || word == ']' || word == '<' || word == '>' || word == '"' || word == '/' || word == '\\') {
 		return [{w:word, type:'structure'}];
+	} else if (word == '§' || word == '%') {
+		return [{w:word, type:'mark'}];
+	} else if (word == '€' || word == '$') {
+		return [{w:word, type:'symbol'}];
 	}
+	
 	// check whether it is a date.
 	if (this.options.dateformats) {
 		for (var i = 0; i < this.options.dateformats.length; i++) {

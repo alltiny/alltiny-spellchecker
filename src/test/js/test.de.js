@@ -63,8 +63,19 @@ QUnit.test("test multi-dictionary-composit", function(assert) {
 	var output = spellchecker.check('IOC-Präsident');
 	assert.equal(output, 'IOC-Präsident', "Output should not contain any spellcheck spans." );
 });
-QUnit.test("test no soft-hyphen are introduced around regular hyphen", function(assert) {
+QUnit.test("test no soft-hyphen are introduced at end of word", function(assert) {
 	// let the spellchecker run. replace soft-hyphen back to pipe characters.
 	var output = spellchecker.check('Softwareunternehmen', {hyphenation: true}).replace(/\u00ad/g, '|');
 	assert.equal(output, 'Soft|ware|un|ter|neh|men', "Soft-hyphen should be set correctly." );
 });
+QUnit.test("test no soft-hyphen are introduced before period", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	var output = spellchecker.check('Informationsverarbeitung.', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, 'In|for|ma|tions|ver|ar|bei|tung.', "Soft-hyphen should be set correctly." );
+});
+QUnit.test("test no soft-hyphen are introduced before comma", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	var output = spellchecker.check('Applikationen,', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, 'Ap|pli|ka|tio|nen,', "Soft-hyphen should be set correctly." );
+});
+

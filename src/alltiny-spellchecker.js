@@ -250,7 +250,7 @@ alltiny.Dictionary.prototype.lookupWord = function(word) {
 		return [{w:word, type:'structure'}];
 	} else if (word == '§' || word == '%') {
 		return [{w:word, type:'mark'}];
-	} else if (word == '€' || word == '$') {
+	} else if (word == '€' || word == '$' || word == '&') {
 		return [{w:word, type:'symbol'}];
 	}
 

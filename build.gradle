@@ -30,3 +30,8 @@ task verifyDictionaryEnGB {
 	description = 'verifies the dictionary to be syntactical correct'
 	verifyDictionary(new JsonSlurper().parse(new File("${projectDir}/dict/alltiny.dict.base.en_gb.json")))
 }
+
+task verifyDictionaryTradenames {
+	description = 'verifies the dictionary to be syntactical correct'
+	verifyDictionary(new JsonSlurper().parse(new File("${projectDir}/dict/alltiny.dict.tradenames.json")))
+}

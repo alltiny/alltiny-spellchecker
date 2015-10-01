@@ -253,7 +253,7 @@ alltiny.Dictionary.prototype.lookupWord = function(word) {
 	} else if (word == '€' || word == '$') {
 		return [{w:word, type:'symbol'}];
 	}
-	
+
 	// check whether it is a date.
 	if (this.options.dateformats) {
 		for (var i = 0; i < this.options.dateformats.length; i++) {

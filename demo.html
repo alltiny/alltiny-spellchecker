@@ -6,25 +6,31 @@
 <script type="text/javascript" src="src/rangy-selectionsaverestore.js"></script>
 <script type="text/javascript" src="src/alltiny-editor.js"></script>
 <style type="text/css">
-body { background-color: #506070; color: #efefef; font-family: tahoma; width: 66%; margin: auto; }
-h1 { text-align: center; text-shadow: 0 0 7px #303030; }
-div.editor { background-color: #383838; color: #a8a8a0; border-radius: 5px; padding: 7px; box-shadow: inset 0 0 10px #181810; }
-div.report { margin: 10px 0 10px 0; }
-div.statistics { border-radius: 5px; margin: 10px 0 10px 0; box-shadow: inset 0 0 10px #181810; overflow: hidden; background-color: #f0f0f0; }
+body { margin: 0; }
+#header { padding: 10px; }
+#header span.logo { font-weight: bold; font-size: 24px; color: #f0f0f0; text-shadow: 0 0 7px #303030; }
+div.editor { border-radius: 5px; padding: 7px; box-shadow: inset 0 0 10px #181810; margin: 10px }
+div.report { margin: 10px; }
+div.statistics { border-radius: 5px; margin: 10px; box-shadow: inset 0 0 10px #181810; overflow: hidden; background-color: #f0f0f0; }
 div.statistics table { width: 100%; color: #404040;}
 div.statistics table td { padding-left: 5px;}
-td.ok { background-color: rgba(140, 240, 140, 1); }
-td.warn { background-color: rgba(240, 240, 140, 1); }
-td.error { background-color: rgba(240, 140, 140, 1); }
 span.spellcheck { border-radius: 5px;}
-//span.spellcheck.ok { background-color: #99ee99;}
-span.spellcheck.error { background-color: #ee9999;}
-span.spellcheck.error.unknown { background-color: #c0c0c0; color:#505050;}
-span.spellcheck.warn { background-color: #eeee99;}
+body.sport a, body.sport a:visited {color:inherit;}
+/* themes */
+body.sport { background-color: #606360; color: #c8c8c0; font-family: tahoma; }
+body.sport #header { background-color: #e03020; }
+body.sport div.editor { background-color: #383838; color: #c8c8c0;}
+body.sport td.ok { background-color: #40e010; }
+body.sport td.warn { background-color: #e0e030; }
+body.sport td.error { background-color: #e04010; }
+//body.sport span.spellcheck.ok { background-color: #99ee99;}
+body.sport span.spellcheck.error { background-color: #ee9999;}
+body.sport span.spellcheck.error.unknown { background-color: #e04010; color:#e0e0e0;}
+body.sport span.spellcheck.warn { background-color: #eeee99; color:#404040;}
 </style>
 </head>
-<body>
-<h1>alltiny spellchecker</h1>
+<body class="sport">
+<div id="header"><span class="logo">alltiny spellchecker</span></div>
 <div id="content" class="editor" contenteditable="true">
 Das Haus steht schief!
 </div>

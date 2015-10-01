@@ -79,7 +79,7 @@ var editor = new alltiny.Editor(jQuery('#content'), {
 			}
 		});
 		unknownWords = unknownWords.sort();
-		jQuery('div.report').empty().text(unknownWords.join(' '));
+		jQuery('div.report').empty().text(countSum + ' Words in total. Unknown words: ' + unknownWords.join(' '));
 	}
 });
 </script>

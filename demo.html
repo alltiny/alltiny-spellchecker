@@ -40,8 +40,14 @@ Das Haus steht schief!
 // initialize the spellchecker.
 var spellchecker = new alltiny.Spellchecker({highlightKnownWords: true});
 // load the german dictionary.
-jQuery.getJSON("dict/alltiny.dict.base.de_de.json", function(dict) {
-	spellchecker.addDictionary(new alltiny.Dictionary(dict));
+jQuery.ajax("dict/alltiny.dict.base.de_de.json", {
+	dataType: 'json',
+	success: function(data, status, jqXHR) {
+		spellchecker.addDictionary(new alltiny.Dictionary(data));
+	},
+	error: function(jqXHR, status, eror) {
+		console.log(foo);
+	}
 });
 jQuery.getJSON("dict/alltiny.dict.base.en_gb.json", function(dict) {
 	spellchecker.addDictionary(new alltiny.Dictionary(dict));

@@ -206,34 +206,31 @@ alltiny.Dictionary.prototype.addWord = function(word) {
 
 /* this method will return null if the word is unknown. */
 alltiny.Dictionary.prototype.findWord = function(word) {
-	var foundWords = this.lookupWord(word);
-	if (foundWords) {
-		return this.process(foundWords);
-	} else {
-		var variants = [];
-		for (var i = word.length - 1; i > 0; i--) {
-			var leading = this.lookupWord(word.substring(0, i));
-			if (leading && leading.length > 0) {
-				var trailing = this.findWord(word.substring(i));
-				if (trailing && trailing.length > 0) {
-					for (var l = 0; l < leading.length; l++) {
-						for (var t = 0; t < trailing.length; t++) {
-							// only insert a split character if leading or trailing do not have a hyphen next to it.
-							var splitCharacter = (leading[l].w[leading[l].w.length - 1] == '-' || trailing[t].w[0] == '-') ? '' : '|';
-							// create a composit of leading and trailing.
-							variants.push({
-								w: leading[l].w + splitCharacter + trailing[t].w,
-								type: trailing[t].type == 'hyphen' ? leading[l].type : trailing[t].type,
-								composits: [].concat(leading[l].composits ? leading[l].composits : leading[l]).concat(trailing[t].composits ? trailing[t].composits : trailing[t]),
-								endOfSentence: trailing[t].endOfSentence == true ? true : undefined
-							});
-						}
+	// start with looking the word up directly.
+	var variants = this.lookupWord(word) || [];
+	// look for various break downs.
+	for (var i = word.length - 1; i > 0; i--) {
+		var leading = this.lookupWord(word.substring(0, i));
+		if (leading && leading.length > 0) {
+			var trailing = this.findWord(word.substring(i));
+			if (trailing && trailing.length > 0) {
+				for (var l = 0; l < leading.length; l++) {
+					for (var t = 0; t < trailing.length; t++) {
+						// only insert a split character if leading or trailing do not have a hyphen next to it.
+						var splitCharacter = (leading[l].w[leading[l].w.length - 1] == '-' || trailing[t].w[0] == '-') ? '' : '|';
+						// create a composit of leading and trailing.
+						variants.push({
+							w: leading[l].w + splitCharacter + trailing[t].w,
+							type: trailing[t].type == 'hyphen' ? leading[l].type : trailing[t].type,
+							composits: [].concat(leading[l].composits ? leading[l].composits : leading[l]).concat(trailing[t].composits ? trailing[t].composits : trailing[t]),
+							endOfSentence: trailing[t].endOfSentence == true ? true : undefined
+						});
 					}
 				}
 			}
 		}
-		return this.process(variants);
 	}
+	return this.process(variants);
 };
 
 /**

@@ -78,4 +78,10 @@ QUnit.test("test no soft-hyphen are introduced before comma", function(assert) {
 	var output = spellchecker.check('Applikationen,', {hyphenation: true}).replace(/\u00ad/g, '|');
 	assert.equal(output, 'Ap|pli|ka|tio|nen,', "Soft-hyphen should be set correctly." );
 });
+QUnit.test("test conflicting variants", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.check('eng.', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, 'eng.', "Soft-hyphen should be set correctly." );
+});
 

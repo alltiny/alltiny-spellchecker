@@ -52,6 +52,9 @@ jQuery.ajax("dict/alltiny.dict.base.de_de.json", {
 jQuery.getJSON("dict/alltiny.dict.base.en_gb.json", function(dict) {
 	spellchecker.addDictionary(new alltiny.Dictionary(dict));
 });
+jQuery.getJSON("dict/alltiny.dict.base.de_ch.json", function(dict) {
+	spellchecker.addDictionary(new alltiny.Dictionary(dict));
+});
 jQuery.getJSON("dict/alltiny.dict.tradenames.json", function(dict) {
 	spellchecker.addDictionary(new alltiny.Dictionary(dict));
 });

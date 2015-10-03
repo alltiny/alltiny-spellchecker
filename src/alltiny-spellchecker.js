@@ -188,6 +188,31 @@ alltiny.Dictionary = function(customOptions) {
 	if (typeof this.options.processor === 'string') {
 		this.options.processor = new Function('variants', this.options.processor);
 	}
+	this.symbolLookupTable = {
+		'©': [{w: '©', type: 'symbol', symbol: 'Copyright'}],
+		'.': [{w: '.', type: 'interpunction', endOfSentence: true}],
+		'?': [{w: '?', type: 'interpunction', endOfSentence: true}],
+		'!': [{w: '!', type: 'interpunction', endOfSentence: true}],
+		',': [{w: ',', type: 'interpunction'}],
+		';': [{w: ';', type: 'interpunction'}],
+		':': [{w: ':', type: 'interpunction'}],
+		'-': [{w: '-', type: 'hyphen'}],
+		'(': [{w: '(', type: 'structure'}],
+		')': [{w: ')', type: 'structure'}],
+		'{': [{w: '{', type: 'structure'}],
+		'}': [{w: '}', type: 'structure'}],
+		'[': [{w: '[', type: 'structure'}],
+		']': [{w: ']', type: 'structure'}],
+		'<': [{w: '<', type: 'structure'}],
+		'>': [{w: '>', type: 'structure'}],
+		'/': [{w: '/', type: 'structure'}],
+		'\\':[{w: '\\',type: 'structure'}],
+		'§': [{w: '§', type: 'mark'}],
+		'%': [{w: '%', type: 'mark'}],
+		'&': [{w: '&', type: 'symbol'}],
+		'$': [{w: '$', type: 'symbol'}],
+		'€': [{w: '€', type: 'symbol'}],
+	};
 };
 
 /**
@@ -237,18 +262,9 @@ alltiny.Dictionary.prototype.findWord = function(word) {
  * This method looks up a word in the dictionary's index.
 */
 alltiny.Dictionary.prototype.lookupWord = function(word) {
-	if (word == '.' || word == '?' || word == '!') { // if the word is just a period from the sentence then append it to the found word.
-		return [{w:word, type:'interpunction', endOfSentence:true}];
-	} else if (word == ':' || word == ',' || word == ';') {
-		return [{w:word, type:'interpunction'}];
-	} else if (word == '-') {
-		return [{w:word, type:'hyphen'}];
-	} else if (word == '(' || word == ')' || word == '{' || word == '}' || word == '[' || word == ']' || word == '<' || word == '>' || word == '"' || word == '/' || word == '\\') {
-		return [{w:word, type:'structure'}];
-	} else if (word == '§' || word == '%') {
-		return [{w:word, type:'mark'}];
-	} else if (word == '€' || word == '$' || word == '&') {
-		return [{w:word, type:'symbol'}];
+	var symbol = this.symbolLookupTable[word];
+	if (symbol) {
+		return symbol;
 	}
 
 	// check whether it is a date.

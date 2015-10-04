@@ -38,6 +38,7 @@ alltiny.Spellchecker.prototype.addDictionary = function(dictionary) {
  */
 alltiny.Spellchecker.prototype.check = function(text, options) {
 	var thisObj = this;
+	// determine the check options; fall-back to the spellchecker options if not given.
 	var checkOptions = jQuery.extend(true, jQuery.extend(true, {}, this.options), options); // deep copy to avoid overrides. uses this.options as defaults.
 
 	// remove previous spellcheck-spans.
@@ -150,6 +151,8 @@ alltiny.Spellchecker.prototype.askCrossDictionaries = function(word) {
 						});
 					}
 				}
+			} else {
+				variants = variants.concat(leading);
 			}
 		}
 	}
@@ -205,11 +208,15 @@ alltiny.Dictionary = function(customOptions) {
 		'>': [{w: '>', type: 'structure'}],
 		'/': [{w: '/', type: 'structure'}],
 		'\\':[{w: '\\',type: 'structure'}],
+		'"': [{w: '"', type: 'mark', mark: 'quotation', beginning: true, ending: true}],
+		'\'':[{w: '\'',type: 'mark', mark: 'quotation', beginning: true, ending: true}],
 		'§': [{w: '§', type: 'mark'}],
 		'%': [{w: '%', type: 'mark'}],
 		'&': [{w: '&', type: 'symbol'}],
 		'$': [{w: '$', type: 'symbol'}],
 		'€': [{w: '€', type: 'symbol'}],
+		'*': [{w: '*', type: 'symbol',symbol: 'born'}],
+		'†': [{w: '†', type: 'symbol',symbol: 'died'}]
 	};
 };
 

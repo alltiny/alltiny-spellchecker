@@ -66,9 +66,7 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 		}
 		var cleanWord = word.replace(new RegExp(checkOptions.cursorCharacter, 'g'), '').replace(/\u00ad/g,''); // remove all soft-hyphens from the word.
 		// ask the dictionaries
-		var variants = thisObj.askDictionaries(cleanWord);
-		// check for composits of words out of multiple dictionarys (like language and tradenames)
-		variants = variants.concat(thisObj.askCrossDictionaries(cleanWord));
+		var variants = thisObj.askCrossDictionaries(cleanWord);
 
 		if (variants.length == 0) {
 			var lastChar = cleanWord.length > 0 ? cleanWord[cleanWord.length - 1] : '';

@@ -119,12 +119,8 @@ alltiny.Spellchecker.prototype.askDictionaries = function(word) {
 	var variants = [];
 	for (var i = 0; i < this.dictionaries.length; i++) {
 		var foundWords = this.dictionaries[i].findWord(word);
-		if (foundWords != null) {
-			for (var f = 0; f < foundWords.length; f++) {
-				if (foundWords[f].w) {
-					variants.push(jQuery.extend(true, {}, foundWords[f])); // create a copy of that word.
-				}
-			}
+		if (foundWords != null && foundWords.length > 0) {
+			variants = variants.concat(foundWords);
 		}
 	}
 	return variants;
@@ -247,7 +243,7 @@ alltiny.Dictionary.prototype.findWord = function(word) {
 				for (var l = 0; l < leading.length; l++) {
 					for (var t = 0; t < trailing.length; t++) {
 						// only insert a split character if leading or trailing do not have a hyphen next to it.
-						var splitCharacter = (leading[l].w[leading[l].w.length - 1] == '-' || trailing[t].w[0] == '-') ? '' : '|';
+						var splitCharacter = (leading[l].w[leading[l].w.length - 1] == '-' || trailing[t].w[0] == '-' || trailing[t].type == 'interpunction') ? '' : '|';
 						// create a composit of leading and trailing.
 						variants.push({
 							w: leading[l].w + splitCharacter + trailing[t].w,
@@ -269,7 +265,7 @@ alltiny.Dictionary.prototype.findWord = function(word) {
 alltiny.Dictionary.prototype.lookupWord = function(word) {
 	var symbol = this.symbolLookupTable[word];
 	if (symbol) {
-		return symbol;
+		return jQuery.extend(true, [], symbol); // create a deep-copy of the array to save the lookup map from modifications.
 	}
 
 	// check whether it is a date.
@@ -290,7 +286,7 @@ alltiny.Dictionary.prototype.lookupWord = function(word) {
 	}
 	// if undefined in the dictionary, this call can return the prototype functions of arrays (filter, concat, join, ...).
 	var words = this.options.words[word.toLowerCase()];
-	return typeof words === 'function' ? null : words;
+	return typeof words === 'function' ? null : jQuery.extend(true, [], words); // create a deep-copy of the array to save the lookup map from modifications.
 };
 
 alltiny.Dictionary.prototype.process = function(words) {

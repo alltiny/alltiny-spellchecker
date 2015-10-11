@@ -243,10 +243,10 @@ alltiny.Dictionary.prototype.findWord = function(word) {
 				for (var l = 0; l < leading.length; l++) {
 					for (var t = 0; t < trailing.length; t++) {
 						// prevent some composits to be build.
-						if (leading[l].type == 'abbreviation' && !(trailing[t].type == 'mark' || trailing[t].type == 'symbol' || trailing[t].type == 'hyphen' || trailing[t].type == 'interpunction' || trailing[t].type == 'structure')) {
+						if ((leading[l].type == 'abbreviation' || leading[l].type == 'suffix') && !(trailing[t].type == 'mark' || trailing[t].type == 'symbol' || trailing[t].type == 'hyphen' || trailing[t].type == 'interpunction' || trailing[t].type == 'structure')) {
 							continue;
 						}
-						if (trailing[t].type == 'abbreviation' && !(leading[l].type == 'mark' || leading[l].type == 'symbol' || leading[l].type == 'hyphen' || leading[l].type == 'interpunction' || leading[l].type == 'structure')) {
+						if ((trailing[t].type == 'abbreviation' || trailing[t].type == 'prefix' || trailing[t].type == 'prenoun') && !(leading[l].type == 'mark' || leading[l].type == 'symbol' || leading[l].type == 'hyphen' || leading[l].type == 'interpunction' || leading[l].type == 'structure')) {
 							continue;
 						}
 						// only insert a split character if leading or trailing do not have a hyphen next to it.

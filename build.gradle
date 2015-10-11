@@ -4,6 +4,8 @@ description = 'javascript spellchecker'
 
 def verifyDictionary(dict) {
 	assert dict instanceof Map
+	assert dict.name != null : "dictionary must have a name"
+	println "checking dictioniary '" + dict.name + "'"
 	assert dict.words instanceof Map
 	dict.words.each {
 		index, words ->
@@ -17,6 +19,38 @@ def verifyDictionary(dict) {
 					assert word.w.toLowerCase().replace("|", "").equals(index) : "word '" + word.w + "' does not correspond to entry in '" + index + "'"
 					// verify that each word has its type defined.
 					assert word.type != null : "word '" + word.w + "' is lacking a type defintion"
+					// verify the word depending on its type
+					if (word.type == 'noun' ||
+						word.type == 'verb' ||
+						word.type == 'adj' ||
+						word.type == 'adv' ||
+						word.type == 'article' ||
+						word.type == 'particle' ||
+						word.type == 'prepos' ||
+						word.type == 'prenoun' ||
+						word.type == 'pronoun' ||
+						word.type == 'indefpronoun' ||
+						word.type == 'prefix' ||
+						word.type == 'suffix' ||
+						word.type == 'name' ||
+						word.type == 'subjunction' ||
+						word.type == 'conjunction' ||
+						word.type == 'interjection' ||
+						word.type == 'greeting') {
+						// currently nothing to check.
+					} else if (word.type == 'numeral' || word.type == 'ordinal') {
+						assert word.value != null : word.type + " '" + word.w + "' is lacking a defintion of 'value'"
+					} else if (word.type == 'abbreviation') {
+						assert word.abbreviation != null : "word '" + word.w + "' is lacking a defintion of 'abbreviation'"
+					} else if (word.type == 'contraction') {
+						assert word.contraction != null : "contraction '" + word.w + "' is lacking a defintion of 'contraction'"
+					} else if (word.type == 'symbol') {
+						assert word.symbol != null : word.type + " '" + word.w + "' is lacking a defintion of 'symbol'"
+					} else if (word.type == 'mark') {
+						assert word.mark != null : word.type + " '" + word.w + "' is lacking a defintion of 'mark'"
+					} else {
+						assert false : "word '" + word.w + "' is of unknown type '" + word.type + "'"
+ 					}
 			}
 	}
 }

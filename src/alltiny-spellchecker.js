@@ -242,12 +242,19 @@ alltiny.Dictionary.prototype.findWord = function(word) {
 			if (trailing && trailing.length > 0) {
 				for (var l = 0; l < leading.length; l++) {
 					for (var t = 0; t < trailing.length; t++) {
+						// prevent some composits to be build.
+						if (leading[l].type == 'abbreviation' && !(trailing[t].type == 'mark' || trailing[t].type == 'symbol' || trailing[t].type == 'hyphen' || trailing[t].type == 'interpunction' || trailing[t].type == 'structure')) {
+							continue;
+						}
+						if (trailing[t].type == 'abbreviation' && !(leading[l].type == 'mark' || leading[l].type == 'symbol' || leading[l].type == 'hyphen' || leading[l].type == 'interpunction' || leading[l].type == 'structure')) {
+							continue;
+						}
 						// only insert a split character if leading or trailing do not have a hyphen next to it.
 						var splitCharacter = (leading[l].w[leading[l].w.length - 1] == '-' || trailing[t].w[0] == '-' || trailing[t].type == 'interpunction') ? '' : '|';
 						// create a composit of leading and trailing.
 						variants.push({
 							w: leading[l].w + splitCharacter + trailing[t].w,
-							type: trailing[t].type == 'hyphen' ? leading[l].type : trailing[t].type,
+							type: (trailing[t].type == 'mark' || trailing[t].type == 'symbol' || trailing[t].type == 'hyphen' || trailing[t].type == 'interpunction' || trailing[t].type == 'structure') ? leading[l].type : trailing[t].type,
 							composits: [].concat(leading[l].composits ? leading[l].composits : leading[l]).concat(trailing[t].composits ? trailing[t].composits : trailing[t]),
 							endOfSentence: trailing[t].endOfSentence == true ? true : undefined
 						});

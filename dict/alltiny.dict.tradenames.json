@@ -7,7 +7,7 @@
 "a320":[{"w":"A320","type":"name"}],
 "access":[{"w":"Access","type":"name"}],
 "acrobat":[{"w":"Acrobat","type":"name"}],
-"adac":[{"w":"Automobil Club Deutschland","type":"name"}],
+"adac":[{"w":"ADAC","type":"abbreviation","abbreviation":"Automobil Club Deutschland"}],
 "adobe":[{"w":"Adobe","type":"name"}],
 "afp":[{"w":"AFP","type":"name"}],
 "airbus":[{"w":"Airbus","type":"name"}],

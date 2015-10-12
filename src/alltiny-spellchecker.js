@@ -29,7 +29,7 @@ alltiny.Spellchecker.prototype.addDictionary = function(dictionary) {
 };
 
 /**
- * This method performs the spell check.
+ * This method performs the spell check on the given text.
  * @param text which content should be checked.
  * @param options by default the options given to this spellchecker while
  *        initialization are used, but with this option you can give a different

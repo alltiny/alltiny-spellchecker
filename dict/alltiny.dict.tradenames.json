@@ -14,6 +14,7 @@
 "amg":[{"w":"AMG","type":"name"}],
 "android":[{"w":"Android","type":"name"}],
 "apple":[{"w":"Apple","type":"name"}],
+"ard":[{"w":"ARD","type":"abbreviation","abbreviation":" Arbeitsgemeinschaft der öffentlich-rechtlichen Rundfunkanstalten der Bundesrepublik Deutschland"}],
 "audi":[{"w":"Audi","type":"name"}],
 "bbc":[{"w":"BBC","type":"abbreviation","abbreviation":"British Broadcasting Corporation"}],
 "bentley":[{"w":"Bentley","type":"name"}],
@@ -68,6 +69,7 @@
 "powerpoint":[{"w":"PowerPoint","type":"name"}],
 "quarkxpress":[{"w":"QuarkXPress","type":"name"}],
 "r3":[{"w":"R3","type":"name"}],
+"rbb":[{"w":"RBB","type":"abbreviation","abbreviation":"Rundfunks Berlin-Brandenburg"}],
 "reuters":[{"w":"Reuters","type":"name"}],
 "sac":[{"w":"SAC","type":"abbreviation","abbreviation":"Schweizerischer Alpen-Club"}],
 "sap":[{"w":"SAP","type":"name"}],
@@ -84,6 +86,7 @@
 "windows":[{"w":"Windows","type":"name"}],
 "word":[{"w":"Word","type":"name"}],
 "yahoo":[{"w":"Yahoo","type":"name"}],
-"youtube":[{"w":"Youtube","type":"name"}]
+"youtube":[{"w":"Youtube","type":"name"}],
+"zdf":[{"w":"ZDF","type":"abbreviation","abbreviation":"Zweites Deutsches Fernsehen"}]
 }
 }

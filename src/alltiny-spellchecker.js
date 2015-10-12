@@ -48,7 +48,7 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 	var text = $filter.text();
 
 	// use the word regex to split text into words.
-	text = text.replace(/[^\s]+/ig, function(word, contents, offset, s) {
+	text = text.replace(/[^\s]+/ig, function(word, offset, content) {
 		var caseInsensitiveForNextWord = thisObj.caseInsensitiveForNextWord;
 		thisObj.caseInsensitiveForNextWord = false;
 		var cursorPos = thisObj.getCursorPositions(word, checkOptions.cursorCharacter);

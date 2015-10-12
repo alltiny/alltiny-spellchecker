@@ -72,7 +72,7 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 		if (variants.length == 0) {
 			var lastChar = cleanWord.length > 0 ? cleanWord[cleanWord.length - 1] : '';
 			thisObj.assumeStartOfSentence = lastChar == '.' || lastChar == '!' || lastChar == '?';
-			return (checkOptions.highlighting && checkOptions.highlightUnknownWords) ? '<span class="spellcheck highlight error unknown">'+alltiny.encodeAsHTML(word)+'</span>' : word;
+			return (checkOptions.highlighting && checkOptions.highlightUnknownWords) ? '<span class="spellcheck highlight error unknown">'+alltiny.encodeAsHTML(word)+'</span>' : alltiny.encodeAsHTML(word);
 		}
 		// check whether one of the variants is an exact hit.
 		for (var v = 0; v < variants.length; v++) {
@@ -84,7 +84,7 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 					? ((isCursorAtBeginning ? checkOptions.cursorCharacter : '') + foundWord.replace(/\|/g,'\u00ad') + (isCursorAtEnding ? checkOptions.cursorCharacter : ''))
 					: word;
 				// highlight the word if option tells so.
-				return (checkOptions.highlighting && checkOptions.highlightKnownWords) ? '<span class="spellcheck highlight ok">'+alltiny.encodeAsHTML(content)+'</span>' : content;
+				return (checkOptions.highlighting && checkOptions.highlightKnownWords) ? '<span class="spellcheck highlight ok">'+alltiny.encodeAsHTML(content)+'</span>' : alltiny.encodeAsHTML(content);
 			}
 		}
 		// if this point is reached then none of the found variants did match exactly. Do a case-insensitive check.
@@ -93,11 +93,11 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 			if (variants[v].w.replace(/\|/g,'').toLowerCase() == lowerCaseWord) { // is this variant an exact hit?
 				thisObj.assumeStartOfSentence = variants[v].endOfSentence == true;
 				// highlight the word if option tells so.
-				return (checkOptions.highlighting && checkOptions.highlightCaseWarnings && !caseInsensitiveForNextWord) ? '<span class="spellcheck highlight warn case" data-spellcheck-correction="'+variants[v].w+'">'+alltiny.encodeAsHTML(word)+'</span>' : word;
+				return (checkOptions.highlighting && checkOptions.highlightCaseWarnings && !caseInsensitiveForNextWord) ? '<span class="spellcheck highlight warn case" data-spellcheck-correction="'+variants[v].w+'">'+alltiny.encodeAsHTML(word)+'</span>' : alltiny.encodeAsHTML(word);
 			}
 		}
 		thisObj.assumeStartOfSentence = false;
-		return (checkOptions.highlighting && checkOptions.highlightMismatches) ? '<span class="spellcheck highlight warn mismatch">'+alltiny.encodeAsHTML(word)+'</span>' : word;
+		return (checkOptions.highlighting && checkOptions.highlightMismatches) ? '<span class="spellcheck highlight warn mismatch">'+alltiny.encodeAsHTML(word)+'</span>' :alltiny.encodeAsHTML(word);
 	});
 	return text;
 };

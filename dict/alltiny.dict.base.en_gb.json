@@ -737,6 +737,8 @@
 "clue":[{"w":"clue","type":"noun"}],
 "clues":[{"w":"clues","type":"noun"}],
 "could":[{"w":"could","type":"verb"}],
+"development":[{"w":"de|vel|op|ment","type":"noun"}],
+"developments":[{"w":"de|vel|op|ments","type":"noun"}],
 "the":[{"w":"the","type":"article"}],
 "you":[{"w":"you","type":"pronoun"}],
 "your":[{"w":"your","type":"pronoun"}]

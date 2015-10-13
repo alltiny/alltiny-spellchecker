@@ -127,11 +127,9 @@ alltiny.Spellchecker.prototype.askDictionaries = function(word) {
 };
 
 alltiny.Spellchecker.prototype.askCrossDictionaries = function(word) {
-	var variants = [];
+	var variants = this.askDictionaries(word);
 	var i = word.indexOf('-');
-	if (i < 0) {
-		return this.askDictionaries(word);
-	} else {
+	if (i >= 0) {
 		var leading = this.askDictionaries(word.substring(0, i + 1));
 		if (leading && leading.length > 0) {
 			var trailing = this.askCrossDictionaries(word.substring(i + 1));

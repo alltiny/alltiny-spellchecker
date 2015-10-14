@@ -60,6 +60,9 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 			}
 		}
 		var cleanWord = word.replace(new RegExp(checkOptions.cursorCharacter, 'g'), '').replace(/\u00ad/g,''); // remove all soft-hyphens from the word.
+		if (cleanWord.length == 0) {
+			return alltiny.encodeAsHTML(word);
+		}
 		// ask the dictionaries
 		var variants = thisObj.askCrossDictionaries(cleanWord);
 

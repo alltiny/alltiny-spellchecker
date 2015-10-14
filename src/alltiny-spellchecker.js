@@ -41,12 +41,6 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 	// determine the check options; fall-back to the spellchecker options if not given.
 	var checkOptions = jQuery.extend(true, jQuery.extend(true, {}, this.options), options); // deep copy to avoid overrides. uses this.options as defaults.
 
-	// remove previous spellcheck-spans.
-	var $filter = jQuery('<div></div>').text(text);
-	this.removeAnyHighlights($filter);
-	// get the targets text.
-	var text = $filter.text();
-
 	// use the word regex to split text into words.
 	text = text.replace(/[^\s]+/ig, function(word, offset, content) {
 		var caseInsensitiveForNextWord = thisObj.caseInsensitiveForNextWord;

@@ -181,7 +181,6 @@ alltiny.Dictionary = function(customOptions) {
 		this.options.processor = new Function('variants', this.options.processor);
 	}
 	this.symbolLookupTable = {
-		'©': [{w: '©', type: 'symbol', symbol: 'Copyright'}],
 		'.': [{w: '.', type: 'interpunction', endOfSentence: true}],
 		'?': [{w: '?', type: 'interpunction', endOfSentence: true}],
 		'!': [{w: '!', type: 'interpunction', endOfSentence: true}],
@@ -201,13 +200,14 @@ alltiny.Dictionary = function(customOptions) {
 		'\\':[{w: '\\',type: 'structure'}],
 		'"': [{w: '"', type: 'mark', mark: 'quotation', beginning: true, ending: true}],
 		'\'':[{w: '\'',type: 'mark', mark: 'quotation', beginning: true, ending: true}],
-		'§': [{w: '§', type: 'mark'}],
 		'%': [{w: '%', type: 'mark'}],
 		'&': [{w: '&', type: 'symbol'}],
 		'$': [{w: '$', type: 'symbol'}],
-		'€': [{w: '€', type: 'symbol'}],
 		'*': [{w: '*', type: 'symbol',symbol: 'born'}],
-		'†': [{w: '†', type: 'symbol',symbol: 'died'}]
+		'\u00a9': [{w: '\u00a9', type: 'symbol', symbol: 'Copyright'}],
+		'\u00a7': [{w: '\u00a7', type: 'mark', symbol: 'Parapragh Sign'}],
+		'\u20ac': [{w: '\u20ac', type: 'symbol', symbol: 'Euro Sign'}],
+		'\u271d': [{w: '\u271d', type: 'symbol', symbol: 'Latin Cross'}]
 	};
 };
 

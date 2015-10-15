@@ -237,15 +237,16 @@ alltiny.Dictionary.prototype.findWord = function(word) {
 			if (trailing && trailing.length > 0) {
 				for (var l = 0; l < leading.length; l++) {
 					for (var t = 0; t < trailing.length; t++) {
-						// prevent some composits to be build.
-						if ((leading[l].type == 'abbreviation' || leading[l].type == 'suffix') && !(trailing[t].type == 'mark' || trailing[t].type == 'symbol' || trailing[t].type == 'hyphen' || trailing[t].type == 'interpunction' || trailing[t].type == 'structure')) {
+						// prevent some composits from being build.
+						var ttype = (trailing[t].composits && trailing[t].composits.length > 0) ? trailing[t].composits[0].type : trailing[t].type;
+						if ((leading[l].type == 'abbreviation' || leading[l].type == 'suffix') && !(ttype == 'mark' || ttype == 'symbol' || ttype == 'hyphen' || ttype == 'interpunction' || ttype == 'structure')) {
 							continue;
 						}
-						if ((trailing[t].type == 'abbreviation' || trailing[t].type == 'prefix' || trailing[t].type == 'prenoun') && !(leading[l].type == 'mark' || leading[l].type == 'symbol' || leading[l].type == 'hyphen' || leading[l].type == 'interpunction' || leading[l].type == 'structure')) {
+						if ((ttype == 'abbreviation' || ttype == 'prefix' || ttype == 'prenoun') && !(leading[l].type == 'mark' || leading[l].type == 'symbol' || leading[l].type == 'hyphen' || leading[l].type == 'interpunction' || leading[l].type == 'structure')) {
 							continue;
 						}
 						// only insert a split character if leading or trailing do not have a hyphen next to it.
-						var splitCharacter = (leading[l].w[leading[l].w.length - 1] == '-' || trailing[t].w[0] == '-' || trailing[t].type == 'interpunction') ? '' : '|';
+						var splitCharacter = (leading[l].w[leading[l].w.length - 1] == '-' || trailing[t].w[0] == '-' || ttype == 'interpunction' || ttype == 'structure') ? '' : '|';
 						// create a composit of leading and trailing.
 						variants.push({
 							w: leading[l].w + splitCharacter + trailing[t].w,

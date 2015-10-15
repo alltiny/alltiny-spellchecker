@@ -84,4 +84,10 @@ QUnit.test("test conflicting variants", function(assert) {
 	var output = spellchecker.check('eng.', {hyphenation: true}).replace(/\u00ad/g, '|');
 	assert.equal(output, 'eng.', "Soft-hyphen should be set correctly." );
 });
+QUnit.test("test composit of abbreviations with slash", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.check('ASP/XSP', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, 'ASP/|XSP', "Soft-hyphen should be set correctly." );
+});
 

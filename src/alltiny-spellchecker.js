@@ -242,7 +242,7 @@ alltiny.Dictionary.prototype.findWord = function(word) {
 						if ((leading[l].type == 'abbreviation' || leading[l].type == 'suffix') && !(ttype == 'mark' || ttype == 'symbol' || ttype == 'hyphen' || ttype == 'interpunction' || ttype == 'structure')) {
 							continue;
 						}
-						if ((ttype == 'abbreviation' || ttype == 'prefix' || ttype == 'prenoun') && !(leading[l].type == 'mark' || leading[l].type == 'symbol' || leading[l].type == 'hyphen' || leading[l].type == 'interpunction' || leading[l].type == 'structure')) {
+						if ((ttype == 'abbreviation' || trailing[t].type == 'prefix' || trailing[t].type == 'prenoun') && !(leading[l].type == 'mark' || leading[l].type == 'symbol' || leading[l].type == 'hyphen' || leading[l].type == 'interpunction' || leading[l].type == 'structure')) {
 							continue;
 						}
 						// only insert a split character if leading or trailing do not have a hyphen next to it.

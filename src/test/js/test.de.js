@@ -90,4 +90,16 @@ QUnit.test("test composit of abbreviations with slash", function(assert) {
 	var output = spellchecker.check('ASP/XSP', {hyphenation: true}).replace(/\u00ad/g, '|');
 	assert.equal(output, 'ASP/|XSP', "Soft-hyphen should be set correctly." );
 });
+QUnit.test("test composit of prenoun", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.check('Kundenentwicklungsplänen', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, 'Kun|den|ent|wick|lungs|plä|nen', "Soft-hyphen should be set correctly." );
+});
+QUnit.test("test composit with prenoun and trailing comma", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.check('Kundenentwicklungsplänen,', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, 'Kun|den|ent|wick|lungs|plä|nen,', "Soft-hyphen should be set correctly." );
+});
 

@@ -198,8 +198,8 @@ alltiny.Dictionary = function(customOptions) {
 		'>': [{w: '>', type: 'structure'}],
 		'/': [{w: '/', type: 'structure'}],
 		'\\':[{w: '\\',type: 'structure'}],
-		'"': [{w: '"', type: 'mark', mark: 'quotation', beginning: true, ending: true}],
-		'\'':[{w: '\'',type: 'mark', mark: 'quotation', beginning: true, ending: true}],
+		'"': [{w: '"', type: 'lquotation'},{w: '"', type: 'rquotation'}],
+		'\'':[{w: '\'',type: 'lquotation'},{w: '\'',type: 'rquotation'}],
 		'%': [{w: '%', type: 'mark'}],
 		'&': [{w: '&', type: 'symbol'}],
 		'$': [{w: '$', type: 'symbol'}],
@@ -238,22 +238,19 @@ alltiny.Dictionary.prototype.findWord = function(word) {
 				for (var l = 0; l < leading.length; l++) {
 					for (var t = 0; t < trailing.length; t++) {
 						// prevent some composits from being build.
+						var ltype = (leading[l].composits && leading[l].composits.length > 0) ? leading[l].composits[leading[l].composits.length-1].type : leading[l].type;
 						var ttype = (trailing[t].composits && trailing[t].composits.length > 0) ? trailing[t].composits[0].type : trailing[t].type;
-						if ((leading[l].type == 'abbreviation' || leading[l].type == 'suffix') && !(ttype == 'mark' || ttype == 'symbol' || ttype == 'hyphen' || ttype == 'interpunction' || ttype == 'structure')) {
-							continue;
+						// lookup the composit table.
+						var comp = alltiny.Dictionary.compositLookup[ltype][ttype];
+						if (comp) {
+							// create a composit of leading and trailing.
+							variants.push({
+								w: leading[l].w + comp.splitCharacter + trailing[t].w,
+								type: comp.type,
+								composits: [].concat(leading[l].composits ? leading[l].composits : leading[l]).concat(trailing[t].composits ? trailing[t].composits : trailing[t]),
+								endOfSentence: trailing[t].endOfSentence == true ? true : undefined
+							});
 						}
-						if ((ttype == 'abbreviation' || trailing[t].type == 'prefix' || trailing[t].type == 'prenoun') && !(leading[l].type == 'mark' || leading[l].type == 'symbol' || leading[l].type == 'hyphen' || leading[l].type == 'interpunction' || leading[l].type == 'structure')) {
-							continue;
-						}
-						// only insert a split character if leading or trailing do not have a hyphen next to it.
-						var splitCharacter = (leading[l].w[leading[l].w.length - 1] == '-' || trailing[t].w[0] == '-' || ttype == 'interpunction' || ttype == 'structure') ? '' : '|';
-						// create a composit of leading and trailing.
-						variants.push({
-							w: leading[l].w + splitCharacter + trailing[t].w,
-							type: (trailing[t].type == 'mark' || trailing[t].type == 'symbol' || trailing[t].type == 'hyphen' || trailing[t].type == 'interpunction' || trailing[t].type == 'structure') ? leading[l].type : trailing[t].type,
-							composits: [].concat(leading[l].composits ? leading[l].composits : leading[l]).concat(trailing[t].composits ? trailing[t].composits : trailing[t]),
-							endOfSentence: trailing[t].endOfSentence == true ? true : undefined
-						});
 					}
 				}
 			}
@@ -298,4 +295,73 @@ alltiny.Dictionary.prototype.process = function(words) {
 
 alltiny.encodeAsHTML = function(text) {
 	return text && text.length > 0 ? text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;') : text;
+};
+
+alltiny.Dictionary.compositLookup = {
+'abbreviation': {
+	'hyphen':        { splitCharacter: '', type: 'abbreviation', join: false},
+	'interpunction': { splitCharacter: '', type: 'abbreviation', join: false}
+},
+'adj': {
+	'hyphen':        { splitCharacter: '', type: 'adj', join: false},
+	'interpunction': { splitCharacter: '', type: 'adj', join: false},
+	'noun':          { splitCharacter: '|',type: 'noun',join: true}
+},
+'adv' : {
+	'hyphen':        { splitCharacter: '', type: 'adv', join: false},
+	'interpunction': { splitCharacter: '', type: 'adv', join: false},
+	'noun':          { splitCharacter: '|',type: 'noun',join: true}
+},
+'article': {},
+'conjunction' : {},
+'contraction': {},
+'greeting': {
+	'interpunction': { splitCharacter: '', type: 'greeting', join: false}
+},
+'hyphen': {},
+'indefpronoun': {},
+'interjection' : {},
+'lquotation' : {
+	'abbreviation':  { splitCharacter: '',type: 'abbreviation',  join: false},
+	'adj':           { splitCharacter: '',type: 'adj',  join: false},
+	'adv':           { splitCharacter: '',type: 'adv',  join: false},
+	'article':       { splitCharacter: '',type: 'article', join: false},
+	'indefpronoun':  { splitCharacter: '',type: 'indefpronoun', join: false},
+	'name' :         { splitCharacter: '',type: 'name', join: false},
+	'noun':          { splitCharacter: '',type: 'noun', join: false}
+},
+'mark': {},
+'name' : {},
+'noun': {
+	'adj':           { splitCharacter: '|',type: 'adj',  join: true},
+	'hyphen':        { splitCharacter: '', type: 'noun', join: false},
+	'interpunction': { splitCharacter: '', type: 'noun', join: false},
+	'noun':          { splitCharacter: '|',type: 'noun', join: true},
+	'rquotation':    { splitCharacter: '', type: 'noun', join: false},
+	'structure':     { splitCharacter: '', type: 'noun', join: false},
+	'verb':          { splitCharacter: '|',type: 'verb', join: true}
+},
+'numeral': {},
+'ordinal': {},
+'prefix' : {},
+'pronoun': {},
+'verb': {
+	'hyphen':        { splitCharacter: '', type: 'adv', join: false},
+	'interpunction': { splitCharacter: '', type: 'adv', join: false}
+},
+'particle': {
+	'hyphen':        { splitCharacter: '', type: 'adv', join: false},
+	'interpunction': { splitCharacter: '', type: 'adv', join: false}
+},
+'prepos': {},
+'prenoun' : {
+	'noun':          { splitCharacter: '|',type: 'noun', join: true}
+},
+'rquotation': {},
+'subjunction': {},
+'suffix' : {},
+'structure' : {
+	'noun':          { splitCharacter: '',type: 'noun', join: false}
+},
+'symbol': {}
 };

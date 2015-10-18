@@ -30,13 +30,18 @@ def verifyDictionary(dict) {
 						word.type == 'prenoun' ||
 						word.type == 'pronoun' ||
 						word.type == 'indefpronoun' ||
+						word.type == 'lbracket' ||
+						word.type == 'rbracket' ||
+						word.type == 'lquotation' ||
+						word.type == 'rquotation' ||
 						word.type == 'prefix' ||
 						word.type == 'suffix' ||
 						word.type == 'name' ||
 						word.type == 'subjunction' ||
 						word.type == 'conjunction' ||
 						word.type == 'interjection' ||
-						word.type == 'greeting') {
+						word.type == 'greeting' ||
+						word.type == 'dash') {
 						// currently nothing to check.
 					} else if (word.type == 'numeral' || word.type == 'ordinal') {
 						assert word.value != null : word.type + " '" + word.w + "' is lacking a defintion of 'value'"

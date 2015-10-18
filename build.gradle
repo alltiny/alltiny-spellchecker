@@ -40,7 +40,8 @@ def verifyDictionary(dict) {
 						word.type == 'subjunction' ||
 						word.type == 'conjunction' ||
 						word.type == 'interjection' ||
-						word.type == 'greeting') {
+						word.type == 'greeting' ||
+						word.type == 'dash') {
 						// currently nothing to check.
 					} else if (word.type == 'numeral' || word.type == 'ordinal') {
 						assert word.value != null : word.type + " '" + word.w + "' is lacking a defintion of 'value'"

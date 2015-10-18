@@ -88,7 +88,7 @@ QUnit.test("test composit of abbreviations with slash", function(assert) {
 	// let the spellchecker run. replace soft-hyphen back to pipe characters.
 	spellchecker.setAssumeStartOfSentence(false);
 	var output = spellchecker.check('ASP/XSP', {hyphenation: true}).replace(/\u00ad/g, '|');
-	assert.equal(output, 'ASP/|XSP', "Soft-hyphen should be set correctly." );
+	assert.equal(output, 'ASP/XSP', "Soft-hyphen should be set correctly." );
 });
 QUnit.test("test composit of prenoun", function(assert) {
 	// let the spellchecker run. replace soft-hyphen back to pipe characters.
@@ -102,4 +102,41 @@ QUnit.test("test composit with prenoun and trailing comma", function(assert) {
 	var output = spellchecker.check('Kundenentwicklungsplänen,', {hyphenation: true}).replace(/\u00ad/g, '|');
 	assert.equal(output, 'Kun|den|ent|wick|lungs|plä|nen,', "Soft-hyphen should be set correctly." );
 });
+QUnit.test("test composit with lbracket, noun and rbracket", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.check('(Auswahl)', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, '(Aus|wahl)', "no warning should be given" );
+});
+QUnit.test("test composit of adv and verb", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.check('zurückkehren', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, 'zu|rück|keh|ren', "no warning should be given" );
+});
+QUnit.test("test composit year and structure", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.check('1920/21', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, '1920/21', "no warning should be given" );
+});
+QUnit.test("test composit of brackets, years and structure", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.check('(1920-1944)', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, '(1920-1944)', "no warning should be given" );
+});
+QUnit.test("test composit of number, commas and dashes", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.check('Band 2, 1953, S. 42–43', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, 'Band 2, 1953, S. 42–43', "no warning should be given" );
+});
+QUnit.test("test composit", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.check('Nachkriegsjahre', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, 'Nach|kriegs|jah|re', "no warning should be given" );
+});
+
 

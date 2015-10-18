@@ -75,7 +75,7 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 		for (var v = 0; v < variants.length; v++) {
 			var foundWord = thisObj.assumeStartOfSentence ? variants[v].w[0].toUpperCase() + variants[v].w.substring(1) : variants[v].w;
 			if (foundWord.replace(/\|/g,'') == cleanWord) { // is this variant an exact hit?
-				thisObj.assumeStartOfSentence = variants[v].endOfSentence == true;
+				thisObj.assumeStartOfSentence = (variants[v].composits && variants[v].composits[variants[v].composits.length-1].endOfSentence == true) || variants[v].endOfSentence == true;
 				// apply the word from the dictionary, to apply hyphenation.
 				var content = (checkOptions.hyphenation && !isCursorInMiddle)
 					? ((isCursorAtBeginning ? checkOptions.cursorCharacter : '') + foundWord.replace(/\|/g,'\u00ad') + (isCursorAtEnding ? checkOptions.cursorCharacter : ''))
@@ -167,6 +167,16 @@ alltiny.Spellchecker.prototype.setCaseInsensitiveForNextWord = function(isInsens
 	this.caseInsensitiveForNextWord = isInsensitive;
 };
 
+alltiny.Spellchecker.prototype.processWord = function(word) {
+	if (word) {
+		var processing = alltiny.Language.DE.wordProcessingLookup[word.type];
+		if (processing && processing.upper) {
+			word.w = word.w[0].toUpperCase() + word.w.substring(1);
+		}
+	}
+	return word;
+};
+
 alltiny.Dictionary = function(customOptions) {
 	this.options = jQuery.extend(true, {
 		name         : '',
@@ -188,14 +198,14 @@ alltiny.Dictionary = function(customOptions) {
 		';': [{w: ';', type: 'interpunction'}],
 		':': [{w: ':', type: 'interpunction'}],
 		'-': [{w: '-', type: 'hyphen'}],
-		'(': [{w: '(', type: 'structure'}],
-		')': [{w: ')', type: 'structure'}],
-		'{': [{w: '{', type: 'structure'}],
-		'}': [{w: '}', type: 'structure'}],
-		'[': [{w: '[', type: 'structure'}],
-		']': [{w: ']', type: 'structure'}],
-		'<': [{w: '<', type: 'structure'}],
-		'>': [{w: '>', type: 'structure'}],
+		'(': [{w: '(', type: 'lbracket'}],
+		')': [{w: ')', type: 'rbracket'}],
+		'{': [{w: '{', type: 'lbracket'}],
+		'}': [{w: '}', type: 'rbracket'}],
+		'[': [{w: '[', type: 'lbracket'}],
+		']': [{w: ']', type: 'rbracket'}],
+		'<': [{w: '<', type: 'lbracket'}],
+		'>': [{w: '>', type: 'rbracket'}],
 		'/': [{w: '/', type: 'structure'}],
 		'\\':[{w: '\\',type: 'structure'}],
 		'"': [{w: '"', type: 'lquotation'},{w: '"', type: 'rquotation'}],
@@ -238,18 +248,36 @@ alltiny.Dictionary.prototype.findWord = function(word) {
 				for (var l = 0; l < leading.length; l++) {
 					for (var t = 0; t < trailing.length; t++) {
 						// prevent some composits from being build.
-						var ltype = (leading[l].composits && leading[l].composits.length > 0) ? leading[l].composits[leading[l].composits.length-1].type : leading[l].type;
-						var ttype = (trailing[t].composits && trailing[t].composits.length > 0) ? trailing[t].composits[0].type : trailing[t].type;
+						var lword = (leading[l].composits && leading[l].composits.length > 0) ? leading[l].composits[leading[l].composits.length-1] : leading[l];
+						var tword = (trailing[t].composits && trailing[t].composits.length > 0) ? trailing[t].composits[0] : trailing[t];
 						// lookup the composit table.
-						var comp = alltiny.Dictionary.compositLookup[ltype][ttype];
+						var comp = (alltiny.Dictionary.compositLookup[lword.type] || {})[tword.type];
 						if (comp) {
-							// create a composit of leading and trailing.
-							variants.push({
-								w: leading[l].w + comp.splitCharacter + trailing[t].w,
-								type: comp.type,
-								composits: [].concat(leading[l].composits ? leading[l].composits : leading[l]).concat(trailing[t].composits ? trailing[t].composits : trailing[t]),
-								endOfSentence: trailing[t].endOfSentence == true ? true : undefined
-							});
+							var w = '';
+							var composits = [];
+							for (var lc = 0; leading[l].composits && lc < leading[l].composits.length - 1; lc++) {
+								w += leading[l].composits[lc].w;
+								composits.push(leading[l].composits[lc]);
+							}
+							var flw = (comp.lupper) ? lword.w[0].toUpperCase() + lword.w.substring(1) : ((comp.llower) ? lword.w.toLowerCase() : lword.w);
+							var ftw = (comp.tupper) ? tword.w[0].toUpperCase() + tword.w.substring(1) : ((comp.tlower) ? tword.w.toLowerCase() : tword.w);
+							if (comp.join) {
+								w += flw + '|' + ftw;
+								composits.push({w: flw + '|' + ftw, type: comp.type});
+							} else {
+								w += flw + ftw;
+								composits.push({w: flw, type: lword.type});
+								composits.push({w: ftw, type: tword.type});
+							}
+							for (var tc = 1; trailing[t].composits && tc < trailing[t].composits.length; tc++) {
+								w += trailing[t].composits[tc].w;
+								composits.push(trailing[t].composits[tc]);
+							}
+							if (composits.length > 1) {
+								variants.push({w:w,type:'composit',composits:composits});
+							} else {
+								variants.push({w:w,type:comp.type});
+							}
 						}
 					}
 				}
@@ -268,19 +296,13 @@ alltiny.Dictionary.prototype.lookupWord = function(word) {
 		return jQuery.extend(true, [], symbol); // create a deep-copy of the array to save the lookup map from modifications.
 	}
 
-	// check whether it is a date.
-	if (this.options.dateformats) {
-		for (var i = 0; i < this.options.dateformats.length; i++) {
-			if (word.match(new RegExp('^' + this.options.dateformats[i] + '$'))) {
-				return [{w:word,type:'date'}];
-			}
-		}
-	}
-	// check whether it is a number.
-	if (this.options.numberformats) {
-		for (var i = 0; i < this.options.numberformats.length; i++) {
-			if (word.match(new RegExp('^' + this.options.numberformats[i] + '$'))) {
-				return [{w:word,type:'numerical'}];
+	// check predefined formats.
+	if (this.options.formats) {
+		for (var type in this.options.formats) {
+			for (var i = 0; i < this.options.formats[type].length; i++) {
+				if (word.match(new RegExp('^' + this.options.formats[type][i] + '$'))) {
+					return [{w:word,type:type}];
+				}
 			}
 		}
 	}
@@ -299,69 +321,112 @@ alltiny.encodeAsHTML = function(text) {
 
 alltiny.Dictionary.compositLookup = {
 'abbreviation': {
-	'hyphen':        { splitCharacter: '', type: 'abbreviation', join: false},
-	'interpunction': { splitCharacter: '', type: 'abbreviation', join: false}
+	'hyphen'       : { join: false, type: 'composit' },
+	'interpunction': { join: false, type: 'composit' },
+	'structure'    : { join: false, type: 'composit' }
 },
 'adj': {
-	'hyphen':        { splitCharacter: '', type: 'adj', join: false},
-	'interpunction': { splitCharacter: '', type: 'adj', join: false},
-	'noun':          { splitCharacter: '|',type: 'noun',join: true}
+	'hyphen'       : { join: false, type: 'composit' },
+	'interpunction': { join: false, type: 'composit' },
+	'noun'         : { join: true,  type: 'noun', lupper: true, tlower: true }
 },
-'adv' : {
-	'hyphen':        { splitCharacter: '', type: 'adv', join: false},
-	'interpunction': { splitCharacter: '', type: 'adv', join: false},
-	'noun':          { splitCharacter: '|',type: 'noun',join: true}
+'adv': {
+	'hyphen'       : { join: false, type: 'composit' },
+	'interpunction': { join: false, type: 'composit' },
+	'noun'         : { join: true,  type: 'noun', lupper: true, tlower: true },
+	'verb'         : { join: true,  type: 'verb' }
 },
 'article': {},
-'conjunction' : {},
+'conjunction': {},
 'contraction': {},
-'greeting': {
-	'interpunction': { splitCharacter: '', type: 'greeting', join: false}
+'dash': {
+	'number': { join: false, type: 'composit' }
 },
-'hyphen': {},
+'greeting': {
+	'interpunction': { join: false, type: 'composit' }
+},
+'hyphen': {
+	'noun'  : { join: false, type: 'composit', tupper: true },
+	'number': { join: false, type: 'composit' }
+},
 'indefpronoun': {},
-'interjection' : {},
-'lquotation' : {
-	'abbreviation':  { splitCharacter: '',type: 'abbreviation',  join: false},
-	'adj':           { splitCharacter: '',type: 'adj',  join: false},
-	'adv':           { splitCharacter: '',type: 'adv',  join: false},
-	'article':       { splitCharacter: '',type: 'article', join: false},
-	'indefpronoun':  { splitCharacter: '',type: 'indefpronoun', join: false},
-	'name' :         { splitCharacter: '',type: 'name', join: false},
-	'noun':          { splitCharacter: '',type: 'noun', join: false}
+'interjection': {},
+'lbracket': {
+	'abbreviation': { join: false, type: 'composit' },
+	'adj'         : { join: false, type: 'composit' },
+	'adv'         : { join: false, type: 'composit' },
+	'article'     : { join: false, type: 'composit' },
+	'indefpronoun': { join: false, type: 'composit' },
+	'lquotation'  : { join: false, type: 'composit' },
+	'name'        : { join: false, type: 'composit' },
+	'noun'        : { join: false, type: 'composit', tupper: true },
+	'number'      : { join: false, type: 'composit' },
+	'verb'        : { join: false, type: 'composit' }
+},
+'lquotation': {
+	'abbreviation': { join: false, type: 'composit' },
+	'adj'         : { join: false, type: 'composit' },
+	'adv'         : { join: false, type: 'composit' },
+	'article'     : { join: false, type: 'composit' },
+	'contraction' : { join: false, type: 'composit' },
+	'indefpronoun': { join: false, type: 'composit' },
+	'name'        : { join: false, type: 'composit' },
+	'noun'        : { join: false, type: 'composit', tupper: true },
+	'verb'        : { join: false, type: 'composit' }
 },
 'mark': {},
-'name' : {},
-'noun': {
-	'adj':           { splitCharacter: '|',type: 'adj',  join: true},
-	'hyphen':        { splitCharacter: '', type: 'noun', join: false},
-	'interpunction': { splitCharacter: '', type: 'noun', join: false},
-	'noun':          { splitCharacter: '|',type: 'noun', join: true},
-	'rquotation':    { splitCharacter: '', type: 'noun', join: false},
-	'structure':     { splitCharacter: '', type: 'noun', join: false},
-	'verb':          { splitCharacter: '|',type: 'verb', join: true}
+'name': {
+	'interpunction': { join: false, type: 'composit' },
 },
-'numeral': {},
+'noun': {
+	'adj'          : { join: true,  type: 'adj'  },
+	'hyphen'       : { join: false, type: 'composit', lupper: true },
+	'interpunction': { join: false, type: 'composit', lupper: true },
+	'noun'         : { join: true,  type: 'noun', lupper: true, tlower: true },
+	'rbracket'     : { join: false, type: 'composit', lupper: true },
+	'rquotation'   : { join: false, type: 'composit', lupper: true },
+	'structure'    : { join: false, type: 'composit', lupper: true },
+	'verb'         : { join: true,  type: 'verb' }
+},
+'number': {
+	'dash'         : { join: false, type: 'composit' },
+	'hyphen'       : { join: false, type: 'composit' },
+	'interpunction': { join: false, type: 'composit' },
+	'rbracket'     : { join: false, type: 'composit' },
+	'structure'    : { join: false, type: 'composit' }
+},
+'numeral': {
+	'adj': { join: true, type: 'adj' }
+},
 'ordinal': {},
-'prefix' : {},
+'particle': {
+	'hyphen'       : { join: false, type: 'composit' },
+	'interpunction': { join: false, type: 'composit' }
+},
+'prefix': {},
+'prepos': {
+	'noun': { join: true, type: 'noun', lupper: true, tlower: true }
+},
+'prenoun': {
+	'noun': { join: true, type: 'noun', lupper: true, tlower: true }
+},
 'pronoun': {},
 'verb': {
-	'hyphen':        { splitCharacter: '', type: 'adv', join: false},
-	'interpunction': { splitCharacter: '', type: 'adv', join: false}
+	'hyphen'       : { join: false, type: 'composit' },
+	'interpunction': { join: false, type: 'composit' }
 },
-'particle': {
-	'hyphen':        { splitCharacter: '', type: 'adv', join: false},
-	'interpunction': { splitCharacter: '', type: 'adv', join: false}
+'rbracket': {
+	'interpunction': { join: false, type: 'composit' }
 },
-'prepos': {},
-'prenoun' : {
-	'noun':          { splitCharacter: '|',type: 'noun', join: true}
+'rquotation': {
+	'rbracket': { join: false, type: 'composit' }
 },
-'rquotation': {},
 'subjunction': {},
-'suffix' : {},
-'structure' : {
-	'noun':          { splitCharacter: '',type: 'noun', join: false}
+'suffix': {},
+'structure': {
+	'abbreviation': { join: false, type: 'composit' },
+	'noun'        : { join: false, type: 'noun', tupper: true },
+	'number'      : { join: false, type: 'composit' }
 },
 'symbol': {}
 };

@@ -30,6 +30,10 @@ def verifyDictionary(dict) {
 						word.type == 'prenoun' ||
 						word.type == 'pronoun' ||
 						word.type == 'indefpronoun' ||
+						word.type == 'lbracket' ||
+						word.type == 'rbracket' ||
+						word.type == 'lquotation' ||
+						word.type == 'rquotation' ||
 						word.type == 'prefix' ||
 						word.type == 'suffix' ||
 						word.type == 'name' ||

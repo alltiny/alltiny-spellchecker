@@ -271,19 +271,13 @@ alltiny.Dictionary.prototype.lookupWord = function(word) {
 		return jQuery.extend(true, [], symbol); // create a deep-copy of the array to save the lookup map from modifications.
 	}
 
-	// check whether it is a date.
-	if (this.options.dateformats) {
-		for (var i = 0; i < this.options.dateformats.length; i++) {
-			if (word.match(new RegExp('^' + this.options.dateformats[i] + '$'))) {
-				return [{w:word,type:'date'}];
-			}
-		}
-	}
-	// check whether it is a number.
-	if (this.options.numberformats) {
-		for (var i = 0; i < this.options.numberformats.length; i++) {
-			if (word.match(new RegExp('^' + this.options.numberformats[i] + '$'))) {
-				return [{w:word,type:'numerical'}];
+	// check predefined formats.
+	if (this.options.formats) {
+		for (var type in this.options.formats) {
+			for (var i = 0; i < this.options.formats[type].length; i++) {
+				if (word.match(new RegExp('^' + this.options.formats[type][i] + '$'))) {
+					return [{w:word,type:type}];
+				}
 			}
 		}
 	}

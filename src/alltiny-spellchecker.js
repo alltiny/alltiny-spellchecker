@@ -341,7 +341,7 @@ alltiny.Dictionary.compositLookup = {
 	'noun'            : { join: true,  type: 'noun', lupper: true, tlower: true },
 	'punctuation'     : { join: false, type: 'composit', endOfSentence: true },
 	'rbracket'        : { join: false, type: 'composit' },
-	'rquotation'      : { join: false, type: 'composit' }	
+	'rquotation'      : { join: false, type: 'composit' }
 },
 'adv': {
 	'hyphen'          : { join: false, type: 'composit' },
@@ -445,8 +445,12 @@ alltiny.Dictionary.compositLookup = {
 	'rquotation'      : { join: false, type: 'composit' }
 },
 'prenoun': {
+	'adj'   : { join: true,  type: 'adj' },
 	'hyphen': { join: false, type: 'composit' },
 	'noun'  : { join: true, type: 'noun', lupper: true, tlower: true }
+},
+'preverb': {
+	'verb' : { join: true, type: 'verb' }
 },
 'pronoun': {
 	'interpunctuation': { join: false, type: 'composit' },

@@ -28,6 +28,7 @@ def verifyDictionary(dict) {
 						word.type == 'particle' ||
 						word.type == 'prepos' ||
 						word.type == 'prenoun' ||
+						word.type == 'preverb' ||
 						word.type == 'pronoun' ||
 						word.type == 'indefpronoun' ||
 						word.type == 'lbracket' ||

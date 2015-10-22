@@ -444,10 +444,12 @@ alltiny.Dictionary.compositLookup = {
 'particle': {
 	'hyphen'          : { join: false, type: 'composit' },
 	'interpunctuation': { join: false, type: 'composit' },
-	'punctuation'     : { join: false, type: 'composit', endOfSentence: true }
+	'punctuation'     : { join: false, type: 'composit', endOfSentence: true },
+	'verb'            : { join: true,  type: 'verb' }
 },
 'prefix': {
-	'adj': { join: true, type: 'adj' }
+	'adj':  { join: true, type: 'adj' },
+	'verb': { join: true, type: 'verb' }
 },
 'prepos': {
 	'interpunctuation': { join: false, type: 'composit' },

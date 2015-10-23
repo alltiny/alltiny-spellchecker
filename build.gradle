@@ -20,29 +20,32 @@ def verifyDictionary(dict) {
 					// verify that each word has its type defined.
 					assert word.type != null : "word '" + word.w + "' is lacking a type defintion"
 					// verify the word depending on its type
-					if (word.type == 'noun' ||
-						word.type == 'verb' ||
-						word.type == 'adj' ||
+					if (word.type == 'adj' ||
 						word.type == 'adv' ||
 						word.type == 'article' ||
+						word.type == 'conjunction' ||
+						word.type == 'dash' ||
+						word.type == 'fragment' ||
+						word.type == 'greeting' ||
+						word.type == 'indefpronoun' ||
+						word.type == 'interjection' ||
+						word.type == 'lbracket' ||
+						word.type == 'lquotation' ||
+						word.type == 'name' ||
+						word.type == 'noun' ||
+						word.type == 'part' ||
 						word.type == 'particle' ||
+						word.type == 'prefix' ||
 						word.type == 'prepos' ||
 						word.type == 'prenoun' ||
 						word.type == 'preverb' ||
 						word.type == 'pronoun' ||
-						word.type == 'indefpronoun' ||
-						word.type == 'lbracket' ||
 						word.type == 'rbracket' ||
-						word.type == 'lquotation' ||
 						word.type == 'rquotation' ||
-						word.type == 'prefix' ||
-						word.type == 'suffix' ||
-						word.type == 'name' ||
 						word.type == 'subjunction' ||
-						word.type == 'conjunction' ||
-						word.type == 'interjection' ||
-						word.type == 'greeting' ||
-						word.type == 'dash') {
+						word.type == 'suffix' ||
+						word.type == 'unit' ||
+						word.type == 'verb') {
 						// currently nothing to check.
 					} else if (word.type == 'numeral' || word.type == 'ordinal') {
 						assert word.value != null : word.type + " '" + word.w + "' is lacking a defintion of 'value'"

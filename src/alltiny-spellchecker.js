@@ -61,7 +61,7 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 			}
 		}
 		var cleanWord = word.replace(new RegExp(checkOptions.cursorCharacter, 'g'), '').replace(/\u00ad/g,''); // remove all soft-hyphens from the word.
-		
+
 		var current = {
 			word               : word,
 			cleanWord          : cleanWord,
@@ -480,8 +480,8 @@ alltiny.Dictionary.compositLookup = {
 	'verb': { join: true, type: 'verb' }
 },
 'prepos': {
-	'adj':  { join: true, type: 'adj' },
-	'adv':  { join: true, type: 'adv' },
+	'adj'             :  { join: true, type: 'adj' },
+	'adv'             :  { join: true, type: 'adv' },
 	'interpunctuation': { join: false, type: 'composit' },
 	'noun'            : { join: true, type: 'noun', lupper: true, tlower: true },
 	'rbracket'        : { join: false, type: 'composit' },

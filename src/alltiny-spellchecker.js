@@ -7,6 +7,7 @@ alltiny.Spellchecker = function(options) {
 		highlightKnownWords : false,
 		highlightMismatches : true,
 		highlightCaseWarnings : true,
+		highlightNonStandalone : true, // with this option '!', '?', '.', ',', ';', ':' are marked when found standing alone.
 		cursorCharacter : '\u2038'
 	}, options);
 	this.dictionaries = [];
@@ -77,6 +78,10 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 			thisObj.assumeStartOfSentence = lastChar == '.' || lastChar == '!' || lastChar == '?';
 			return (checkOptions.highlighting && checkOptions.highlightUnknownWords) ? '<span class="spellcheck highlight error unknown">'+alltiny.encodeAsHTML(word)+'</span>' : alltiny.encodeAsHTML(word);
 		}
+		if (current.variants.length == 1 && (current.variants[0].type == 'interpunctuation' || current.variants[0].type == 'punctuation')) {
+			thisObj.assumeStartOfSentence = current.variants[0].endOfSentence == true;
+			return (checkOptions.highlighting && checkOptions.highlightNonStandalone) ? '<span class="spellcheck highlight error standalone">'+alltiny.encodeAsHTML(word)+'</span>' : alltiny.encodeAsHTML(word);
+		}
 		// check whether one of the variants is an exact hit.
 		for (var v = 0; v < current.variants.length; v++) {
 			var variant = current.variants[v];
@@ -122,10 +127,18 @@ alltiny.Spellchecker.prototype.getCursorPositions = function(word, cursorCharact
 
 alltiny.Spellchecker.prototype.askDictionaries = function(word) {
 	var variants = [];
+	var variantsFoundLookup = {}; // this is for avoiding duplicates in the variants array.
 	for (var i = 0; i < this.dictionaries.length; i++) {
 		var foundWords = this.dictionaries[i].findWord(word);
-		if (foundWords != null && foundWords.length > 0) {
-			variants = variants.concat(foundWords);
+		if (foundWords != null) {
+			for (var v = 0; v < foundWords.length; v++) {
+				var variant = foundWords[v];
+				var key = variant.type + '#' + variant.w;
+				if (!variantsFoundLookup[key]) {
+					variants.push(variant);
+					variantsFoundLookup[key] = true;
+				}
+			}
 		}
 	}
 	return variants;

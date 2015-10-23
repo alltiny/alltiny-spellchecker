@@ -73,6 +73,9 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 			isCursorInMiddle   : isCursorInMiddle
 		};
 		
+		if (cleanWord.length == 0) { // this happens when the cursor character has been the word to check.
+			return alltiny.encodeAsHTML(word);
+		}
 		if (current.variants.length == 0) {
 			var lastChar = cleanWord.length > 0 ? cleanWord[cleanWord.length - 1] : '';
 			thisObj.assumeStartOfSentence = lastChar == '.' || lastChar == '!' || lastChar == '?';

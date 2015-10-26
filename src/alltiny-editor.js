@@ -66,6 +66,7 @@ alltiny.Editor.prototype.performSpellcheck = function() {
 	// to get as few text nodes as possible we need to rejoin them.
 	this.rejoinTextNodes(this.$target);
 	// perform our spellcheck.
+	this.options.spellchecker.reset();
 	this.options.spellchecker.setAssumeStartOfSentence(true);
 	this.checkNode(this.$target);
 };

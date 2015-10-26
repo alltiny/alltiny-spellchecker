@@ -357,6 +357,7 @@ alltiny.Dictionary.compositLookup = {
 	'hyphen'          : { join: false, type: 'composit' },
 	'interpunctuation': { join: false, type: 'composit' },
 	'noun'            : { join: true,  type: 'noun', lupper: true, tlower: true },
+	'part'            : { join: true,  type: 'part' },
 	'punctuation'     : { join: false, type: 'composit', endOfSentence: true },
 	'rbracket'        : { join: false, type: 'composit' },
 	'rquotation'      : { join: false, type: 'composit' },
@@ -470,6 +471,7 @@ alltiny.Dictionary.compositLookup = {
 	'hyphen'          : { join: false, type: 'composit', lupper: true },
 	'interpunctuation': { join: false, type: 'composit', lupper: true },
 	'noun'            : { join: true,  type: 'noun', lupper: true, tlower: true },
+	'part'            : { join: true,  type: 'part' }, /* this is only valid for part1, for part2 it's not. */
 	'punctuation'     : { join: false, type: 'composit', lupper: true, endOfSentence: true },
 	'prenoun'         : { join: true,  type: 'prenoun', lupper: true, tlower: true},
 	'rbracket'        : { join: false, type: 'composit', lupper: true },
@@ -526,7 +528,8 @@ alltiny.Dictionary.compositLookup = {
 'prenoun': {
 	'adj'   : { join: true,  type: 'adj' },
 	'hyphen': { join: false, type: 'composit' },
-	'noun'  : { join: true, type: 'noun', lupper: true, tlower: true }
+	'noun'  : { join: true,  type: 'noun', lupper: true, tlower: true },
+	'part'  : { join: true,  type: 'part' }
 },
 'preverb': {
 	'part' : { join: true, type: 'part' },

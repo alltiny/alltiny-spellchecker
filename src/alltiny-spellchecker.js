@@ -429,6 +429,7 @@ alltiny.Dictionary.compositLookup = {
 	'noun'        : { join: false, type: 'composit', tupper: true },
 	'number'      : { join: false, type: 'composit' },
 	'numeral'     : { join: false, type: 'composit' },
+	'part'        : { join: true,  type: 'composit' },
 	'particle'    : { join: false, type: 'composit' },
 	'prepos'      : { join: false, type: 'composit' },
 	'pronoun'     : { join: false, type: 'composit' },
@@ -447,6 +448,7 @@ alltiny.Dictionary.compositLookup = {
 	'mark'        : { join: false, type: 'composit' },
 	'name'        : { join: false, type: 'composit' },
 	'noun'        : { join: false, type: 'composit', tupper: true },
+	'part'        : { join: true,  type: 'composit' },
 	'prepos'      : { join: false, type: 'composit' },
 	'pronoun'     : { join: false, type: 'composit' },
 	'subjunction' : { join: false, type: 'composit' },
@@ -491,24 +493,33 @@ alltiny.Dictionary.compositLookup = {
 	'noun'            : { join: true,  type: 'noun', lupper: true, tlower: true },
 },
 'ordinal': {},
-'particle': {
-	'adj'             : { join: true, type: 'adj' },
+'part': {
 	'hyphen'          : { join: false, type: 'composit' },
 	'interpunctuation': { join: false, type: 'composit' },
+	'punctuation'     : { join: false, type: 'composit', endOfSentence: true },
+	'rbracket'        : { join: false, type: 'composit' },
+	'rquotation'      : { join: false, type: 'composit' }
+},
+'particle': {
+	'adj'             : { join: true,  type: 'adj' },
+	'hyphen'          : { join: false, type: 'composit' },
+	'interpunctuation': { join: false, type: 'composit' },
+	'part'            : { join: true,  type: 'part' },
 	'punctuation'     : { join: false, type: 'composit', endOfSentence: true },
 	'verb'            : { join: true,  type: 'verb' }
 },
 'prefix': {
-	'adj'   : { join: true, type: 'adj' },
+	'adj'   : { join: true,  type: 'adj' },
 	'hyphen': { join: false, type: 'composit' },
-	'noun'  : { join: true, type: 'noun', lupper: true, tlower: true },
-	'verb'  : { join: true, type: 'verb' }
+	'noun'  : { join: true,  type: 'noun', lupper: true, tlower: true },
+	'part'  : { join: true,  type: 'part' },
+	'verb'  : { join: true,  type: 'verb' }
 },
 'prepos': {
-	'adj'             :  { join: true, type: 'adj' },
-	'adv'             :  { join: true, type: 'adv' },
+	'adj'             : { join: true,  type: 'adj' },
+	'adv'             : { join: true,  type: 'adv' },
 	'interpunctuation': { join: false, type: 'composit' },
-	'noun'            : { join: true, type: 'noun', lupper: true, tlower: true },
+	'noun'            : { join: true,  type: 'noun', lupper: true, tlower: true },
 	'rbracket'        : { join: false, type: 'composit' },
 	'rquotation'      : { join: false, type: 'composit' }
 },
@@ -518,6 +529,7 @@ alltiny.Dictionary.compositLookup = {
 	'noun'  : { join: true, type: 'noun', lupper: true, tlower: true }
 },
 'preverb': {
+	'part' : { join: true, type: 'part' },
 	'verb' : { join: true, type: 'verb' }
 },
 'pronoun': {
@@ -528,13 +540,6 @@ alltiny.Dictionary.compositLookup = {
 'punctuation': {
 	'rbracket'  : { join: false, type: 'composit' },
 	'rquotation': { join: false, type: 'composit' }
-},
-'verb': {
-	'hyphen'          : { join: false, type: 'composit' },
-	'interpunctuation': { join: false, type: 'composit' },
-	'punctuation'     : { join: false, type: 'composit', endOfSentence: true },
-	'rbracket'        : { join: false, type: 'composit' },
-	'rquotation'      : { join: false, type: 'composit' }
 },
 'rbracket': {
 	'interpunctuation': { join: false, type: 'composit' },
@@ -563,6 +568,13 @@ alltiny.Dictionary.compositLookup = {
 },
 'symbol': {},
 'unit': {
+	'hyphen'          : { join: false, type: 'composit' },
+	'interpunctuation': { join: false, type: 'composit' },
+	'punctuation'     : { join: false, type: 'composit', endOfSentence: true },
+	'rbracket'        : { join: false, type: 'composit' },
+	'rquotation'      : { join: false, type: 'composit' }
+},
+'verb': {
 	'hyphen'          : { join: false, type: 'composit' },
 	'interpunctuation': { join: false, type: 'composit' },
 	'punctuation'     : { join: false, type: 'composit', endOfSentence: true },

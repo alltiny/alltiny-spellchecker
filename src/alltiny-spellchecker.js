@@ -106,7 +106,7 @@ alltiny.Spellchecker.prototype.analyze = function(current, checkOptions) {
 	// check whether one of the variants is an exact hit.
 	for (var v = 0; v < current.variants.length; v++) {
 		var variant = current.variants[v];
-		var foundWord = this.assumeStartOfSentence ? variant.w[0].toUpperCase() + variant.w.substring(1) : variant.w;
+		var foundWord = this.assumeStartOfSentence ? this.upperCaseFirstCharacter(variant.w) : variant.w;
 		if (foundWord.replace(/\|/g,'') == current.cleanWord) { // is this variant an exact hit?
 			this.assumeStartOfSentence = (variant.composits && variant.composits[variant.composits.length-1].endOfSentence == true) || variant.endOfSentence == true;
 			// apply the word from the dictionary, to apply hyphenation.
@@ -129,6 +129,18 @@ alltiny.Spellchecker.prototype.analyze = function(current, checkOptions) {
 	}
 	this.assumeStartOfSentence = false;
 	return (checkOptions.highlighting && checkOptions.highlightMismatches) ? '<span class="spellcheck highlight warn mismatch">'+alltiny.encodeAsHTML(current.word)+'</span>' : alltiny.encodeAsHTML(current.word);
+};
+
+alltiny.Spellchecker.prototype.upperCaseFirstCharacter = function(text) {
+	for (var i = 0; i < text.length; i++) {
+		var lower = text[i].toLowerCase();
+		var upper = text[i].toUpperCase();
+		if (lower != upper || lower == 'ß') {
+			return text.substring(0, i) + upper + text.substring(i+1, text.length);
+			break;
+		}
+	}
+	return text;
 };
 
 /**

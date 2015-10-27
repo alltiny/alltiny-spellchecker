@@ -182,8 +182,6 @@ alltiny.Spellchecker.prototype.askCrossDictionaries = function(word) {
 						});
 					}
 				}
-			} else {
-				variants = variants.concat(leading);
 			}
 		}
 	}

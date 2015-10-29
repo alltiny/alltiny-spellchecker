@@ -534,6 +534,7 @@ alltiny.Dictionary.compositLookup = {
 	'hyphen'          : { join: false, type: 'composit' },
 	'interpunctuation': { join: false, type: 'composit' },
 	'noun'            : { join: true,  type: 'noun', lupper: true, tlower: true },
+	'numeral'         : { join: true,  type: 'numeral' }
 },
 'ordinal': {},
 'part': {

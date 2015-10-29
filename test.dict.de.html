@@ -14,16 +14,35 @@
 	<script type="text/javascript">
 		// initialize the spellchecker.
 		var spellchecker = new alltiny.Spellchecker({hyphenation : false, highlightKnownWords: false});
-		// load the german dictionary.
-		jQuery.getJSON("dict/alltiny.dict.base.de_de.json", function(dict) {
-			spellchecker.addDictionary(new alltiny.Dictionary(dict));
-		});
-		// load the tradenames dictionary.
-		jQuery.getJSON("dict/alltiny.dict.tradenames.json", function(dict) {
-			spellchecker.addDictionary(new alltiny.Dictionary(dict));
-		});
+		var dictionariesToLoad = [
+			'dict/alltiny.dict.base.de_de.json', // load the german dictionary.
+			'dict/alltiny.dict.tradenames.json'  // load the tradenames dictionary.
+		];
+		var dictionariesLoaded = [];
+
+		var loadDictionary = function(path) {
+			jQuery.ajax(path, {
+				dataType: 'json',
+				success: function(data, status, jqXHR) {
+					spellchecker.addDictionary(new alltiny.Dictionary(data));
+				},
+				complete: function(jqXHR, status, error) {
+					dictionariesLoaded.push(path);
+				}
+			});
+		};
+		for (var i = 0; i < dictionariesToLoad.length; i++) {
+			loadDictionary(dictionariesToLoad[i]);
+		}
+
+		// wait for the dictionaries to be loaded.
+		var waitForDictionariesToBeLoaded = function() {
+			if (dictionariesToLoad.length < dictionariesLoaded.length) { // wait bit longer.
+				window.setTimeout(waitForDictionariesToBeLoaded, 100/*ms*/);
+			} else { // call the test script.
+				jQuery.getScript("src/test/js/test.de.js");
+			}
+		}();
 	</script>
-	
-	<script type="text/javascript" src="src/test/js/test.de.js"></script>
 </body>
 </html>

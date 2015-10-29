@@ -13,6 +13,7 @@ alltiny.Spellchecker = function(options) {
 	this.dictionaries = [];
 	this.assumeStartOfSentence = true; // if true the first word in a check is assumed to be the start of a sentence.
 	this.caseInsensitiveForNextWord = false; // if true then for the next upcoming word case-sensitivity is disabled.
+	this.findings = [];
 };
 
 /**
@@ -35,6 +36,7 @@ alltiny.Spellchecker.prototype.addDictionary = function(dictionary) {
  */
 alltiny.Spellchecker.prototype.reset = function() {
 	this.previousFinding = null;
+	this.findings = [];
 };
 
 /**
@@ -70,7 +72,7 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 		if (cleanWord.length == 0) { // this happens when the cursor character has been the word to check.
 			return alltiny.encodeAsHTML(word);
 		}
-		
+
 		var current = {
 			word               : word,
 			cleanWord          : cleanWord,
@@ -82,13 +84,23 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 			isCursorAtEnding   : isCursorAtEnding,
 			isCursorInMiddle   : isCursorInMiddle
 		};
-		
+		thisObj.appendCurrentFinding(current);
+
 		var result = thisObj.analyze(current, checkOptions);
 		thisObj.previousFinding = current;
 		thisObj.caseInsensitiveForNextWord = false;
 		return result;
 	});
 	return text;
+};
+
+alltiny.Spellchecker.prototype.appendCurrentFinding = function(current) {
+	// search the appropriate container - create one if no one did exist.
+	if (this.findings && this.findings.length > 0 && this.findings[this.findings.length-1].node == current.node) {
+		this.findings[this.findings.length-1].words.push(current);
+	} else {
+		this.findings.push({node:current.node,words:[current]});
+	}
 };
 
 alltiny.Spellchecker.prototype.analyze = function(current, checkOptions) {

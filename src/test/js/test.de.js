@@ -138,5 +138,33 @@ QUnit.test("test composit", function(assert) {
 	var output = spellchecker.check('Nachkriegsjahre', {hyphenation: true}).replace(/\u00ad/g, '|');
 	assert.equal(output, 'Nach|kriegs|jah|re', "no warning should be given" );
 });
-
-
+QUnit.test("test enumeration", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.check('die Mit- und Zusammenarbeit', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, 'die Mit- und Zu|sam|men|ar|beit', "no warning should be given" );
+});
+QUnit.test("test enumeration", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.check('die Wohn- und Pflegegruppen', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, 'die Wohn- und Pfle|ge|grup|pen', "no warning should be given" );
+});
+QUnit.test("test enumeration", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.check('Arbeitsmarktbeobachtung und -berichterstattung', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, 'die Ar|beits|markt|beo|bach|tung und -berichterstattung', "no warning should be given" );
+});
+QUnit.test("test enumeration", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.check('die Ein- und Wiedereingliederung', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, 'die Ein- und Wie|der|ein|glie|de|rung', "no warning should be given" );
+});
+QUnit.test("test enumeration", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.check('die Brillenfassungen und -gläser', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, 'die Bril|len|fas|sun|gen und -gläser', "no warning should be given" );
+});

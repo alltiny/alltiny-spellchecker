@@ -75,7 +75,7 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 			word               : word,
 			cleanWord          : cleanWord,
 			offset             : offset,
-			node               : options.node,
+			node               : checkOptions.node,
 			contentLength      : content.length,
 			variants           : thisObj.askCrossDictionaries(cleanWord), // ask the dictionaries
 			isCursorAtBeginning: isCursorAtBeginning,

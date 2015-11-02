@@ -138,6 +138,25 @@ QUnit.test("test composit", function(assert) {
 	var output = spellchecker.check('Nachkriegsjahre', {hyphenation: true}).replace(/\u00ad/g, '|');
 	assert.equal(output, 'Nach|kriegs|jah|re', "no warning should be given" );
 });
+QUnit.test("test joinables", function(assert) {
+	var leading = spellchecker.checkWord('Be-');
+	var trailing = spellchecker.checkWord('Verarbeitung');
+	// lets join both words.
+	spellchecker.checkJoinable(leading, trailing);
+	// check that leading and trailing has been found as searched.
+	assert.ok(leading.variants.length > 1, 'leading portion should have been found as elision');
+	// one of the found variant should be a elision.
+	for (var i = 0; i < leading.variants.length; i++) {
+		if (leading.variants[i].type == 'elision') {
+			assert.equal(leading.variants[i].w, 'Be-', 'content of leading portion should be as expected');
+			assert.equal(leading.variants[i].type, 'elision', 'type of leading portion should be as expected');
+			assert.equal(leading.variants[i].elision, 'Be|ar|bei|tung', 'entire word of leading portion should be as expected');
+			return;
+		}
+	}
+	assert.ok(false, 'elision for leading part has not been found');
+});
+
 QUnit.test("test enumeration", function(assert) {
 	// let the spellchecker run. replace soft-hyphen back to pipe characters.
 	spellchecker.setAssumeStartOfSentence(false);

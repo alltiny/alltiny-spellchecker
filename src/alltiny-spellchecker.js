@@ -54,36 +54,10 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 
 	// use the word regex to split text into words.
 	text = text.replace(/[^\s]+/ig, function(word, offset, content) {
-		var cursorPos = thisObj.getCursorPositions(word, checkOptions.cursorCharacter);
-		var isCursorAtBeginning = false;
-		var isCursorAtEnding = false;
-		var isCursorInMiddle = false;
-		var lastPossiblePos = word.length - checkOptions.cursorCharacter.length;
-		for (var i = 0; i < cursorPos.length; i++) {
-			if (i == 0 && cursorPos[i] == 0) {
-				isCursorAtBeginning = true;
-			} else if (i == cursorPos.length - 1 && cursorPos[i] == lastPossiblePos) {
-				isCursorAtEnding = true;
-			} else {
-				isCursorInMiddle = true
-			}
-		}
-		var cleanWord = word.replace(new RegExp(checkOptions.cursorCharacter, 'g'), '').replace(/\u00ad/g,''); // remove all soft-hyphens from the word.
-		if (cleanWord.length == 0) { // this happens when the cursor character has been the word to check.
-			return alltiny.encodeAsHTML(word);
-		}
+		var current = thisObj.checkWord(word, checkOptions);
+		current.offset = offset;
+		current.contentLength = content.length;
 
-		var current = {
-			word               : word,
-			cleanWord          : cleanWord,
-			offset             : offset,
-			node               : checkOptions.node,
-			contentLength      : content.length,
-			variants           : thisObj.askCrossDictionaries(cleanWord), // ask the dictionaries
-			isCursorAtBeginning: isCursorAtBeginning,
-			isCursorAtEnding   : isCursorAtEnding,
-			isCursorInMiddle   : isCursorInMiddle
-		};
 		thisObj.appendCurrentFinding(current);
 
 		var result = thisObj.analyze(current, checkOptions);
@@ -92,6 +66,42 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 		return result;
 	});
 	return text;
+};
+
+/**
+ * This method will check for a single given word.
+ * @return findings as a structure
+ */
+alltiny.Spellchecker.prototype.checkWord = function(word, options) {
+	var thisObj = this;
+	// determine the check options; fall-back to the spellchecker options if not given.
+	var checkOptions = jQuery.extend(true, jQuery.extend(true, {}, this.options), options); // deep copy to avoid overrides. uses this.options as defaults.
+
+	var cursorPos = thisObj.getCursorPositions(word, checkOptions.cursorCharacter);
+	var isCursorAtBeginning = false;
+	var isCursorAtEnding = false;
+	var isCursorInMiddle = false;
+	var lastPossiblePos = word.length - checkOptions.cursorCharacter.length;
+	for (var i = 0; i < cursorPos.length; i++) {
+		if (i == 0 && cursorPos[i] == 0) {
+			isCursorAtBeginning = true;
+		} else if (i == cursorPos.length - 1 && cursorPos[i] == lastPossiblePos) {
+			isCursorAtEnding = true;
+		} else {
+			isCursorInMiddle = true
+		}
+	}
+	var cleanWord = word.replace(new RegExp(checkOptions.cursorCharacter, 'g'), '').replace(/\u00ad/g,''); // remove all soft-hyphens from the word.
+
+	return {
+		word               : word,
+		cleanWord          : cleanWord,
+		node               : checkOptions.node,
+		variants           : cleanWord.length > 0 ? thisObj.askCrossDictionaries(cleanWord) : null, // ask the dictionaries
+		isCursorAtBeginning: isCursorAtBeginning,
+		isCursorAtEnding   : isCursorAtEnding,
+		isCursorInMiddle   : isCursorInMiddle
+	};
 };
 
 alltiny.Spellchecker.prototype.appendCurrentFinding = function(current) {
@@ -104,6 +114,9 @@ alltiny.Spellchecker.prototype.appendCurrentFinding = function(current) {
 };
 
 alltiny.Spellchecker.prototype.analyze = function(current, checkOptions) {
+	if (current.cleanWord.length == 0) { // this happens when the cursor character has been the word to check.
+		return alltiny.encodeAsHTML(current.word);
+	}
 	if (current.variants.length == 0) {
 		var lastChar = current.cleanWord.length > 0 ? current.cleanWord[current.cleanWord.length - 1] : '';
 		this.assumeStartOfSentence = lastChar == '.' || lastChar == '!' || lastChar == '?';
@@ -229,14 +242,33 @@ alltiny.Spellchecker.prototype.setCaseInsensitiveForNextWord = function(isInsens
 	this.caseInsensitiveForNextWord = isInsensitive;
 };
 
-alltiny.Spellchecker.prototype.processWord = function(word) {
-	if (word) {
-		var processing = alltiny.Language.DE.wordProcessingLookup[word.type];
-		if (processing && processing.upper) {
-			word.w = word.w[0].toUpperCase() + word.w.substring(1);
+/**
+ * This method is used to handle joinable words like "Be- und Verarbeiten", which contains two words
+ * "Bearbeitung" and "Verarbeitung".
+ */
+alltiny.Spellchecker.prototype.checkJoinable = function(leadingFinding, trailingFinding) {
+	if (leadingFinding.cleanWord[leadingFinding.cleanWord.length-1] == '-') {
+		var leadingWord = leadingFinding.cleanWord.substring(0, leadingFinding.cleanWord.length-1);
+		for (var v = 0; v < trailingFinding.variants.length; v++) {
+			var trailingVariant = trailingFinding.variants[v];
+			var pipePos = trailingVariant.w.indexOf('|');
+			while (pipePos >= 0) {
+				var searchWord = leadingWord + trailingVariant.w.substring(pipePos + 1).replace(/\|/g,'');
+				var findings = this.askDictionaries(searchWord);
+				if (findings && findings.length > 0) {
+					for (var f = 0; f < findings.length; f++) {
+						var finding = findings[f];
+						leadingFinding.variants.push({
+							w      : finding.w.substring(0, finding.w.length - trailingVariant.w.length + pipePos) + '-',
+							type   : 'elision',
+							elision: finding.w
+						});
+					}
+				}
+				pipePos = trailingVariant.w.indexOf('|', pipePos + 1);
+			}
 		}
 	}
-	return word;
 };
 
 alltiny.Dictionary = function(customOptions) {

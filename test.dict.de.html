@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>QUnit Example</title>
+	<title>Test alltiny spellchecker for German</title>
 	<link rel="stylesheet" href="http://code.jquery.com/qunit/qunit-1.18.0.css">
 	<script type="text/javascript" src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 	<script type="text/javascript" src="http://code.jquery.com/qunit/qunit-1.18.0.js"></script>
@@ -37,12 +37,13 @@
 
 		// wait for the dictionaries to be loaded.
 		var waitForDictionariesToBeLoaded = function() {
-			if (dictionariesToLoad.length < dictionariesLoaded.length) { // wait bit longer.
+			if (dictionariesLoaded.length < dictionariesToLoad.length) { // wait bit longer.
 				window.setTimeout(waitForDictionariesToBeLoaded, 100/*ms*/);
 			} else { // call the test script.
 				jQuery.getScript("src/test/js/test.de.js");
 			}
-		}();
+		};
+		waitForDictionariesToBeLoaded();
 	</script>
 </body>
 </html>

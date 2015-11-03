@@ -173,7 +173,7 @@ QUnit.test("test enumeration", function(assert) {
 	// let the spellchecker run. replace soft-hyphen back to pipe characters.
 	spellchecker.setAssumeStartOfSentence(false);
 	var output = spellchecker.check('die Arbeitsmarktbeobachtung und -berichterstattung', {hyphenation: true}).replace(/\u00ad/g, '|');
-	assert.equal(output, 'die Ar|beits|markt|beo|bach|tung und -berichterstattung', "no warning should be given" );
+	assert.equal(output, 'die Ar|beits|markt|beo|bach|tung und -be|richt|er|stat|tung', "no warning should be given" );
 });
 QUnit.test("test enumeration", function(assert) {
 	// let the spellchecker run. replace soft-hyphen back to pipe characters.
@@ -185,5 +185,5 @@ QUnit.test("test enumeration", function(assert) {
 	// let the spellchecker run. replace soft-hyphen back to pipe characters.
 	spellchecker.setAssumeStartOfSentence(false);
 	var output = spellchecker.check('die Brillenfassungen und -gläser', {hyphenation: true}).replace(/\u00ad/g, '|');
-	assert.equal(output, 'die Bril|len|fas|sun|gen und -gläser', "no warning should be given" );
+	assert.equal(output, 'die Bril|len|fas|sun|gen und -glä|ser', "no warning should be given" );
 });

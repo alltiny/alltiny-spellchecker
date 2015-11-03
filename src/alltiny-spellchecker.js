@@ -341,6 +341,28 @@ alltiny.Spellchecker.prototype.checkJoinable = function(leadingFinding, trailing
 			}
 		}
 	}
+	if (trailingFinding.cleanWord[0] == '-' && leadingFinding.variants) {
+		var trailingWord = trailingFinding.cleanWord.substring(1);
+		for (var v = 0; v < leadingFinding.variants.length; v++) {
+			var leadingVariant = leadingFinding.variants[v];
+			var pipePos = leadingVariant.w.indexOf('|');
+			while (pipePos >= 0) {
+				var searchWord = leadingVariant.w.substring(0, pipePos).replace(/\|/g,'') + trailingWord;
+				var findings = this.askDictionaries(searchWord);
+				if (findings && findings.length > 0) {
+					for (var f = 0; f < findings.length; f++) {
+						var finding = findings[f];
+						trailingFinding.variants.push({
+							w      : '-' + finding.w.substring(pipePos + 1),
+							type   : 'elision',
+							elision: finding.w
+						});
+					}
+				}
+				pipePos = leadingVariant.w.indexOf('|', pipePos + 1);
+			}
+		}
+	}
 };
 
 alltiny.Dictionary = function(customOptions) {

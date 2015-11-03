@@ -247,7 +247,7 @@ alltiny.Spellchecker.prototype.setCaseInsensitiveForNextWord = function(isInsens
  * "Bearbeitung" and "Verarbeitung".
  */
 alltiny.Spellchecker.prototype.checkJoinable = function(leadingFinding, trailingFinding) {
-	if (leadingFinding.cleanWord[leadingFinding.cleanWord.length-1] == '-') {
+	if (leadingFinding.cleanWord[leadingFinding.cleanWord.length-1] == '-' && trailingFinding.variants) {
 		var leadingWord = leadingFinding.cleanWord.substring(0, leadingFinding.cleanWord.length-1);
 		for (var v = 0; v < trailingFinding.variants.length; v++) {
 			var trailingVariant = trailingFinding.variants[v];

@@ -8,7 +8,8 @@ alltiny.Spellchecker = function(options) {
 		highlightMismatches : true,
 		highlightCaseWarnings : true,
 		highlightNonStandalone : true, // with this option '!', '?', '.', ',', ';', ':' are marked when found standing alone.
-		cursorCharacter : '\u2038'
+		cursorCharacter : '\u2038',
+		autoResetAfterApply : true
 	}, options);
 	this.dictionaries = [];
 	this.assumeStartOfSentence = true; // if true the first word in a check is assumed to be the start of a sentence.
@@ -35,7 +36,6 @@ alltiny.Spellchecker.prototype.addDictionary = function(dictionary) {
  * This method will reset the spellchecker.
  */
 alltiny.Spellchecker.prototype.reset = function() {
-	this.previousFinding = null;
 	this.findings = [];
 };
 
@@ -57,13 +57,11 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 		var current = thisObj.checkWord(word, checkOptions);
 		current.offset = offset;
 		current.contentLength = content.length;
-
-		thisObj.appendCurrentFinding(current);
-
-		var result = thisObj.analyze(current, checkOptions);
-		thisObj.previousFinding = current;
+		current.caseInsensitive = thisObj.caseInsensitiveForNextWord;
 		thisObj.caseInsensitiveForNextWord = false;
-		return result;
+		
+		thisObj.findings.push(current);
+		return word;
 	});
 	return text;
 };
@@ -96,6 +94,7 @@ alltiny.Spellchecker.prototype.checkWord = function(word, options) {
 	return {
 		word               : word,
 		cleanWord          : cleanWord,
+		checkOptions       : checkOptions,
 		node               : checkOptions.node,
 		variants           : cleanWord.length > 0 ? thisObj.askCrossDictionaries(cleanWord) : null, // ask the dictionaries
 		isCursorAtBeginning: isCursorAtBeginning,
@@ -104,36 +103,106 @@ alltiny.Spellchecker.prototype.checkWord = function(word, options) {
 	};
 };
 
-alltiny.Spellchecker.prototype.appendCurrentFinding = function(current) {
-	// search the appropriate container - create one if no one did exist.
-	if (this.findings && this.findings.length > 0 && this.findings[this.findings.length-1].node == current.node) {
-		this.findings[this.findings.length-1].words.push(current);
-	} else {
-		this.findings.push({node:current.node,words:[current]});
+/**
+ * This method will analyze the current findings on higher levels.
+*/
+alltiny.Spellchecker.prototype.analyze = function() {
+	var previous = null;
+	for (var i = 0; i < this.findings.length; i++) {
+		var current = this.findings[i];
+		if (previous && previous.endOfSentence) {
+			current.assumeStartOfSentence = true;
+		}
+		if (!current.variants || current.variants.length == 0) {
+			var lastChar = current.cleanWord.length > 0 ? current.cleanWord[current.cleanWord.length - 1] : '';
+			current.endOfSentence = lastChar == '.' || lastChar == '!' || lastChar == '?';
+		}
+		// if this is an interpunctuation then check against the previous finding that it is not standing alone.
+		if (current.variants && current.variants.length == 1 && (current.variants[0].type == 'interpunctuation' || current.variants[0].type == 'punctuation')) {
+			current.endOfSentence == true;
+			current.isTouchingPrevious = current.offset == 0 && previous && (previous.contentLength - previous.offset - previous.word.length == 0);
+		}
+		
+		// if the current finding ends with '-,' or '-' then search for enumerations.
+		if (current.cleanWord.substring(current.cleanWord.length - 2) == '-,' || current.cleanWord[current.cleanWord.length - 1] == '-') {
+			// search until a conjunction is found.
+			var joinDone = false;
+			for (var p = i + 1; p < this.findings.length - 1 && !joinDone; p++) {
+				if (this.findings[p].variants) {
+					for (var v = 0; v < this.findings[p].variants.length && !joinDone; v++) {
+						if (this.findings[p].variants[v].type == 'conjunction') {
+							this.checkJoinable(current, this.findings[p + 1]);
+							joinDone = true;
+							break;
+						}
+					}
+				}
+			}
+		}
+		// if the current finding starts with '-' then search for enumerations.
+		if (current.cleanWord.length > 0 && current.cleanWord[0] == '-') {
+			// search until a conjunction is found.
+			var joinDone = false;
+			for (var p = i - 1; p > 0 && !joinDone; p--) {
+				if (this.findings[p].variants) {
+					for (var v = 0; v < this.findings[p].variants.length && !joinDone; v++) {
+						if (this.findings[p].variants[v].type == 'conjunction') {
+							checkJoinable(this.findings[p - 1], current);
+							joinDone = true;
+							break;
+						}
+					}
+				}
+			}
+		}
+		previous = current;
 	}
 };
 
-alltiny.Spellchecker.prototype.analyze = function(current, checkOptions) {
+/**
+ * Calling this method will trigger the spellchecker to apply all current findings.
+*/
+alltiny.Spellchecker.prototype.applyFindings = function(options) {
+	var checkOptions = jQuery.extend(true, jQuery.extend(true, {}, this.options), options); // deep copy to avoid overrides. uses this.options as defaults.
+	var currentNode = null;
+	var currentContent = '';
+	for (var i = this.findings.length - 1; i >= 0; i--) {
+		var finding = this.findings[i];
+		if (finding.node != currentNode) {
+			if (currentNode != null) {
+				jQuery(currentNode).replaceWith(currentContent);
+			}
+			currentNode = finding.node;
+			currentContent = currentNode.nodeValue;
+		}
+		if (currentNode != null) {
+			currentContent = currentContent.substring(0, finding.offset) + this.createReplacement(finding, checkOptions) + currentContent.substring(finding.offset + finding.word.length);
+		}
+	}
+	if (currentNode != null) {
+		jQuery(currentNode).replaceWith(currentContent);
+	}
+	if (checkOptions.autoResetAfterApply) {
+		this.reset();
+	}
+};
+
+alltiny.Spellchecker.prototype.createReplacement = function(current, checkOptions) {
 	if (current.cleanWord.length == 0) { // this happens when the cursor character has been the word to check.
 		return alltiny.encodeAsHTML(current.word);
 	}
 	if (current.variants.length == 0) {
-		var lastChar = current.cleanWord.length > 0 ? current.cleanWord[current.cleanWord.length - 1] : '';
-		this.assumeStartOfSentence = lastChar == '.' || lastChar == '!' || lastChar == '?';
 		return (checkOptions.highlighting && checkOptions.highlightUnknownWords) ? '<span class="spellcheck highlight error unknown">'+alltiny.encodeAsHTML(current.word)+'</span>' : alltiny.encodeAsHTML(current.word);
 	}
 	// if this is an interpunctuation then check against the previous finding that it is not standing alone.
 	if (current.variants.length == 1 && (current.variants[0].type == 'interpunctuation' || current.variants[0].type == 'punctuation')) {
-		this.assumeStartOfSentence = current.variants[0].endOfSentence == true;
-		var isTouchingPrevious = current.offset == 0 && this.previousFinding && (this.previousFinding.contentLength - this.previousFinding.offset - this.previousFinding.word.length == 0);
-		return (checkOptions.highlighting && checkOptions.highlightNonStandalone && !isTouchingPrevious) ? '<span class="spellcheck highlight error standalone">'+alltiny.encodeAsHTML(current.word)+'</span>' : alltiny.encodeAsHTML(current.word);
+		return (checkOptions.highlighting && checkOptions.highlightNonStandalone && !current.isTouchingPrevious) ? '<span class="spellcheck highlight error standalone">'+alltiny.encodeAsHTML(current.word)+'</span>' : alltiny.encodeAsHTML(current.word);
 	}
 	// check whether one of the variants is an exact hit.
 	for (var v = 0; v < current.variants.length; v++) {
 		var variant = current.variants[v];
-		var foundWord = this.assumeStartOfSentence ? this.upperCaseFirstCharacter(variant.w) : variant.w;
+		var foundWord = current.assumeStartOfSentence ? this.upperCaseFirstCharacter(variant.w) : variant.w;
 		if (foundWord.replace(/\|/g,'') == current.cleanWord) { // is this variant an exact hit?
-			this.assumeStartOfSentence = (variant.composits && variant.composits[variant.composits.length-1].endOfSentence == true) || variant.endOfSentence == true;
 			// apply the word from the dictionary, to apply hyphenation.
 			var content = (checkOptions.hyphenation && !current.isCursorInMiddle)
 				? ((current.isCursorAtBeginning ? checkOptions.cursorCharacter : '') + foundWord.replace(/\|/g,'\u00ad') + (current.isCursorAtEnding ? checkOptions.cursorCharacter : ''))
@@ -147,9 +216,8 @@ alltiny.Spellchecker.prototype.analyze = function(current, checkOptions) {
 	for (var v = 0; v < current.variants.length; v++) {
 		var variant = current.variants[v];
 		if (variant.w.replace(/\|/g,'').toLowerCase() == lowerCaseWord) { // is this variant an exact hit?
-			this.assumeStartOfSentence = variant.endOfSentence == true;
 			// highlight the word if option tells so.
-			return (checkOptions.highlighting && checkOptions.highlightCaseWarnings && !this.caseInsensitiveForNextWord) ? '<span class="spellcheck highlight warn case" data-spellcheck-correction="'+variant.w+'">'+alltiny.encodeAsHTML(current.word)+'</span>' : alltiny.encodeAsHTML(current.word);
+			return (checkOptions.highlighting && checkOptions.highlightCaseWarnings && !current.caseInsensitive) ? '<span class="spellcheck highlight warn case" data-spellcheck-correction="'+variant.w+'">'+alltiny.encodeAsHTML(current.word)+'</span>' : alltiny.encodeAsHTML(current.word);
 		}
 	}
 	this.assumeStartOfSentence = false;

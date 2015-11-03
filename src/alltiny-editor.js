@@ -69,6 +69,10 @@ alltiny.Editor.prototype.performSpellcheck = function() {
 	this.options.spellchecker.reset();
 	this.options.spellchecker.setAssumeStartOfSentence(true);
 	this.checkNode(this.$target);
+	// trigger the higher level analysis.
+	this.options.spellchecker.analyze();
+	// let the spellchecker highlight all findings.
+	this.options.spellchecker.applyFindings();
 };
 
 alltiny.Editor.prototype.checkNode = function(node, customOptions) {
@@ -82,10 +86,8 @@ alltiny.Editor.prototype.checkNode = function(node, customOptions) {
 			}
 			thisObj.checkNode(element, options);
 		} else if (element.nodeType === 3) { // if this is a text node then check it with the spellChecker.
+			options.node = element;
 			var checkedText = thisObj.options.spellchecker.check(element.nodeValue, options);
-			if (checkedText !== element.nodeValue) { // since every DOM modification triggers events, modify only if necessary.
-				jQuery(element).replaceWith(checkedText);
-			}
 		}
 	});
 };

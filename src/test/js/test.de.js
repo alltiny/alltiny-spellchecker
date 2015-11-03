@@ -187,3 +187,9 @@ QUnit.test("test enumeration", function(assert) {
 	var output = spellchecker.checkText('die Brillenfassungen und -gläser', {hyphenation: true}).replace(/\u00ad/g, '|');
 	assert.equal(output, 'die Bril|len|fas|sun|gen und -glä|ser', "no warning should be given" );
 });
+QUnit.test("test enumeration with 'bzw.'", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.checkText('Aktiv- bzw. Passivkonten', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, 'Ak|tiv- bzw. Pas|siv|kon|ten', "no warning should be given" );
+});

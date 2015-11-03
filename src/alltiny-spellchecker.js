@@ -145,7 +145,8 @@ alltiny.Spellchecker.prototype.analyze = function() {
 			for (var p = i + 1; p < this.findings.length - 1 && !joinDone; p++) {
 				if (this.findings[p].variants) {
 					for (var v = 0; v < this.findings[p].variants.length && !joinDone; v++) {
-						if (this.findings[p].variants[v].type == 'conjunction') {
+						var trailingVariant = this.findings[p].variants[v];
+						if (trailingVariant.type == 'conjunction' || (trailingVariant.type == 'abbreviation' && trailingVariant.abbrType == 'conjunction')) {
 							this.checkJoinable(current, this.findings[p + 1]);
 							joinDone = true;
 							break;
@@ -161,7 +162,8 @@ alltiny.Spellchecker.prototype.analyze = function() {
 			for (var p = i - 1; p > 0 && !joinDone; p--) {
 				if (this.findings[p].variants) {
 					for (var v = 0; v < this.findings[p].variants.length && !joinDone; v++) {
-						if (this.findings[p].variants[v].type == 'conjunction') {
+						var leadingVariant = this.findings[p].variants[v];
+						if (leadingVariant.type == 'conjunction' || (leadingVariant.type == 'abbreviation' && leadingVariant.abbrType == 'conjunction')) {
 							this.checkJoinable(this.findings[p - 1], current);
 							joinDone = true;
 							break;

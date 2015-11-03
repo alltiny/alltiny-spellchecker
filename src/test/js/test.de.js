@@ -144,7 +144,7 @@ QUnit.test("test joinables", function(assert) {
 	// lets join both words.
 	spellchecker.checkJoinable(leading, trailing);
 	// check that leading and trailing has been found as searched.
-	assert.ok(leading.variants.length > 1, 'leading portion should have been found as elision');
+	assert.ok(leading.variants.length > 0, 'leading portion should have been found as elision');
 	// one of the found variant should be a elision.
 	for (var i = 0; i < leading.variants.length; i++) {
 		if (leading.variants[i].type == 'elision') {

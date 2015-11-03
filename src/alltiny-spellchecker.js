@@ -40,12 +40,29 @@ alltiny.Spellchecker.prototype.reset = function() {
 };
 
 /**
- * This method performs the spell check on the given text.
+ * This method performs the spell check on the given text. This is a convenience
+ * method relying on {@link #check()}.
  * @param text which content should be checked.
  * @param options by default the options given to this spellchecker while
  *        initialization are used, but with this option you can give a different
  *        option set in for this particular spell check run.
  * @return text with spell check highlights
+ */
+alltiny.Spellchecker.prototype.checkText = function(text, options) {
+	this.check(text, options);
+	this.analyze();
+	return this.applyFindings(jQuery.extend(true, {content:text}, options));
+};
+
+/**
+ * This method performs the spell check on the given text. Calling this method will
+ * add all finding to the internal array. You should use analyze() and applyFindings()
+ * after all text is checked.
+ * @param text which content should be checked.
+ * @param options by default the options given to this spellchecker while
+ *        initialization are used, but with this option you can give a different
+ *        option set in for this particular spell check run.
+ * @return none
  */
 alltiny.Spellchecker.prototype.check = function(text, options) {
 	var thisObj = this;
@@ -53,7 +70,7 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 	var checkOptions = jQuery.extend(true, jQuery.extend(true, {}, this.options), options); // deep copy to avoid overrides. uses this.options as defaults.
 
 	// use the word regex to split text into words.
-	text = text.replace(/[^\s]+/ig, function(word, offset, content) {
+	text.replace(/[^\s]+/ig, function(word, offset, content) {
 		var current = thisObj.checkWord(word, checkOptions);
 		current.offset = offset;
 		current.contentLength = content.length;
@@ -61,11 +78,7 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 		thisObj.caseInsensitiveForNextWord = false;
 
 		thisObj.findings.push(current);
-		return word;
 	});
-	this.analyze();
-	checkOptions.content = text;
-	return this.applyFindings(checkOptions);
 };
 
 /**

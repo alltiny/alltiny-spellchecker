@@ -2,17 +2,17 @@ QUnit.test("test searching filter in empty dictionary", function(assert) {
 	// create an empty dictionary.
 	spellchecker.addDictionary(new alltiny.Dictionary({fragments: ["a-z"]}));
 	// search for the word filter
-	var output = spellchecker.check('filter');
+	var output = spellchecker.checkText('filter');
 	assert.equal(output, '<span class=\"spellcheck highlight error unknown\">filter</span>', "Since word is unknown, it should be wrapped by a spellcheckspan.");
 });
 QUnit.test("test with range selection", function(assert) {
 	// search for the word filter
-	var output = spellchecker.check(' \u2038TEST\u2038 ');
+	var output = spellchecker.checkText(' \u2038TEST\u2038 ');
 	assert.equal(output, ' <span class=\"spellcheck highlight error unknown\">\u2038TEST\u2038</span> ', "Word should still be wrapped by cursor characters.");
 });
 QUnit.test("test with range selection and HTML entities", function(assert) {
 	// search for the word filter
-	var output = spellchecker.check(' \u2038<TEST>\u2038 ');
+	var output = spellchecker.checkText(' \u2038<TEST>\u2038 ');
 	assert.equal(output, ' <span class=\"spellcheck highlight error unknown\">\u2038&lt;TEST&gt;\u2038</span> ', "Word should still be wrapped by cursor characters and HTML entities should be correct.");
 });
 QUnit.test("test cursor positions", function(assert) {
@@ -29,6 +29,6 @@ QUnit.test("test word in range selection is found", function(assert) {
 	dictionary.addWord({w:"<TEST>",type:"name"});
 	spellchecker.addDictionary(dictionary);
 	// search for the word filter
-	var output = spellchecker.check('\u2038<TEST>\u2038');
-	assert.equal(output, '\u2038<TEST>\u2038', "Word should have been found.");
+	var output = spellchecker.checkText('\u2038<TEST>\u2038');
+	assert.equal(output, '\u2038&lt;TEST&gt;\u2038', "Word should have been found.");
 });

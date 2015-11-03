@@ -87,7 +87,7 @@ alltiny.Editor.prototype.checkNode = function(node, customOptions) {
 			thisObj.checkNode(element, options);
 		} else if (element.nodeType === 3) { // if this is a text node then check it with the spellChecker.
 			options.node = element;
-			var checkedText = thisObj.options.spellchecker.check(element.nodeValue, options);
+			thisObj.options.spellchecker.check(element.nodeValue, options);
 		}
 	});
 };

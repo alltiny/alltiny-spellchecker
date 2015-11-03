@@ -59,7 +59,7 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 		current.contentLength = content.length;
 		current.caseInsensitive = thisObj.caseInsensitiveForNextWord;
 		thisObj.caseInsensitiveForNextWord = false;
-		
+
 		thisObj.findings.push(current);
 		return word;
 	});
@@ -147,7 +147,7 @@ alltiny.Spellchecker.prototype.analyze = function() {
 				if (this.findings[p].variants) {
 					for (var v = 0; v < this.findings[p].variants.length && !joinDone; v++) {
 						if (this.findings[p].variants[v].type == 'conjunction') {
-							checkJoinable(this.findings[p - 1], current);
+							this.checkJoinable(this.findings[p - 1], current);
 							joinDone = true;
 							break;
 						}

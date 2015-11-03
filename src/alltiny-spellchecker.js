@@ -63,7 +63,9 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 		thisObj.findings.push(current);
 		return word;
 	});
-	return text;
+	this.analyze();
+	checkOptions.content = text;
+	return this.applyFindings(checkOptions);
 };
 
 /**
@@ -165,7 +167,7 @@ alltiny.Spellchecker.prototype.analyze = function() {
 alltiny.Spellchecker.prototype.applyFindings = function(options) {
 	var checkOptions = jQuery.extend(true, jQuery.extend(true, {}, this.options), options); // deep copy to avoid overrides. uses this.options as defaults.
 	var currentNode = null;
-	var currentContent = '';
+	var currentContent = checkOptions.content || '';
 	for (var i = this.findings.length - 1; i >= 0; i--) {
 		var finding = this.findings[i];
 		if (finding.node != currentNode) {
@@ -179,11 +181,13 @@ alltiny.Spellchecker.prototype.applyFindings = function(options) {
 			currentContent = currentContent.substring(0, finding.offset) + this.createReplacement(finding, checkOptions) + currentContent.substring(finding.offset + finding.word.length);
 		}
 	}
-	if (currentNode != null) {
-		jQuery(currentNode).replaceWith(currentContent);
-	}
 	if (checkOptions.autoResetAfterApply) {
 		this.reset();
+	}
+	if (currentNode != null) {
+		jQuery(currentNode).replaceWith(currentContent);
+	} else { // if no node has been defined then this must have been a text-check.
+		return currentContent;
 	}
 };
 

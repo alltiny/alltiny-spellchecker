@@ -133,9 +133,19 @@ alltiny.Spellchecker.prototype.analyze = function() {
 			current.endOfSentence = lastChar == '.' || lastChar == '!' || lastChar == '?';
 		}
 		// if this is an interpunctuation then check against the previous finding that it is not standing alone.
-		if (current.variants && current.variants.length == 1 && (current.variants[0].type == 'interpunctuation' || current.variants[0].type == 'punctuation')) {
-			current.endOfSentence == true;
-			current.isTouchingPrevious = current.offset == 0 && previous && (previous.contentLength - previous.offset - previous.word.length == 0);
+		if (current.variants && current.variants.length > 0) {
+			var allVariantsAreEndOfSentence = true;
+			for (var v = 0; v < current.variants.length; v++) {
+				if (!current.variants[v].endOfSentence) {
+					allVariantsAreEndOfSentence = false;
+				}
+			}
+			if (allVariantsAreEndOfSentence) {
+				current.endOfSentence = true;
+			}
+			if (current.variants.length == 1 && (current.variants[0].type == 'interpunctuation' || current.variants[0].type == 'punctuation')) {
+				current.isTouchingPrevious = current.offset == 0 && previous && (previous.contentLength - previous.offset - previous.word.length == 0);
+			}
 		}
 		
 		// if the current finding ends with '-,' or '-' then search for enumerations.

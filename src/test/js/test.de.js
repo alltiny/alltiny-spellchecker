@@ -193,3 +193,15 @@ QUnit.test("test enumeration with 'bzw.'", function(assert) {
 	var output = spellchecker.checkText('Aktiv- bzw. Passivkonten', {hyphenation: true}).replace(/\u00ad/g, '|');
 	assert.equal(output, 'Ak|tiv- bzw. Pas|siv|kon|ten', "no warning should be given" );
 });
+QUnit.test("test enumeration with comma", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.checkText('Damen-, Herren- und Kindermode', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, 'Da|men-, Her|ren- und Kin|der|mo|de', "no warning should be given" );
+});
+QUnit.test("test enumeration with comma", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.checkText('Bewegungs-, Fitness- und Sportaktivitäten', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, 'Be|we|gungs-, Fit|ness- und Sport|ak|ti|vi|tä|ten', "no warning should be given" );
+});

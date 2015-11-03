@@ -76,6 +76,8 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 		current.contentLength = content.length;
 		current.caseInsensitive = thisObj.caseInsensitiveForNextWord;
 		thisObj.caseInsensitiveForNextWord = false;
+		current.assumeStartOfSentence = thisObj.assumeStartOfSentence;
+		thisObj.assumeStartOfSentence = false;
 
 		thisObj.findings.push(current);
 	});
@@ -249,7 +251,6 @@ alltiny.Spellchecker.prototype.createReplacement = function(current, checkOption
 			return (checkOptions.highlighting && checkOptions.highlightCaseWarnings && !current.caseInsensitive) ? '<span class="spellcheck highlight warn case" data-spellcheck-correction="'+variant.w+'">'+alltiny.encodeAsHTML(current.word)+'</span>' : alltiny.encodeAsHTML(current.word);
 		}
 	}
-	this.assumeStartOfSentence = false;
 	return (checkOptions.highlighting && checkOptions.highlightMismatches) ? '<span class="spellcheck highlight warn mismatch">'+alltiny.encodeAsHTML(current.word)+'</span>' : alltiny.encodeAsHTML(current.word);
 };
 
@@ -344,8 +345,9 @@ alltiny.Spellchecker.prototype.setCaseInsensitiveForNextWord = function(isInsens
  * "Bearbeitung" and "Verarbeitung".
  */
 alltiny.Spellchecker.prototype.checkJoinable = function(leadingFinding, trailingFinding) {
-	if (leadingFinding.cleanWord[leadingFinding.cleanWord.length-1] == '-' && trailingFinding.variants) {
-		var leadingWord = leadingFinding.cleanWord.substring(0, leadingFinding.cleanWord.length-1);
+	if (trailingFinding.variants && (leadingFinding.cleanWord[leadingFinding.cleanWord.length-1] == '-' || leadingFinding.cleanWord.substring(leadingFinding.cleanWord.length-2) == '-,')) {
+		var elisionChar = (leadingFinding.cleanWord[leadingFinding.cleanWord.length-1] == '-') ? '-' : '-,'
+		var leadingWord = leadingFinding.cleanWord.substring(0, leadingFinding.cleanWord.length - elisionChar.length);
 		for (var v = 0; v < trailingFinding.variants.length; v++) {
 			var trailingVariant = trailingFinding.variants[v];
 			var pipePos = trailingVariant.w.indexOf('|');
@@ -356,7 +358,7 @@ alltiny.Spellchecker.prototype.checkJoinable = function(leadingFinding, trailing
 					for (var f = 0; f < findings.length; f++) {
 						var finding = findings[f];
 						leadingFinding.variants.push({
-							w      : finding.w.substring(0, finding.w.length - trailingVariant.w.length + pipePos) + '-',
+							w      : finding.w.substring(0, finding.w.length - trailingVariant.w.length + pipePos) + elisionChar,
 							type   : 'elision',
 							elision: finding.w
 						});

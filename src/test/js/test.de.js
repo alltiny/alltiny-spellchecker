@@ -172,7 +172,7 @@ QUnit.test("test enumeration", function(assert) {
 QUnit.test("test enumeration", function(assert) {
 	// let the spellchecker run. replace soft-hyphen back to pipe characters.
 	spellchecker.setAssumeStartOfSentence(false);
-	var output = spellchecker.check('Arbeitsmarktbeobachtung und -berichterstattung', {hyphenation: true}).replace(/\u00ad/g, '|');
+	var output = spellchecker.check('die Arbeitsmarktbeobachtung und -berichterstattung', {hyphenation: true}).replace(/\u00ad/g, '|');
 	assert.equal(output, 'die Ar|beits|markt|beo|bach|tung und -berichterstattung', "no warning should be given" );
 });
 QUnit.test("test enumeration", function(assert) {

@@ -175,7 +175,7 @@ alltiny.Spellchecker.prototype.applyFindings = function(options) {
 			currentNode = finding.node;
 			currentContent = currentNode.nodeValue;
 		}
-		if (currentNode != null) {
+		if (currentContent != null) {
 			currentContent = currentContent.substring(0, finding.offset) + this.createReplacement(finding, checkOptions) + currentContent.substring(finding.offset + finding.word.length);
 		}
 	}

@@ -169,14 +169,37 @@ alltiny.Spellchecker.prototype.analyze = function() {
 		}
 		// if the current finding starts with '-' then search for enumerations.
 		if (current.cleanWord.length > 0 && current.cleanWord[0] == '-') {
-			// search until a conjunction is found.
+			// search in both directions.
 			var joinDone = false;
-			for (var p = i - 1; p > 0 && !joinDone; p--) {
+			for (var p = i - 1; p >= 0 && !joinDone; p--) {
 				if (this.findings[p].variants) {
-					for (var v = 0; v < this.findings[p].variants.length && !joinDone; v++) {
+					for (var v = 0; v < this.findings[p].variants.length; v++) {
 						var leadingVariant = this.findings[p].variants[v];
 						if (leadingVariant.type == 'conjunction' || (leadingVariant.type == 'abbreviation' && leadingVariant.abbrType == 'conjunction')) {
-							this.checkJoinable(this.findings[p - 1], current);
+							continue;
+						}
+						if (leadingVariant.w[0] == '-') {
+							continue;
+						} else {
+							this.checkJoinable(this.findings[p], current);
+							joinDone = true;
+							break;
+						}
+					}
+				}
+			}
+			var joinDone = false;
+			for (var p = i + 1; p < this.findings.length && !joinDone; p++) {
+				if (this.findings[p].variants) {
+					for (var v = 0; v < this.findings[p].variants.length; v++) {
+						var leadingVariant = this.findings[p].variants[v];
+						if (leadingVariant.type == 'conjunction' || (leadingVariant.type == 'abbreviation' && leadingVariant.abbrType == 'conjunction')) {
+							continue;
+						}
+						if (leadingVariant.w[0] == '-') {
+							continue;
+						} else {
+							this.checkJoinable(this.findings[p], current);
 							joinDone = true;
 							break;
 						}

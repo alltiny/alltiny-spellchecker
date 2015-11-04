@@ -205,3 +205,33 @@ QUnit.test("test enumeration with comma", function(assert) {
 	var output = spellchecker.checkText('Bewegungs-, Fitness- und Sportaktivitäten', {hyphenation: true}).replace(/\u00ad/g, '|');
 	assert.equal(output, 'Be|we|gungs-, Fit|ness- und Sport|ak|ti|vi|tä|ten', "no warning should be given" );
 });
+QUnit.test("test enumeration with comma", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.checkText('Terminplanung, -koordination und -verfolgung', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, 'Ter|min|pla|nung, -ko|or|di|na|ti|on und -ver|fol|gung', "no warning should be given" );
+});
+QUnit.test("test alternatives separated with slash", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.checkText('Kundenkartei/-datei', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, 'Kun|den|kar|tei/-da|tei', "no warning should be given" );
+});
+QUnit.test("test emueration with three items", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.checkText('Zerkleinerungs-, Misch- und Abfüllmaschinen', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, 'Zer|klei|ne|rungs-, Misch- und Ab|füll|ma|schi|nen', "no warning should be given" );
+});
+QUnit.test("test emueration with three items", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.checkText('Lieferantenbewertung, -auswahl und -kontrolle', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, 'Lie|fe|ran|ten|be|wer|tung, -aus|wahl und -kon|trol|le', "no warning should be given" );
+});
+QUnit.test("test emueration with multiple conjunctions", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.checkText('Marketing-, Werbe- und Image- sowie Pressekampagnen', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, 'Mar|ke|ting-, Wer|be- und Image- sowie Pres|se|kam|pa|gnen', "no warning should be given" );
+});

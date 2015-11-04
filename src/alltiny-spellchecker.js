@@ -154,12 +154,17 @@ alltiny.Spellchecker.prototype.analyze = function() {
 		if (current.cleanWord.substring(current.cleanWord.length - 2) == '-,' || current.cleanWord[current.cleanWord.length - 1] == '-') {
 			// search until a conjunction is found.
 			var joinDone = false;
-			for (var p = i + 1; p < this.findings.length - 1 && !joinDone; p++) {
+			for (var p = i + 1; p < this.findings.length && !joinDone; p++) {
 				if (this.findings[p].variants) {
 					for (var v = 0; v < this.findings[p].variants.length && !joinDone; v++) {
 						var trailingVariant = this.findings[p].variants[v];
 						if (trailingVariant.type == 'conjunction' || (trailingVariant.type == 'abbreviation' && trailingVariant.abbrType == 'conjunction')) {
-							this.checkJoinable(current, this.findings[p + 1]);
+							continue;
+						}
+						if (trailingVariant.w.substring(trailingVariant.w.length - 2) == '-,' || trailingVariant.w[trailingVariant.w.length - 1] == '-') {
+							continue;
+						} else {
+							this.checkJoinable(current, this.findings[p]);
 							joinDone = true;
 							break;
 						}

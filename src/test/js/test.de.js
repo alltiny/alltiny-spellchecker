@@ -233,5 +233,5 @@ QUnit.test("test emueration with multiple conjunctions", function(assert) {
 	// let the spellchecker run. replace soft-hyphen back to pipe characters.
 	spellchecker.setAssumeStartOfSentence(false);
 	var output = spellchecker.checkText('Marketing-, Werbe- und Image- sowie Pressekampagnen', {hyphenation: true}).replace(/\u00ad/g, '|');
-	assert.equal(output, 'Mar|ke|ting-, Wer|be- und Image- sowie Pres|se|kam|pa|gnen', "no warning should be given" );
+	assert.equal(output, 'Mar|ke|ting-, Wer|be- und Image- so|wie Pres|se|kam|pa|gnen', "no warning should be given" );
 });

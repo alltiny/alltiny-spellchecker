@@ -108,7 +108,7 @@ alltiny.Spellchecker.prototype.checkWord = function(word, options) {
 	}
 	var cleanWord = word.replace(new RegExp(checkOptions.cursorCharacter, 'g'), '').replace(/\u00ad/g,''); // remove all soft-hyphens from the word.
 
-	return {
+	return new alltiny.Finding({
 		word               : word,
 		cleanWord          : cleanWord,
 		checkOptions       : checkOptions,
@@ -117,7 +117,7 @@ alltiny.Spellchecker.prototype.checkWord = function(word, options) {
 		isCursorAtBeginning: isCursorAtBeginning,
 		isCursorAtEnding   : isCursorAtEnding,
 		isCursorInMiddle   : isCursorInMiddle
-	};
+	});
 };
 
 /**
@@ -155,20 +155,23 @@ alltiny.Spellchecker.prototype.analyze = function() {
 			// search until a conjunction is found.
 			var joinDone = false;
 			for (var p = i + 1; p < this.findings.length && !joinDone; p++) {
-				if (this.findings[p].variants) {
-					for (var v = 0; v < this.findings[p].variants.length && !joinDone; v++) {
-						var trailingVariant = this.findings[p].variants[v];
+				var trailingFinding = this.findings[p];
+				var isConjunction = false;
+				if (trailingFinding.variants) {
+					for (var v = 0; v < trailingFinding.variants.length && !joinDone; v++) {
+						var trailingVariant = trailingFinding.variants[v];
 						if (trailingVariant.type == 'conjunction' || (trailingVariant.type == 'abbreviation' && trailingVariant.abbrType == 'conjunction')) {
-							continue;
-						}
-						if (trailingVariant.w.substring(trailingVariant.w.length - 2) == '-,' || trailingVariant.w[trailingVariant.w.length - 1] == '-') {
-							continue;
-						} else {
-							this.checkJoinable(current, this.findings[p]);
-							joinDone = true;
+							isConjunction = true;
 							break;
 						}
 					}
+				}
+				if (isConjunction || trailingFinding.cleanWord.substring(trailingFinding.cleanWord.length - 2) == '-,' || trailingFinding.cleanWord[trailingFinding.cleanWord.length - 1] == '-') {
+					continue;
+				} else {
+					this.checkJoinable(current, trailingFinding);
+					joinDone = true;
+					break;
 				}
 			}
 		}
@@ -177,38 +180,44 @@ alltiny.Spellchecker.prototype.analyze = function() {
 			// search in both directions.
 			var joinDone = false;
 			for (var p = i - 1; p >= 0 && !joinDone; p--) {
-				if (this.findings[p].variants) {
-					for (var v = 0; v < this.findings[p].variants.length; v++) {
-						var leadingVariant = this.findings[p].variants[v];
-						if (leadingVariant.type == 'conjunction' || (leadingVariant.type == 'abbreviation' && leadingVariant.abbrType == 'conjunction')) {
-							continue;
-						}
-						if (leadingVariant.w[0] == '-') {
-							continue;
-						} else {
-							this.checkJoinable(this.findings[p], current);
-							joinDone = true;
+				var otherFinding = this.findings[p];
+				var isConjunction = false;
+				if (otherFinding.variants) {
+					for (var v = 0; v < otherFinding.variants.length && !joinDone; v++) {
+						var variant = otherFinding.variants[v];
+						if (variant.type == 'conjunction' || (variant.type == 'abbreviation' && variant.abbrType == 'conjunction')) {
+							isConjunction = true;
 							break;
 						}
 					}
 				}
+				if (isConjunction || otherFinding.cleanWord[0] == '-') {
+					continue;
+				} else {
+					this.checkJoinable(otherFinding, current);
+					joinDone = true;
+					break;
+				}
 			}
 			var joinDone = false;
 			for (var p = i + 1; p < this.findings.length && !joinDone; p++) {
-				if (this.findings[p].variants) {
-					for (var v = 0; v < this.findings[p].variants.length; v++) {
-						var leadingVariant = this.findings[p].variants[v];
-						if (leadingVariant.type == 'conjunction' || (leadingVariant.type == 'abbreviation' && leadingVariant.abbrType == 'conjunction')) {
-							continue;
-						}
-						if (leadingVariant.w[0] == '-') {
-							continue;
-						} else {
-							this.checkJoinable(this.findings[p], current);
-							joinDone = true;
+				var otherFinding = this.findings[p];
+				var isConjunction = false;
+				if (otherFinding.variants) {
+					for (var v = 0; v < otherFinding.variants.length && !joinDone; v++) {
+						var variant = otherFinding.variants[v];
+						if (variant.type == 'conjunction' || (variant.type == 'abbreviation' && variant.abbrType == 'conjunction')) {
+							isConjunction = true;
 							break;
 						}
 					}
+				}
+				if (isConjunction || otherFinding.cleanWord[0] == '-') {
+					continue;
+				} else {
+					this.checkJoinable(this.findings[p], current);
+					joinDone = true;
+					break;
 				}
 			}
 		}
@@ -385,7 +394,7 @@ alltiny.Spellchecker.prototype.checkJoinable = function(leadingFinding, trailing
 				if (findings && findings.length > 0) {
 					for (var f = 0; f < findings.length; f++) {
 						var finding = findings[f];
-						leadingFinding.variants.push({
+						leadingFinding.addVariant({
 							w      : finding.w.substring(0, finding.w.length - trailingVariant.w.length + pipePos) + elisionChar,
 							type   : 'elision',
 							elision: finding.w
@@ -393,6 +402,27 @@ alltiny.Spellchecker.prototype.checkJoinable = function(leadingFinding, trailing
 					}
 				}
 				pipePos = trailingVariant.w.indexOf('|', pipePos + 1);
+			}
+		}
+		// have a look at the found elision and check whether combination with trailing are possible.
+		for (var v = 0; v < leadingFinding.variants.length; v++) {
+			var leadingVariant = leadingFinding.variants[v];
+			var pipePos = leadingVariant.w.indexOf('|');
+			while (pipePos >= 0) {
+				var searchWord = leadingVariant.w.substring(0, pipePos).replace(/\|/g,'') +  trailingFinding.cleanWord;
+				var findings = this.askDictionaries(searchWord);
+				if (findings && findings.length > 0) {
+					for (var f = 0; f < findings.length; f++) {
+						var finding = findings[f];
+						trailingFinding.addVariant({
+							w            : finding.w.substring(pipePos +1),
+							type         : 'elision',
+							elision      : finding.w,
+							endOfSentence: finding.endOfSentence
+						});
+					}
+				}
+				pipePos = leadingVariant.w.indexOf('|', pipePos + 1);
 			}
 		}
 	}
@@ -407,7 +437,7 @@ alltiny.Spellchecker.prototype.checkJoinable = function(leadingFinding, trailing
 				if (findings && findings.length > 0) {
 					for (var f = 0; f < findings.length; f++) {
 						var finding = findings[f];
-						trailingFinding.variants.push({
+						trailingFinding.addVariant({
 							w      : '-' + finding.w.substring(pipePos + 1),
 							type   : 'elision',
 							elision: finding.w
@@ -556,6 +586,29 @@ alltiny.Dictionary.prototype.lookupWord = function(word) {
 
 alltiny.Dictionary.prototype.process = function(words) {
 	return this.options.processor(words);
+};
+
+alltiny.Finding = function(finding) {
+	this.variants = [];
+	for (var field in finding) {
+		if (field != 'variants') { // spare out the variants, they are handled separately.
+			this[field] = finding[field];
+		}
+	}
+	if (finding.variants) {
+		for (var v = 0; v < finding.variants.length; v++) {
+			this.addVariant(finding.variants[v]);
+		}
+	}
+};
+
+alltiny.Finding.prototype.addVariant = function(variant) {
+	for (var v = 0; v < this.variants.length; v++) {
+		if (variant.type == this.variants[v].type && variant.w == this.variants[v].w) {
+			return; // skip adding the given variant.
+		}
+	}
+	this.variants.push(variant);
 };
 
 alltiny.encodeAsHTML = function(text) {

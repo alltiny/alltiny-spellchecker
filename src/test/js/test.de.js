@@ -187,6 +187,12 @@ QUnit.test("test enumeration", function(assert) {
 	var output = spellchecker.checkText('die Brillenfassungen und -gläser', {hyphenation: true}).replace(/\u00ad/g, '|');
 	assert.equal(output, 'die Bril|len|fas|sun|gen und -glä|ser', "no warning should be given" );
 });
+QUnit.test("test emueration", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.checkText('Aufträge zur Ein- oder Auszahlung von Bargeld', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, 'Auf|trä|ge zur Ein- oder Aus|zah|lung von Bar|geld', "no warning should be given" );
+});
 QUnit.test("test enumeration with 'bzw.'", function(assert) {
 	// let the spellchecker run. replace soft-hyphen back to pipe characters.
 	spellchecker.setAssumeStartOfSentence(false);
@@ -234,4 +240,28 @@ QUnit.test("test emueration with multiple conjunctions", function(assert) {
 	spellchecker.setAssumeStartOfSentence(false);
 	var output = spellchecker.checkText('Marketing-, Werbe- und Image- sowie Pressekampagnen', {hyphenation: true}).replace(/\u00ad/g, '|');
 	assert.equal(output, 'Mar|ke|ting-, Wer|be- und Image- so|wie Pres|se|kam|pa|gnen', "no warning should be given" );
+});
+QUnit.test("test emueration with elision without hyphen", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.checkText('Holzbe- und verarbeitung', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, 'Holz|be- und ver|ar|bei|tung', "no warning should be given" );
+});
+QUnit.test("test emueration with elision without hyphen", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.checkText('Zahlungsein- und ausgängen', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, 'Zah|lungs|ein- und aus|gän|gen', "no warning should be given" );
+});
+QUnit.test("test long emueration with elisions", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.checkText('Gründungs-, Werthaltigkeits-, Verschmelzungs-, Depot-, Unterschlagungs- und Wirtschaftlichkeitsprüfungen', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, 'Grün|dungs-, Wert|hal|tig|keits-, Ver|schmel|zungs-, De|pot-, Un|ter|schla|gungs- und Wirt|schaft|lich|keits|prü|fun|gen', "no warning should be given" );
+});
+QUnit.test("test end of sentence after enumeration", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.checkText('Ver­triebs- und Mar­ke­ting­stra­te­gie. Hier­zu', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, 'Ver|triebs- und Mar|ke|ting|stra|te|gie. Hier|zu', "no warning should be given" );
 });

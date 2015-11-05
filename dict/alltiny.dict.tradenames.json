@@ -102,6 +102,7 @@
 "ipod":[{"w":"iPod","type":"name"}],
 "isbn":[{"w":"ISBN","type":"abbreviation","abbreviation":"International Standard Book Number"}],
 "java":[{"w":"Java","type":"name"}],
+"krupp":[{"w":"Krupp","type":"name"}],
 "linux":[{"w":"Linux","type":"name"}],
 "lotus":[{"w":"Lotus","type":"name"}],
 "lte":[{"w":"LTE","type":"abbreviation","abbreviation":"Long Term Evolution"}],

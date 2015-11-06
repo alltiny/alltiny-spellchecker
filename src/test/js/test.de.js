@@ -265,3 +265,9 @@ QUnit.test("test end of sentence after enumeration", function(assert) {
 	var output = spellchecker.checkText('Ver­triebs- und Mar­ke­ting­stra­te­gie. Hier­zu', {hyphenation: true}).replace(/\u00ad/g, '|');
 	assert.equal(output, 'Ver|triebs- und Mar|ke|ting|stra|te|gie. Hier|zu', "no warning should be given" );
 });
+QUnit.test("test correct case for composit verb", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.checkText('stillzulegen', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, 'still|zu|le|gen', "no warning should be given" );
+});

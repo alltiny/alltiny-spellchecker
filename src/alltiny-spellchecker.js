@@ -630,6 +630,7 @@ alltiny.Dictionary.compositLookup = {
 	'interpunctuation': { join: false, type: 'composit' },
 	'noun'            : { join: true,  type: 'noun', lupper: true, tlower: true },
 	'part'            : { join: true,  type: 'part' },
+	'particle'        : { join: true,  type: 'particle' },
 	'punctuation'     : { join: false, type: 'composit', endOfSentence: true },
 	'rbracket'        : { join: false, type: 'composit' },
 	'rquotation'      : { join: false, type: 'composit' },
@@ -651,6 +652,7 @@ alltiny.Dictionary.compositLookup = {
 	'punctuation'     : { join: false, type: 'composit', endOfSentence: true }
 },
 'conjunction': {
+	'interpunctuation': { join: false, type: 'composit' },
 	'structure'       : { join: false, type: 'composit' }
 },
 'contraction': {},

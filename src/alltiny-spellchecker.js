@@ -718,6 +718,7 @@ alltiny.Dictionary.compositLookup = {
 	'adj'         : { join: false, type: 'composit' },
 	'adv'         : { join: false, type: 'composit' },
 	'article'     : { join: false, type: 'composit' },
+	'conjunction' : { join: false, type: 'composit' },
 	'contraction' : { join: false, type: 'composit' },
 	'indefpronoun': { join: false, type: 'composit' },
 	'interjection': { join: false, type: 'composit' },

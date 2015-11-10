@@ -820,6 +820,8 @@ alltiny.Dictionary.compositLookup = {
 'pronoun': {
 	'interpunctuation': { join: false, type: 'composit' },
 	'punctuation'     : { join: false, type: 'composit', endOfSentence: true },
+	'rbracket'        : { join: false, type: 'composit' },
+	'rquotation'      : { join: false, type: 'composit' },
 	'structure'       : { join: false, type: 'composit' }
 },
 'punctuation': {

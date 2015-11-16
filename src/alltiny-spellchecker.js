@@ -744,8 +744,8 @@ alltiny.Dictionary.compositLookup = {
 	'hyphen'          : { join: false, type: 'composit' },
 	'interpunctuation': { join: false, type: 'composit' },
 	'punctuation'     : { join: false, type: 'composit', endOfSentence: true },
-	'rbracket'        : { join: false, type: 'composit', lupper: true },
-	'rquotation'      : { join: false, type: 'composit', lupper: true }
+	'rbracket'        : { join: false, type: 'composit' },
+	'rquotation'      : { join: false, type: 'composit' }
 },
 'noun': {
 	'adj'             : { join: true,  type: 'adj'  },

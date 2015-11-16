@@ -726,6 +726,8 @@ alltiny.Dictionary.compositLookup = {
 	'mark'        : { join: false, type: 'composit' },
 	'name'        : { join: false, type: 'composit' },
 	'noun'        : { join: false, type: 'composit', tupper: true },
+	'number'      : { join: false, type: 'composit' },
+	'numeral'     : { join: false, type: 'composit' },
 	'part'        : { join: false, type: 'composit' },
 	'particle'    : { join: false, type: 'composit' },
 	'prenoun'     : { join: false, type: 'composit' },

@@ -271,3 +271,9 @@ QUnit.test("test correct case for composit verb", function(assert) {
 	var output = spellchecker.checkText('stillzulegen', {hyphenation: true}).replace(/\u00ad/g, '|');
 	assert.equal(output, 'still|zu|le|gen', "no warning should be given" );
 });
+QUnit.test("test for alternatives written as elision", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.checkText('(Not-)Signal', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, '(Not-)Signal', "no warning should be given" );
+});

@@ -83,6 +83,7 @@
 "facebook":[{"w":"Facebook","type":"name"}],
 "faz":[{"w":"FAZ","type":"abbreviation","abbreviation":"Frankfurter Allgemeine Zeitung"}],
 "fbi":[{"w":"FBI","type":"abbreviation","abbreviation":"Federal Bureau of Investigation"}],
+"fed":[{"w":"Fed","type":"abbreviation","abbreviation":"Federal Reserve System"},{"w":"FED","type":"abbreviation","abbreviation":"Federal Reserve System"}],
 "ferrari":[{"w":"Fer|ra|ri","type":"name"}],
 "fia":[{"w":"Fia","type":"abbreviation","abbreviation":"Fédération Internationale de l'Automobile"},{"w":"FIA","type":"abbreviation","abbreviation":"Fédération Internationale de l'Automobile"}],
 "fifa":[{"w":"Fifa","type":"name"}],

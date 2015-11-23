@@ -66,15 +66,15 @@ def verifyDictionary(dict) {
 
 task verifyDictionaryDeDE {
 	description = 'verifies the dictionary to be syntactical correct'
-	verifyDictionary(new JsonSlurper().parse(new File("${projectDir}/dict/alltiny.dict.base.de_de.json")))
+	verifyDictionary(new JsonSlurper().parse(new File("${projectDir}/src/dict/alltiny.dict.base.de_de.json")))
 }
 
 task verifyDictionaryEnGB {
 	description = 'verifies the dictionary to be syntactical correct'
-	verifyDictionary(new JsonSlurper().parse(new File("${projectDir}/dict/alltiny.dict.base.en_gb.json")))
+	verifyDictionary(new JsonSlurper().parse(new File("${projectDir}/src/dict/alltiny.dict.base.en_gb.json")))
 }
 
 task verifyDictionaryTradenames {
 	description = 'verifies the dictionary to be syntactical correct'
-	verifyDictionary(new JsonSlurper().parse(new File("${projectDir}/dict/alltiny.dict.tradenames.json")))
+	verifyDictionary(new JsonSlurper().parse(new File("${projectDir}/src/dict/alltiny.dict.tradenames.json")))
 }

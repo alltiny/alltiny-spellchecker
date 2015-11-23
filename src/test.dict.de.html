@@ -3,10 +3,10 @@
 <head>
 	<meta charset="utf-8">
 	<title>Test alltiny spellchecker for German</title>
-	<link rel="stylesheet" href="http://code.jquery.com/qunit/qunit-1.18.0.css">
-	<script type="text/javascript" src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
-	<script type="text/javascript" src="http://code.jquery.com/qunit/qunit-1.18.0.js"></script>
-	<script type="text/javascript" src="src/alltiny-spellchecker.js"></script>
+	<link rel="stylesheet" href="lib/qunit-1.18.0.css">
+	<script type="text/javascript" src="lib/jquery-1.11.0.min.js"></script>
+	<script type="text/javascript" src="lib/qunit-1.18.0.js"></script>
+	<script type="text/javascript" src="js/alltiny-spellchecker.js"></script>
 </head>
 <body>
 	<div id="qunit"></div>
@@ -40,7 +40,7 @@
 			if (dictionariesLoaded.length < dictionariesToLoad.length) { // wait bit longer.
 				window.setTimeout(waitForDictionariesToBeLoaded, 100/*ms*/);
 			} else { // call the test script.
-				jQuery.getScript("src/test/js/test.de.js");
+				jQuery.getScript("test/js/test.de.js");
 			}
 		};
 		waitForDictionariesToBeLoaded();

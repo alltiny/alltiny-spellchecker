@@ -221,6 +221,32 @@ alltiny.Spellchecker.prototype.analyze = function() {
 				}
 			}
 		}
+		
+		// if the current finding contains '/-' then test for an ellision.
+		var slashPos = current.cleanWord.length > 0 ? current.cleanWord.indexOf('/-') : -1;
+		if (slashPos > -1) {
+			var leadingWord  = current.cleanWord.substring(0, slashPos);
+			var trailingWord = current.cleanWord.substring(slashPos + 1);
+			// search the leading part separately.
+			var leading  = this.checkWord(leadingWord,  current.checkOptions);
+			var trailing = this.checkWord(trailingWord, current.checkOptions);
+			// check for trailing being an elission.
+			this.checkJoinable(leading, trailing);
+			for (var l = 0; l < leading.variants.length; l++) {
+				var lvar = leading.variants[l];
+				for (t = 0; t < trailing.variants.length; t++) {
+					var tvar = trailing.variants[t];
+					if (tvar.type == 'elision') {
+						current.addVariant({
+							w: lvar.w + '/' + tvar.w,
+							type: 'composit',
+							composits: [].concat(lvar.composits ? lvar.composits : lvar).concat({w:'/', type:'structure'}).concat(tvar.composits ? tvar.composits : tvar),
+							endOfSentence: tvar.endOfSentence == true ? true : undefined
+						});
+					}
+				}
+			}
+		}
 		previous = current;
 	}
 };

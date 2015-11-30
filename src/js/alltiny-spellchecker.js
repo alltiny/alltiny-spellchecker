@@ -311,8 +311,9 @@ alltiny.Spellchecker.prototype.createReplacement = function(current) {
 	for (var v = 0; v < current.variants.length; v++) {
 		var variant = current.variants[v];
 		if (variant.w.replace(/\|/g,'').toLowerCase() == lowerCaseWord) { // is this variant an exact hit?
+			var expectedWord = current.assumeStartOfSentence ? this.upperCaseFirstCharacter(variant.w) : variant.w;
 			// highlight the word if option tells so.
-			return (checkOptions.highlighting && checkOptions.highlightCaseWarnings && !current.caseInsensitive) ? '<span class="spellcheck highlight warn case" data-spellcheck-correction="'+variant.w+'">'+alltiny.encodeAsHTML(current.word)+'</span>' : alltiny.encodeAsHTML(current.word);
+			return (checkOptions.highlighting && checkOptions.highlightCaseWarnings && !current.caseInsensitive) ? '<span class="spellcheck highlight warn case" data-spellcheck-correction="'+expectedWord+'">'+alltiny.encodeAsHTML(current.word)+'</span>' : alltiny.encodeAsHTML(current.word);
 		}
 	}
 	return (checkOptions.highlighting && checkOptions.highlightMismatches) ? '<span class="spellcheck highlight warn mismatch">'+alltiny.encodeAsHTML(current.word)+'</span>' : alltiny.encodeAsHTML(current.word);

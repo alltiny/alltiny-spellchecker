@@ -268,7 +268,7 @@ alltiny.Spellchecker.prototype.applyFindings = function(options) {
 			currentContent = currentNode.nodeValue;
 		}
 		if (currentContent != null) {
-			currentContent = currentContent.substring(0, finding.offset) + this.createReplacement(finding, checkOptions) + currentContent.substring(finding.offset + finding.word.length);
+			currentContent = currentContent.substring(0, finding.offset) + this.createReplacement(finding) + currentContent.substring(finding.offset + finding.word.length);
 		}
 	}
 	if (checkOptions.autoResetAfterApply) {
@@ -281,7 +281,8 @@ alltiny.Spellchecker.prototype.applyFindings = function(options) {
 	}
 };
 
-alltiny.Spellchecker.prototype.createReplacement = function(current, checkOptions) {
+alltiny.Spellchecker.prototype.createReplacement = function(current) {
+	var checkOptions = current.checkOptions;
 	if (current.cleanWord.length == 0) { // this happens when the cursor character has been the word to check.
 		return alltiny.encodeAsHTML(current.word);
 	}

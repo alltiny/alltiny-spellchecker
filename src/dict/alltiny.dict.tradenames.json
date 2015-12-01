@@ -199,6 +199,7 @@
 "sony":[{"w":"Sony","type":"name"}],
 "sputnik":[{"w":"sput|nik","type":"noun"}],
 "starfighter":[{"w":"star|fighter","type":"noun"}],
+"su":[{"w":"SU","type":"abbreviation","abbreviation":"Suchoi"}],
 "t-systems":[{"w":"T-Systems","type":"name"}],
 "telekom":[{"w":"Telekom","type":"name"}],
 "tengelmann":[{"w":"Tengel|mann","type":"name"}],

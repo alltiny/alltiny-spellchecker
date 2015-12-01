@@ -106,7 +106,10 @@ alltiny.Spellchecker.prototype.checkWord = function(word, options) {
 			isCursorInMiddle = true
 		}
 	}
-	var cleanWord = word.replace(new RegExp(checkOptions.cursorCharacter, 'g'), '').replace(/\u00ad/g,''); // remove all soft-hyphens from the word.
+	var cleanWord = word
+		.replace(new RegExp(checkOptions.cursorCharacter, 'g'), '') // remove the cursor character
+		.replace(/\u00ad/g,'')  // remove all soft-hyphens from the word.
+		.replace(/\u200b/g,''); // remove zero-width-white-spaces from the word.
 
 	return new alltiny.Finding({
 		word               : word,

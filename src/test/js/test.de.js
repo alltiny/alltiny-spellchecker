@@ -277,3 +277,9 @@ QUnit.test("test for alternatives written as elision", function(assert) {
 	var output = spellchecker.checkText('(Not-)Signal', {hyphenation: true}).replace(/\u00ad/g, '|');
 	assert.equal(output, '(Not-)Signal', "no warning should be given" );
 });
+QUnit.test("test for Ad-hoc-Analysen", function(assert) {
+	// let the spellchecker run. replace soft-hyphen back to pipe characters.
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.checkText('Ad-hoc-Analysen', {hyphenation: true}).replace(/\u00ad/g, '|');
+	assert.equal(output, 'Ad-hoc-Analysen', "no warning should be given" );
+});

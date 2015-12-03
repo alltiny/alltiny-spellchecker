@@ -5,6 +5,7 @@ alltiny.Editor = function(targetSelector, options) {
 	this.options = jQuery.extend(true, {
 		spellchecker : null,
 		cursorCharacter : '\u2038',
+		assumeStartOfSentenceWithElements : ['div','p'],
 		afterCheck : null /*fuction(target) {}*/ // a call-back function call after a check was done.
 	}, options);
 	// ensure that given target is a content-editable.
@@ -83,6 +84,10 @@ alltiny.Editor.prototype.checkNode = function(node, customOptions) {
 		if (element.nodeType === 1) { // if this is a node again.
 			if (jQuery(element).is('li')) { // if this node is an list item then activate the set the spellchecker to be case-insensitive for the next coming word.
 				thisObj.options.spellchecker.setCaseInsensitiveForNextWord(true);
+			}
+			// assume a start of sentence if this element is one of those.
+			if (jQuery(element).is(thisObj.options.assumeStartOfSentenceWithElements.join(', '))) {
+				thisObj.options.spellchecker.setAssumeStartOfSentence(true);
 			}
 			thisObj.checkNode(element, options);
 		} else if (element.nodeType === 3) { // if this is a text node then check it with the spellChecker.

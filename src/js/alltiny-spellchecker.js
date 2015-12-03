@@ -163,7 +163,7 @@ alltiny.Spellchecker.prototype.analyze = function() {
 				if (trailingFinding.variants) {
 					for (var v = 0; v < trailingFinding.variants.length && !joinDone; v++) {
 						var trailingVariant = trailingFinding.variants[v];
-						if (trailingVariant.type == 'conjunction' || (trailingVariant.type == 'abbreviation' && trailingVariant.abbrType == 'conjunction')) {
+						if (trailingVariant.type == 'conjunction' || (trailingVariant.type == 'abbr' && trailingVariant.abbrType == 'conjunction')) {
 							isConjunction = true;
 							break;
 						}
@@ -188,7 +188,7 @@ alltiny.Spellchecker.prototype.analyze = function() {
 				if (otherFinding.variants) {
 					for (var v = 0; v < otherFinding.variants.length && !joinDone; v++) {
 						var variant = otherFinding.variants[v];
-						if (variant.type == 'conjunction' || (variant.type == 'abbreviation' && variant.abbrType == 'conjunction')) {
+						if (variant.type == 'conjunction' || (variant.type == 'abbr' && variant.abbrType == 'conjunction')) {
 							isConjunction = true;
 							break;
 						}
@@ -209,7 +209,7 @@ alltiny.Spellchecker.prototype.analyze = function() {
 				if (otherFinding.variants) {
 					for (var v = 0; v < otherFinding.variants.length && !joinDone; v++) {
 						var variant = otherFinding.variants[v];
-						if (variant.type == 'conjunction' || (variant.type == 'abbreviation' && variant.abbrType == 'conjunction')) {
+						if (variant.type == 'conjunction' || (variant.type == 'abbr' && variant.abbrType == 'conjunction')) {
 							isConjunction = true;
 							break;
 						}
@@ -648,7 +648,7 @@ alltiny.encodeAsHTML = function(text) {
 };
 
 alltiny.Dictionary.compositLookup = {
-'abbreviation': {
+'abbr': {
 	'hyphen'          : { join: false, type: 'composit' },
 	'interpunctuation': { join: false, type: 'composit' },
 	'punctuation'     : { join: false, type: 'composit', endOfSentence: true },
@@ -722,7 +722,7 @@ alltiny.Dictionary.compositLookup = {
 	'rquotation'  : { join: false, type: 'composit' }
 },
 'lbracket': {
-	'abbreviation': { join: false, type: 'composit' },
+	'abbr': { join: false, type: 'composit' },
 	'adj'         : { join: false, type: 'composit' },
 	'adv'         : { join: false, type: 'composit' },
 	'article'     : { join: false, type: 'composit' },
@@ -746,7 +746,7 @@ alltiny.Dictionary.compositLookup = {
 	'verb'        : { join: false, type: 'composit' }
 },
 'lquotation': {
-	'abbreviation': { join: false, type: 'composit' },
+	'abbr': { join: false, type: 'composit' },
 	'adj'         : { join: false, type: 'composit' },
 	'adv'         : { join: false, type: 'composit' },
 	'article'     : { join: false, type: 'composit' },
@@ -880,7 +880,7 @@ alltiny.Dictionary.compositLookup = {
 'suffix': {},
 'structure': {
 	'adj'         : { join: false, type: 'composit' },
-	'abbreviation': { join: false, type: 'composit' },
+	'abbr': { join: false, type: 'composit' },
 	'conjunction' : { join: false, type: 'composit' },
 	'fragment'    : { join: false, type: 'composit' },
 	'hyphen'      : { join: false, type: 'composit' },

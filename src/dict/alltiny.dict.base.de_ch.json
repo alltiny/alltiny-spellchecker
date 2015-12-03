@@ -23,7 +23,7 @@
 "–":[{"w":"–","type":"mark","mark":"dash","standalone":"true"}],
 "—":[{"w":"—","type":"mark","mark":"dash","standalone":"true"}],
 "…":[{"w":"…","type":"mark","mark":"ellipsis"}],
-"...":[{"w":"...","type":"abbreviation","abbreviation":"und so weiter"}],
+"...":[{"w":"...","type":"abbr","abbr":"und so weiter"}],
 "barrhorn":[{"w":"Barr|horn","type":"name"}],
 "basel":[{"w":"Ba|sel","type":"name"}],
 "brunegghorn":[{"w":"Brun|egg|horn","type":"name"}],

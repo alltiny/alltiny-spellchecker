@@ -49,8 +49,8 @@ def verifyDictionary(dict) {
 						// currently nothing to check.
 					} else if (word.type == 'numeral' || word.type == 'ordinal') {
 						assert word.value != null : word.type + " '" + word.w + "' is lacking a defintion of 'value'"
-					} else if (word.type == 'abbreviation') {
-						assert word.abbreviation != null : "word '" + word.w + "' is lacking a defintion of 'abbreviation'"
+					} else if (word.type == 'abbr') {
+						assert word.abbr != null : "word '" + word.w + "' is lacking a defintion of 'abbr'"
 					} else if (word.type == 'contraction') {
 						assert word.contraction != null : "contraction '" + word.w + "' is lacking a defintion of 'contraction'"
 					} else if (word.type == 'symbol') {

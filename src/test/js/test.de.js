@@ -289,3 +289,8 @@ QUnit.test("test against Aufgrund", function(assert) {
 	var output = spellchecker.checkText('Aufgrund', {hyphenation: false});
 	assert.notEqual(output, 'Aufgrund', "a case warning must be given, since aufgrund is an adverb and must be written in lower case");
 });
+QUnit.test("test against Kräfteeinteilen", function(assert) {
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.checkText('Sie werden sich ihre Kräfteeinteilen müssen', {hyphenation: false});
+	assert.notEqual(output, 'Sie werden sich ihre Kräfteeinteilen müssen', "a case warning is expected, since 'Kräfteinteilen' is not a valid word");
+});

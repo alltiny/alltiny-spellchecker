@@ -1,15 +1,15 @@
 var alltiny = alltiny || {};
 alltiny.Spellchecker = function(options) {
 	this.options = jQuery.extend(true, {
-		hyphenation : true,
-		highlighting : true,
+		hyphenation           : true,
+		highlighting          : true,
 		highlightUnknownWords : true,
-		highlightKnownWords : false,
-		highlightMismatches : true,
+		highlightKnownWords   : false,
+		highlightMismatches   : true,
 		highlightCaseWarnings : true,
-		highlightNonStandalone : true, // with this option '!', '?', '.', ',', ';', ':' are marked when found standing alone.
-		cursorCharacter : '\u2038',
-		autoResetAfterApply : true
+		highlightNonStandalone: true, // with this option '!', '?', '.', ',', ';', ':' are marked when found standing alone.
+		cursorCharacter       : '\u2038',
+		autoResetAfterApply   : true
 	}, options);
 	this.dictionaries = [];
 	this.assumeStartOfSentence = true; // if true the first word in a check is assumed to be the start of a sentence.
@@ -51,7 +51,7 @@ alltiny.Spellchecker.prototype.reset = function() {
 alltiny.Spellchecker.prototype.checkText = function(text, options) {
 	this.check(text, options);
 	this.analyze();
-	return this.applyFindings(jQuery.extend(true, {content:text}, options));
+	return this.applyFindings(jQuery.extend(true, {content: text}, options));
 };
 
 /**
@@ -108,8 +108,8 @@ alltiny.Spellchecker.prototype.checkWord = function(word, options) {
 	}
 	var cleanWord = word
 		.replace(new RegExp(checkOptions.cursorCharacter, 'g'), '') // remove the cursor character
-		.replace(/\u00ad/g,'')  // remove all soft-hyphens from the word.
-		.replace(/\u200b/g,''); // remove zero-width-white-spaces from the word.
+		.replace(/\u00ad/g, '')  // remove all soft-hyphens from the word.
+		.replace(/\u200b/g, ''); // remove zero-width-white-spaces from the word.
 
 	return new alltiny.Finding({
 		word               : word,
@@ -125,7 +125,7 @@ alltiny.Spellchecker.prototype.checkWord = function(word, options) {
 
 /**
  * This method will analyze the current findings on higher levels.
-*/
+ */
 alltiny.Spellchecker.prototype.analyze = function() {
 	var previous = null;
 	for (var i = 0; i < this.findings.length; i++) {
@@ -152,7 +152,7 @@ alltiny.Spellchecker.prototype.analyze = function() {
 				current.isTouchingPrevious = current.offset == 0 && previous && (previous.contentLength - previous.offset - previous.word.length == 0);
 			}
 		}
-		
+
 		// if the current finding ends with '-,' or '-' then search for enumerations.
 		if (current.cleanWord.substring(current.cleanWord.length - 2) == '-,' || current.cleanWord[current.cleanWord.length - 1] == '-') {
 			// search until a conjunction is found.
@@ -224,14 +224,14 @@ alltiny.Spellchecker.prototype.analyze = function() {
 				}
 			}
 		}
-		
+
 		// if the current finding contains '/-' then test for an ellision.
 		var slashPos = current.cleanWord.length > 0 ? current.cleanWord.indexOf('/-') : -1;
 		if (slashPos > -1) {
-			var leadingWord  = current.cleanWord.substring(0, slashPos);
+			var leadingWord = current.cleanWord.substring(0, slashPos);
 			var trailingWord = current.cleanWord.substring(slashPos + 1);
 			// search the leading part separately.
-			var leading  = this.checkWord(leadingWord,  current.checkOptions);
+			var leading = this.checkWord(leadingWord, current.checkOptions);
 			var trailing = this.checkWord(trailingWord, current.checkOptions);
 			// check for trailing being an elission.
 			this.checkJoinable(leading, trailing);
@@ -241,9 +241,9 @@ alltiny.Spellchecker.prototype.analyze = function() {
 					var tvar = trailing.variants[t];
 					if (tvar.type == 'elision') {
 						current.addVariant({
-							w: lvar.w + '/' + tvar.w,
-							type: 'composit',
-							composits: [].concat(lvar.composits ? lvar.composits : lvar).concat({w:'/', type:'structure'}).concat(tvar.composits ? tvar.composits : tvar),
+							w            : lvar.w + '/' + tvar.w,
+							type         : 'composit',
+							composits    : [].concat(lvar.composits ? lvar.composits : lvar).concat({w: '/', type: 'structure'}).concat(tvar.composits ? tvar.composits : tvar),
 							endOfSentence: tvar.endOfSentence == true ? true : undefined
 						});
 					}
@@ -256,7 +256,7 @@ alltiny.Spellchecker.prototype.analyze = function() {
 
 /**
  * Calling this method will trigger the spellchecker to apply all current findings.
-*/
+ */
 alltiny.Spellchecker.prototype.applyFindings = function(options) {
 	var checkOptions = jQuery.extend(true, jQuery.extend(true, {}, this.options), options); // deep copy to avoid overrides. uses this.options as defaults.
 	var currentNode = null;
@@ -290,36 +290,36 @@ alltiny.Spellchecker.prototype.createReplacement = function(current) {
 		return alltiny.encodeAsHTML(current.word);
 	}
 	if (current.variants.length == 0) {
-		return (checkOptions.highlighting && checkOptions.highlightUnknownWords) ? '<span class="spellcheck highlight error unknown">'+alltiny.encodeAsHTML(current.word)+'</span>' : alltiny.encodeAsHTML(current.word);
+		return (checkOptions.highlighting && checkOptions.highlightUnknownWords) ? '<span class="spellcheck highlight error unknown">' + alltiny.encodeAsHTML(current.word) + '</span>' : alltiny.encodeAsHTML(current.word);
 	}
 	// if this is an interpunctuation then check against the previous finding that it is not standing alone.
 	if (current.variants.length == 1 && (current.variants[0].type == 'interpunctuation' || current.variants[0].type == 'punctuation')) {
-		return (checkOptions.highlighting && checkOptions.highlightNonStandalone && !current.isTouchingPrevious) ? '<span class="spellcheck highlight error standalone">'+alltiny.encodeAsHTML(current.word)+'</span>' : alltiny.encodeAsHTML(current.word);
+		return (checkOptions.highlighting && checkOptions.highlightNonStandalone && !current.isTouchingPrevious) ? '<span class="spellcheck highlight error standalone">' + alltiny.encodeAsHTML(current.word) + '</span>' : alltiny.encodeAsHTML(current.word);
 	}
 	// check whether one of the variants is an exact hit.
 	for (var v = 0; v < current.variants.length; v++) {
 		var variant = current.variants[v];
 		var foundWord = current.assumeStartOfSentence ? this.upperCaseFirstCharacter(variant.w) : variant.w;
-		if (foundWord.replace(/\|/g,'') == current.cleanWord) { // is this variant an exact hit?
+		if (foundWord.replace(/\|/g, '') == current.cleanWord) { // is this variant an exact hit?
 			// apply the word from the dictionary, to apply hyphenation.
 			var content = (checkOptions.hyphenation && !current.isCursorInMiddle)
-				? ((current.isCursorAtBeginning ? checkOptions.cursorCharacter : '') + foundWord.replace(/\|/g,'\u00ad') + (current.isCursorAtEnding ? checkOptions.cursorCharacter : ''))
+				? ((current.isCursorAtBeginning ? checkOptions.cursorCharacter : '') + foundWord.replace(/\|/g, '\u00ad') + (current.isCursorAtEnding ? checkOptions.cursorCharacter : ''))
 				: current.word;
 			// highlight the word if option tells so.
-			return (checkOptions.highlighting && checkOptions.highlightKnownWords) ? '<span class="spellcheck highlight ok">'+alltiny.encodeAsHTML(content)+'</span>' : alltiny.encodeAsHTML(content);
+			return (checkOptions.highlighting && checkOptions.highlightKnownWords) ? '<span class="spellcheck highlight ok">' + alltiny.encodeAsHTML(content) + '</span>' : alltiny.encodeAsHTML(content);
 		}
 	}
 	// if this point is reached then none of the found variants did match exactly. Do a case-insensitive check.
 	var lowerCaseWord = current.cleanWord.toLowerCase();
 	for (var v = 0; v < current.variants.length; v++) {
 		var variant = current.variants[v];
-		if (variant.w.replace(/\|/g,'').toLowerCase() == lowerCaseWord) { // is this variant an exact hit?
+		if (variant.w.replace(/\|/g, '').toLowerCase() == lowerCaseWord) { // is this variant an exact hit?
 			var expectedWord = current.assumeStartOfSentence ? this.upperCaseFirstCharacter(variant.w) : variant.w;
 			// highlight the word if option tells so.
-			return (checkOptions.highlighting && checkOptions.highlightCaseWarnings && !current.caseInsensitive) ? '<span class="spellcheck highlight warn case" data-spellcheck-correction="'+expectedWord+'">'+alltiny.encodeAsHTML(current.word)+'</span>' : alltiny.encodeAsHTML(current.word);
+			return (checkOptions.highlighting && checkOptions.highlightCaseWarnings && !current.caseInsensitive) ? '<span class="spellcheck highlight warn case" data-spellcheck-correction="' + expectedWord + '">' + alltiny.encodeAsHTML(current.word) + '</span>' : alltiny.encodeAsHTML(current.word);
 		}
 	}
-	return (checkOptions.highlighting && checkOptions.highlightMismatches) ? '<span class="spellcheck highlight warn mismatch">'+alltiny.encodeAsHTML(current.word)+'</span>' : alltiny.encodeAsHTML(current.word);
+	return (checkOptions.highlighting && checkOptions.highlightMismatches) ? '<span class="spellcheck highlight warn mismatch">' + alltiny.encodeAsHTML(current.word) + '</span>' : alltiny.encodeAsHTML(current.word);
 };
 
 alltiny.Spellchecker.prototype.upperCaseFirstCharacter = function(text) {
@@ -327,7 +327,7 @@ alltiny.Spellchecker.prototype.upperCaseFirstCharacter = function(text) {
 		var lower = text[i].toLowerCase();
 		var upper = text[i].toUpperCase();
 		if (lower != upper || lower == 'ß') {
-			return text.substring(0, i) + upper + text.substring(i+1, text.length);
+			return text.substring(0, i) + upper + text.substring(i + 1, text.length);
 			break;
 		}
 	}
@@ -378,9 +378,9 @@ alltiny.Spellchecker.prototype.askCrossDictionaries = function(word) {
 					for (var t = 0; t < trailing.length; t++) {
 						// create a composit of leading and trailing.
 						variants.push({
-							w: leading[l].w + trailing[t].w,
-							type: trailing[t].type == 'hyphen' ? leading[l].type : trailing[t].type,
-							composits: [].concat(leading[l].composits ? leading[l].composits : leading[l]).concat(trailing[t].composits ? trailing[t].composits : trailing[t]),
+							w            : leading[l].w + trailing[t].w,
+							type         : trailing[t].type == 'hyphen' ? leading[l].type : trailing[t].type,
+							composits    : [].concat(leading[l].composits ? leading[l].composits : leading[l]).concat(trailing[t].composits ? trailing[t].composits : trailing[t]),
 							endOfSentence: trailing[t].endOfSentence == true ? true : undefined
 						});
 					}
@@ -413,14 +413,14 @@ alltiny.Spellchecker.prototype.setCaseInsensitiveForNextWord = function(isInsens
  * "Bearbeitung" and "Verarbeitung".
  */
 alltiny.Spellchecker.prototype.checkJoinable = function(leadingFinding, trailingFinding) {
-	if (trailingFinding.variants && (leadingFinding.cleanWord[leadingFinding.cleanWord.length-1] == '-' || leadingFinding.cleanWord.substring(leadingFinding.cleanWord.length-2) == '-,')) {
-		var elisionChar = (leadingFinding.cleanWord[leadingFinding.cleanWord.length-1] == '-') ? '-' : '-,'
+	if (trailingFinding.variants && (leadingFinding.cleanWord[leadingFinding.cleanWord.length - 1] == '-' || leadingFinding.cleanWord.substring(leadingFinding.cleanWord.length - 2) == '-,')) {
+		var elisionChar = (leadingFinding.cleanWord[leadingFinding.cleanWord.length - 1] == '-') ? '-' : '-,'
 		var leadingWord = leadingFinding.cleanWord.substring(0, leadingFinding.cleanWord.length - elisionChar.length);
 		for (var v = 0; v < trailingFinding.variants.length; v++) {
 			var trailingVariant = trailingFinding.variants[v];
 			var pipePos = trailingVariant.w.indexOf('|');
 			while (pipePos >= 0) {
-				var searchWord = leadingWord + trailingVariant.w.substring(pipePos + 1).replace(/\|/g,'');
+				var searchWord = leadingWord + trailingVariant.w.substring(pipePos + 1).replace(/\|/g, '');
 				var findings = this.askDictionaries(searchWord);
 				if (findings && findings.length > 0) {
 					for (var f = 0; f < findings.length; f++) {
@@ -440,13 +440,13 @@ alltiny.Spellchecker.prototype.checkJoinable = function(leadingFinding, trailing
 			var leadingVariant = leadingFinding.variants[v];
 			var pipePos = leadingVariant.w.indexOf('|');
 			while (pipePos >= 0) {
-				var searchWord = leadingVariant.w.substring(0, pipePos).replace(/\|/g,'') +  trailingFinding.cleanWord;
+				var searchWord = leadingVariant.w.substring(0, pipePos).replace(/\|/g, '') + trailingFinding.cleanWord;
 				var findings = this.askDictionaries(searchWord);
 				if (findings && findings.length > 0) {
 					for (var f = 0; f < findings.length; f++) {
 						var finding = findings[f];
 						trailingFinding.addVariant({
-							w            : finding.w.substring(pipePos +1),
+							w            : finding.w.substring(pipePos + 1),
 							type         : 'elision',
 							elision      : finding.w,
 							endOfSentence: finding.endOfSentence
@@ -463,7 +463,7 @@ alltiny.Spellchecker.prototype.checkJoinable = function(leadingFinding, trailing
 			var leadingVariant = leadingFinding.variants[v];
 			var pipePos = leadingVariant.w.indexOf('|');
 			while (pipePos >= 0) {
-				var searchWord = leadingVariant.w.substring(0, pipePos).replace(/\|/g,'') + trailingWord;
+				var searchWord = leadingVariant.w.substring(0, pipePos).replace(/\|/g, '') + trailingWord;
 				var findings = this.askDictionaries(searchWord);
 				if (findings && findings.length > 0) {
 					for (var f = 0; f < findings.length; f++) {
@@ -495,30 +495,30 @@ alltiny.Dictionary = function(customOptions) {
 		this.options.processor = new Function('variants', this.options.processor);
 	}
 	this.symbolLookupTable = {
-		'.': [{w: '.', type: 'punctuation', endOfSentence: true}],
-		'?': [{w: '?', type: 'punctuation', endOfSentence: true}],
-		'!': [{w: '!', type: 'punctuation', endOfSentence: true}],
-		',': [{w: ',', type: 'interpunctuation'}],
-		';': [{w: ';', type: 'interpunctuation'}],
-		':': [{w: ':', type: 'interpunctuation'}],
-		'-': [{w: '-', type: 'hyphen'}],
-		'(': [{w: '(', type: 'lbracket'}],
-		')': [{w: ')', type: 'rbracket'}],
-		'{': [{w: '{', type: 'lbracket'}],
-		'}': [{w: '}', type: 'rbracket'}],
-		'[': [{w: '[', type: 'lbracket'}],
-		']': [{w: ']', type: 'rbracket'}],
-		'<': [{w: '<', type: 'lbracket'}],
-		'>': [{w: '>', type: 'rbracket'}],
-		'/': [{w: '/', type: 'structure'}],
-		'\\':[{w: '\\',type: 'structure'}],
-		'"': [{w: '"', type: 'lquotation'},{w: '"', type: 'rquotation'}],
-		'\'':[{w: '\'',type: 'lquotation'},{w: '\'',type: 'rquotation'}],
-		'%': [{w: '%', type: 'unit', unit: 'Percent'}],
-		'&': [{w: '&', type: 'symbol'}],
-		'$': [{w: '$', type: 'symbol'}],
-		'+': [{w: '+', type: 'symbol'}],
-		'*': [{w: '*', type: 'symbol',symbol: 'born'}],
+		'.'     : [{w: '.', type: 'punctuation', endOfSentence: true}],
+		'?'     : [{w: '?', type: 'punctuation', endOfSentence: true}],
+		'!'     : [{w: '!', type: 'punctuation', endOfSentence: true}],
+		','     : [{w: ',', type: 'interpunctuation'}],
+		';'     : [{w: ';', type: 'interpunctuation'}],
+		':'     : [{w: ':', type: 'interpunctuation'}],
+		'-'     : [{w: '-', type: 'hyphen'}],
+		'('     : [{w: '(', type: 'lbracket'}],
+		')'     : [{w: ')', type: 'rbracket'}],
+		'{'     : [{w: '{', type: 'lbracket'}],
+		'}'     : [{w: '}', type: 'rbracket'}],
+		'['     : [{w: '[', type: 'lbracket'}],
+		']'     : [{w: ']', type: 'rbracket'}],
+		'<'     : [{w: '<', type: 'lbracket'}],
+		'>'     : [{w: '>', type: 'rbracket'}],
+		'/'     : [{w: '/', type: 'structure'}],
+		'\\'    : [{w: '\\',type: 'structure'}],
+		'"'     : [{w: '"', type: 'lquotation'}, {w: '"', type: 'rquotation'}],
+		'\''    : [{w: '\'',type: 'lquotation'}, {w: '\'',type: 'rquotation'}],
+		'%'     : [{w: '%', type: 'unit', unit: 'Percent'}],
+		'&'     : [{w: '&', type: 'symbol'}],
+		'$'     : [{w: '$', type: 'symbol'}],
+		'+'     : [{w: '+', type: 'symbol'}],
+		'*'     : [{w: '*', type: 'symbol',symbol: 'born'}],
 		'\u00a9': [{w: '\u00a9', type: 'symbol', symbol: 'Copyright'}],
 		'\u00a7': [{w: '\u00a7', type: 'mark', symbol: 'Parapragh Sign'}],
 		'\u20ac': [{w: '\u20ac', type: 'symbol', symbol: 'Euro Sign'}],
@@ -553,7 +553,7 @@ alltiny.Dictionary.prototype.findWord = function(word) {
 				for (var l = 0; l < leading.length; l++) {
 					for (var t = 0; t < trailing.length; t++) {
 						// prevent some composits from being build.
-						var lword = (leading[l].composits && leading[l].composits.length > 0) ? leading[l].composits[leading[l].composits.length-1] : leading[l];
+						var lword = (leading[l].composits && leading[l].composits.length > 0) ? leading[l].composits[leading[l].composits.length - 1] : leading[l];
 						var tword = (trailing[t].composits && trailing[t].composits.length > 0) ? trailing[t].composits[0] : trailing[t];
 						// lookup the composit table.
 						var comp = (alltiny.Dictionary.compositLookup[lword.type] || {})[tword.type];
@@ -579,9 +579,9 @@ alltiny.Dictionary.prototype.findWord = function(word) {
 								composits.push(trailing[t].composits[tc]);
 							}
 							if (composits.length > 1) {
-								variants.push({w:w,type:'composit',composits:composits,endOfSentence:comp.endOfSentence||trailing[t].endOfSentence});
+								variants.push({w: w, type: 'composit', composits: composits, endOfSentence: comp.endOfSentence || trailing[t].endOfSentence});
 							} else {
-								variants.push({w:w,type:comp.type});
+								variants.push({w: w, type: comp.type});
 							}
 						}
 					}
@@ -594,7 +594,7 @@ alltiny.Dictionary.prototype.findWord = function(word) {
 
 /**
  * This method looks up a word in the dictionary's index.
-*/
+ */
 alltiny.Dictionary.prototype.lookupWord = function(word) {
 	var symbol = this.symbolLookupTable[word];
 	if (symbol) {
@@ -606,7 +606,7 @@ alltiny.Dictionary.prototype.lookupWord = function(word) {
 		for (var type in this.options.formats) {
 			for (var i = 0; i < this.options.formats[type].length; i++) {
 				if (word.match(new RegExp('^' + this.options.formats[type][i] + '$'))) {
-					return [{w:word,type:type}];
+					return [{w: word, type: type}];
 				}
 			}
 		}

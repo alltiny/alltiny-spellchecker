@@ -876,7 +876,9 @@ alltiny.Dictionary.compositLookup = {
 	'rbracket'        : { join: false, type: 'composit' },
 	'rquotation'      : { join: false, type: 'composit' }
 },
-'subjunction': {},
+'subjunction': {
+	'interpunctuation': { join: false, type: 'composit' }
+},
 'suffix': {},
 'structure': {
 	'adj'         : { join: false, type: 'composit' },

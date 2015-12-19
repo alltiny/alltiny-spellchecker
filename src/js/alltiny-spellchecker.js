@@ -886,6 +886,7 @@ alltiny.Dictionary.compositLookup = {
 	'conjunction' : { join: false, type: 'composit' },
 	'fragment'    : { join: false, type: 'composit' },
 	'hyphen'      : { join: false, type: 'composit' },
+	'name'        : { join: false, type: 'composit' },
 	'noun'        : { join: false, type: 'composit', tupper: true },
 	'number'      : { join: false, type: 'composit' },
 	'part'        : { join: false, type: 'composit' },

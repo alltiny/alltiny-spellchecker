@@ -346,7 +346,7 @@
 "xml":[{"w":"XML","type":"abbr","abbr":"Extensible Markup Language"}],
 "xsp":[{"w":"XSP","type":"abbr","abbr":"Extensible servers Pages"}],
 "yahoo":[{"w":"Yahoo","type":"name"}],
-"youtube":[{"w":"Youtube","type":"name"}],
+"youtube":[{"w":"Youtube","type":"name"},{"w":"YouTube","type":"name"}],
 "ytong":[{"w":"Ytong","type":"name"}],
 "ytongs":[{"w":"Ytongs","type":"name"}],
 "yuan":[{"w":"Yuan","type":"name"}],

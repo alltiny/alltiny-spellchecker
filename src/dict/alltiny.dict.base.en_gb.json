@@ -1,10 +1,17 @@
 {
-"name": "British English Base Dictionary",
 "syntax": [1,0],
-"formats":{
+"name": "British English Base Dictionary",
+"locale": "en_GB",
+"formats": {
 "date": ["[0-9]{1,2}\\.[0-9]{1,2}\\.[0-9]{2,4}"],
 "number": ["[0-9]+"],
 "ordinal": ["[0-9]+\\."]
+},
+"symbols":{
+"‘":[{"w":"‘","type":"lquotation"}],
+"’":[{"w":"’","type":"rquotation"}],
+"“":[{"w":"“","type":"lquotation"}],
+"”":[{"w":"”","type":"rquotation"}]
 },
 "processor": "return variants;",
 "words":{
@@ -712,7 +719,7 @@
 "association":[{"w":"as|so|ci|ation","type":"noun"}],
 "at":[{"w":"at","type":"prepos"}],
 "attach":[{"w":"at|tach","type":"verb"}],
-"attach�":[{"w":"at|tach�","type":"noun"}],
+"attaché":[{"w":"at|taché","type":"noun"}],
 "attached":[{"w":"at|tached","type":"verb"}],
 "attachment":[{"w":"at|tach|ment","type":"noun"}],
 "attachments":[{"w":"at|tach|ments","type":"noun"}],
@@ -1338,8 +1345,8 @@
 "cleverest":[{"w":"clever|est","type":"adj"}],
 "cleverly":[{"w":"clev|er|ly","type":"adv"}],
 "cleverness":[{"w":"clev|er|ness","type":"noun"}],
-"clich�":[{"w":"cli|ch�","type":"noun"}],
-"clich�d":[{"w":"cli|ch�d","type":"adj"}],
+"cliché":[{"w":"cli|ché","type":"noun"}],
+"clichéd":[{"w":"cli|chéd","type":"adj"}],
 "click":[{"w":"click","type":"verb"},{"w":"click","type":"noun"}],
 "clicked":[{"w":"clicked","type":"verb"}],
 "clicks":[{"w":"clicks","type":"verb"},{"w":"clicks","type":"noun"}],
@@ -2001,7 +2008,7 @@
 "passably":[{"w":"pass|ably","type":"adv"}],
 "passage":[{"w":"pas|sage","type":"noun"}],
 "passbook":[{"w":"pass|book","type":"noun"}],
-"pass�":[{"w":"pass�","type":"adj"}],
+"passé":[{"w":"passé","type":"adj"}],
 "passenger":[{"w":"pas|sen|ger","type":"noun"}],
 "passer-by":[{"w":"passer-by","type":"noun","numerus":"s"}],
 "passers-by":[{"w":"passers-by","type":"noun","numerus":"p"}],

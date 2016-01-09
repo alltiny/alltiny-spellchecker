@@ -69,6 +69,16 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 	// determine the check options; fall-back to the spellchecker options if not given.
 	var checkOptions = jQuery.extend(true, jQuery.extend(true, {}, this.options), options); // deep copy to avoid overrides. uses this.options as defaults.
 
+	checkOptions.context = checkOptions.context || {};
+	/* prepare the symbol map: if a language locale is defined only use symbols
+	 * from this language, else merge all symbols of all dictionaries together. */
+	for (var i = 0; i < this.dictionaries.length; i++) {
+		var dictionary = this.dictionaries[i];
+		if (!checkOptions.language || dictionary.locale == checkOptions.language) {
+			checkOptions.context.symbols = alltiny.Spellchecker.mergeDictionaries(checkOptions.context.symbols, dictionary.options.symbols);
+		}
+	}
+
 	// use the word regex to split text into words.
 	text.replace(/[^\s]+/ig, function(word, offset, content) {
 		var current = thisObj.checkWord(word, checkOptions);
@@ -116,7 +126,7 @@ alltiny.Spellchecker.prototype.checkWord = function(word, options) {
 		cleanWord          : cleanWord,
 		checkOptions       : checkOptions,
 		node               : checkOptions.node,
-		variants           : cleanWord.length > 0 ? thisObj.askCrossDictionaries(cleanWord) : null, // ask the dictionaries
+		variants           : cleanWord.length > 0 ? thisObj.askCrossDictionaries(cleanWord, checkOptions.context) : null, // ask the dictionaries
 		isCursorAtBeginning: isCursorAtBeginning,
 		isCursorAtEnding   : isCursorAtEnding,
 		isCursorInMiddle   : isCursorInMiddle
@@ -347,11 +357,11 @@ alltiny.Spellchecker.prototype.getCursorPositions = function(word, cursorCharact
 	return positions;
 };
 
-alltiny.Spellchecker.prototype.askDictionaries = function(word) {
+alltiny.Spellchecker.prototype.askDictionaries = function(word, context) {
 	var variants = [];
 	var variantsFoundLookup = {}; // this is for avoiding duplicates in the variants array.
 	for (var i = 0; i < this.dictionaries.length; i++) {
-		var foundWords = this.dictionaries[i].findWord(word);
+		var foundWords = this.dictionaries[i].findWord(word, context);
 		if (foundWords != null) {
 			for (var v = 0; v < foundWords.length; v++) {
 				var variant = foundWords[v];
@@ -366,13 +376,13 @@ alltiny.Spellchecker.prototype.askDictionaries = function(word) {
 	return variants;
 };
 
-alltiny.Spellchecker.prototype.askCrossDictionaries = function(word) {
-	var variants = this.askDictionaries(word);
+alltiny.Spellchecker.prototype.askCrossDictionaries = function(word, context) {
+	var variants = this.askDictionaries(word, context);
 	var i = word.indexOf('-');
 	if (i >= 0) {
-		var leading = this.askDictionaries(word.substring(0, i + 1));
+		var leading = this.askDictionaries(word.substring(0, i + 1), context);
 		if (leading && leading.length > 0) {
-			var trailing = this.askCrossDictionaries(word.substring(i + 1));
+			var trailing = this.askCrossDictionaries(word.substring(i + 1), context);
 			if (trailing && trailing.length > 0) {
 				for (var l = 0; l < leading.length; l++) {
 					for (var t = 0; t < trailing.length; t++) {
@@ -412,7 +422,7 @@ alltiny.Spellchecker.prototype.setCaseInsensitiveForNextWord = function(isInsens
  * This method is used to handle joinable words like "Be- und Verarbeiten", which contains two words
  * "Bearbeitung" and "Verarbeitung".
  */
-alltiny.Spellchecker.prototype.checkJoinable = function(leadingFinding, trailingFinding) {
+alltiny.Spellchecker.prototype.checkJoinable = function(leadingFinding, trailingFinding, context) {
 	if (trailingFinding.variants && (leadingFinding.cleanWord[leadingFinding.cleanWord.length - 1] == '-' || leadingFinding.cleanWord.substring(leadingFinding.cleanWord.length - 2) == '-,')) {
 		var elisionChar = (leadingFinding.cleanWord[leadingFinding.cleanWord.length - 1] == '-') ? '-' : '-,'
 		var leadingWord = leadingFinding.cleanWord.substring(0, leadingFinding.cleanWord.length - elisionChar.length);
@@ -421,7 +431,7 @@ alltiny.Spellchecker.prototype.checkJoinable = function(leadingFinding, trailing
 			var pipePos = trailingVariant.w.indexOf('|');
 			while (pipePos >= 0) {
 				var searchWord = leadingWord + trailingVariant.w.substring(pipePos + 1).replace(/\|/g, '');
-				var findings = this.askDictionaries(searchWord);
+				var findings = this.askDictionaries(searchWord, context);
 				if (findings && findings.length > 0) {
 					for (var f = 0; f < findings.length; f++) {
 						var finding = findings[f];
@@ -441,7 +451,7 @@ alltiny.Spellchecker.prototype.checkJoinable = function(leadingFinding, trailing
 			var pipePos = leadingVariant.w.indexOf('|');
 			while (pipePos >= 0) {
 				var searchWord = leadingVariant.w.substring(0, pipePos).replace(/\|/g, '') + trailingFinding.cleanWord;
-				var findings = this.askDictionaries(searchWord);
+				var findings = this.askDictionaries(searchWord, context);
 				if (findings && findings.length > 0) {
 					for (var f = 0; f < findings.length; f++) {
 						var finding = findings[f];
@@ -464,7 +474,7 @@ alltiny.Spellchecker.prototype.checkJoinable = function(leadingFinding, trailing
 			var pipePos = leadingVariant.w.indexOf('|');
 			while (pipePos >= 0) {
 				var searchWord = leadingVariant.w.substring(0, pipePos).replace(/\|/g, '') + trailingWord;
-				var findings = this.askDictionaries(searchWord);
+				var findings = this.askDictionaries(searchWord, context);
 				if (findings && findings.length > 0) {
 					for (var f = 0; f < findings.length; f++) {
 						var finding = findings[f];
@@ -480,6 +490,47 @@ alltiny.Spellchecker.prototype.checkJoinable = function(leadingFinding, trailing
 		}
 	}
 };
+
+/**
+ * This a helper method for merging two dictionary together.
+ */
+alltiny.Spellchecker.mergeDictionaries = function(dictionary1, dictionary2) {
+	var result = {};
+	for (var w in dictionary1) {
+		if (w) {
+			result[w] = jQuery.extend(true, [], dictionary1[w]); // use jQuery to create a deep-copy of this entry.
+		}
+	}
+	for (var w in dictionary2) {
+		if (w) {
+			if (result[w]) {
+				result[w] = alltiny.Spellchecker.mergeWordList(result[w], dictionary2[w]);
+			} else {
+				result[w] = jQuery.extend(true, [], dictionary2[w]); // use jQuery to create a deep-copy of this entry.
+			}
+		}
+	}
+	return result;
+};
+
+/**
+ * This a helper method for merging two word lists together.
+ */
+alltiny.Spellchecker.mergeWordList = function(wordList1, wordList2) {
+	var result = [];
+	var wordsFoundLookup = {}; // this helps for checking whether a word is allready contained.
+	var list = wordList1.concat(wordList2);
+	for (var i = 0; i < list.length; i++) {
+		var word = list[i];
+		var key = word.type + '#' + word.w;
+		if (!wordsFoundLookup[key]) {
+			result.push(jQuery.extend(true, {}, word)); // create a deep copy.
+			wordsFoundLookup[key] = true;
+		}
+	}
+	return result;
+};
+
 
 alltiny.Dictionary = function(customOptions) {
 	this.options = jQuery.extend(true, {
@@ -541,14 +592,14 @@ alltiny.Dictionary.prototype.addWord = function(word) {
 };
 
 /* this method will return null if the word is unknown. */
-alltiny.Dictionary.prototype.findWord = function(word) {
+alltiny.Dictionary.prototype.findWord = function(word, context) {
 	// start with looking the word up directly.
-	var variants = this.lookupWord(word) || [];
+	var variants = this.lookupWord(word, context) || [];
 	// look for various break downs.
 	for (var i = word.length - 1; i > 0; i--) {
-		var leading = this.lookupWord(word.substring(0, i));
+		var leading = this.lookupWord(word.substring(0, i), context);
 		if (leading && leading.length > 0) {
-			var trailing = this.findWord(word.substring(i));
+			var trailing = this.findWord(word.substring(i), context);
 			if (trailing && trailing.length > 0) {
 				for (var l = 0; l < leading.length; l++) {
 					for (var t = 0; t < trailing.length; t++) {
@@ -595,7 +646,13 @@ alltiny.Dictionary.prototype.findWord = function(word) {
 /**
  * This method looks up a word in the dictionary's index.
  */
-alltiny.Dictionary.prototype.lookupWord = function(word) {
+alltiny.Dictionary.prototype.lookupWord = function(word, context) {
+	// check for context specific symbols frist.
+	var contextSymbol = (context && context.symbols) ? context.symbols[word] : null;
+	if (contextSymbol) {
+		return jQuery.extend(true, [], contextSymbol); // create a deep-copy of the array to save the lookup map from modifications.
+	}
+	// query the standard symbol table.
 	var symbol = this.symbolLookupTable[word];
 	if (symbol) {
 		return jQuery.extend(true, [], symbol); // create a deep-copy of the array to save the lookup map from modifications.

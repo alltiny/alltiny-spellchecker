@@ -11,6 +11,7 @@ body { margin: 0; }
 #header span.logo { font-weight: bold; font-size: 24px; color: #f0f0f0; text-shadow: 0 0 7px #303030; }
 div.editor { border-radius: 5px; padding: 7px; box-shadow: inset 0 0 10px #181810; margin: 10px }
 div.report { margin: 10px; }
+div.report span { margin-right: 5px; }
 div.statistics { border-radius: 5px; margin: 10px; box-shadow: inset 0 0 10px #181810; overflow: hidden; background-color: #f0f0f0; }
 div.statistics table { width: 100%; color: #404040;}
 div.statistics table td { padding-left: 5px;}
@@ -58,8 +59,12 @@ jQuery.getJSON("dict/alltiny.dict.base.de_ch.json", function(dict) {
 jQuery.getJSON("dict/alltiny.dict.tradenames.json", function(dict) {
 	spellchecker.addDictionary(new alltiny.Dictionary(dict));
 });
+var checkStartTimestamp;
 var editor = new alltiny.Editor(jQuery('#content'), {
 	spellchecker: spellchecker,
+	beforeCheck : function(target) {
+		checkStartTimestamp = new Date().getTime();
+	},
 	afterCheck  : function(target) {
 		// create reports.
 		var unknownWords = [];
@@ -82,7 +87,9 @@ var editor = new alltiny.Editor(jQuery('#content'), {
 			}
 		});
 		unknownWords = unknownWords.sort();
-		jQuery('div.report').empty().text(countSum + ' Words in total. Unknown words: ' + unknownWords.join(' '));
+		jQuery('div.report').empty()
+			.append(jQuery('<span>').text('Check done in ' + (new Date().getTime() - checkStartTimestamp) + 'ms.'))
+			.append(jQuery('<span>').text(countSum + ' Words in total. Unknown words: ' + unknownWords.join(' ')));
 	}
 });
 </script>

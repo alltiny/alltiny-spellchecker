@@ -6,12 +6,16 @@ alltiny.Editor = function(targetSelector, options) {
 		spellchecker : null,
 		cursorCharacter : '\u2038',
 		assumeStartOfSentenceWithElements : ['div','p'],
+		beforeCheck : null, /*fuction(target) {}*/ // a call-back function which is being called before a check.
 		afterCheck : null /*fuction(target) {}*/ // a call-back function call after a check was done.
 	}, options);
 	// ensure that given target is a content-editable.
 	jQuery(targetSelector).attr('contenteditable', 'true');
 	// hook a change listener onto the element.
 	jQuery(targetSelector).keyup(function(e) {
+		if (typeof thisObj.options.beforeCheck == 'function') {
+			thisObj.options.beforeCheck.call(thisObj, thisObj.$target);
+		}
 		// store current cursor postion.
 		var selection = thisObj.saveSelection(targetSelector);
 		// start checking.

@@ -571,6 +571,7 @@ alltiny.Dictionary = function(customOptions) {
 		'%'     : [{w: '%', type: 'unit', unit: 'Percent'}],
 		'&'     : [{w: '&', type: 'symbol'}],
 		'$'     : [{w: '$', type: 'symbol'}],
+		'#'     : [{w: '#', type: 'symbol',symbol:'hash'}],
 		'+'     : [{w: '+', type: 'symbol'}],
 		'*'     : [{w: '*', type: 'symbol',symbol: 'born'}],
 		'\u00a9': [{w: '\u00a9', type: 'symbol', symbol: 'Copyright'}],

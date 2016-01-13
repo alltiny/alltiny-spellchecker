@@ -360,7 +360,10 @@ alltiny.Spellchecker.prototype.getCursorPositions = function(word, cursorCharact
 alltiny.Spellchecker.prototype.askDictionaries = function(word, context) {
 	var variants = [];
 	var variantsFoundLookup = {}; // this is for avoiding duplicates in the variants array.
+	context = context || {};
 	for (var i = 0; i < this.dictionaries.length; i++) {
+		// reset the unsuccessful-finds-map
+		context.cachedWordFindings = {};
 		var foundWords = this.dictionaries[i].findWord(word, context);
 		if (foundWords != null) {
 			for (var v = 0; v < foundWords.length; v++) {
@@ -593,6 +596,10 @@ alltiny.Dictionary.prototype.addWord = function(word) {
 
 /* this method will return null if the word is unknown. */
 alltiny.Dictionary.prototype.findWord = function(word, context) {
+	// quick-check whether this word or break has allready been treid to lookup.
+	if (context.cachedWordFindings[word]) {
+		return context.cachedWordFindings[word];
+	}
 	// start with looking the word up directly.
 	var variants = this.lookupWord(word, context) || [];
 	// look for all possible break downs.
@@ -640,7 +647,9 @@ alltiny.Dictionary.prototype.findWord = function(word, context) {
 			}
 		}
 	}
-	return this.process(variants);
+	var processed = this.process(variants)
+	context.cachedWordFindings[word] = processed; // cache the result of this finding process.
+	return processed;
 };
 
 /**

@@ -294,3 +294,8 @@ QUnit.test("test against Kräfteeinteilen", function(assert) {
 	var output = spellchecker.checkText('Sie werden sich ihre Kräfteeinteilen müssen', {hyphenation: false});
 	assert.notEqual(output, 'Sie werden sich ihre Kräfteeinteilen müssen', "a case warning is expected, since 'Kräfteinteilen' is not a valid word");
 });
+QUnit.test("test against multiple dots", function(assert) {
+	spellchecker.setAssumeStartOfSentence(false);
+	var output = spellchecker.checkText('................', {hyphenation: false});
+	assert.notEqual(output, '................', "checking this series of dots should not take too much time");
+});

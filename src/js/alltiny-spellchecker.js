@@ -595,7 +595,7 @@ alltiny.Dictionary.prototype.addWord = function(word) {
 alltiny.Dictionary.prototype.findWord = function(word, context) {
 	// start with looking the word up directly.
 	var variants = this.lookupWord(word, context) || [];
-	// look for various break downs.
+	// look for all possible break downs.
 	for (var i = word.length - 1; i > 0; i--) {
 		var leading = this.lookupWord(word.substring(0, i), context);
 		if (leading && leading.length > 0) {

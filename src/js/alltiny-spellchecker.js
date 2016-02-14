@@ -74,7 +74,7 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 	 * from this language, else merge all symbols of all dictionaries together. */
 	for (var i = 0; i < this.dictionaries.length; i++) {
 		var dictionary = this.dictionaries[i];
-		if (!checkOptions.language || dictionary.locale == checkOptions.language) {
+		if (!checkOptions.language || dictionary.options.locale == checkOptions.language) {
 			checkOptions.context.symbols = alltiny.Spellchecker.mergeDictionaries(checkOptions.context.symbols, dictionary.options.symbols);
 		}
 	}

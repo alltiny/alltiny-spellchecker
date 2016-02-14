@@ -103,7 +103,8 @@ var editor = new alltiny.Editor(jQuery('#content'), {
 		jQuery('div.report').empty()
 			.append(jQuery('<span>').text('Check done in ' + (new Date().getTime() - checkStartTimestamp) + 'ms.'))
 			.append(jQuery('<span>').text(countSum + ' Words in total. Unknown words: ' + unknownWords.join(' ')));
-	}
+	},
+	language: 'de_DE'
 });
 </script>
 </body>

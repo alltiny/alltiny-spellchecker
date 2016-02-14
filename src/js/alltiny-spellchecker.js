@@ -78,6 +78,14 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 			checkOptions.context.symbols = alltiny.Spellchecker.mergeDictionaries(checkOptions.context.symbols, dictionary.options.symbols);
 		}
 	}
+	/* load the demanded coposit map. */
+	for (var i = 0; i < this.dictionaries.length; i++) {
+		var dictionary = this.dictionaries[i];
+		if ((!checkOptions.language || dictionary.options.locale == checkOptions.language) && dictionary.options.composits) {
+			checkOptions.context.composits = dictionary.options.composits;
+			break;
+		}
+	}
 
 	// use the word regex to split text into words.
 	text.replace(/[^\s]+/ig, function(word, offset, content) {
@@ -601,6 +609,7 @@ alltiny.Dictionary.prototype.findWord = function(word, context) {
 	if (context.cachedWordFindings[word]) {
 		return context.cachedWordFindings[word];
 	}
+	context.composits = context.composits || {}; // ensure at least an empty map exists.
 	// start with looking the word up directly.
 	var variants = this.lookupWord(word, context) || [];
 	// look for all possible break downs.
@@ -615,7 +624,7 @@ alltiny.Dictionary.prototype.findWord = function(word, context) {
 						var lword = (leading[l].composits && leading[l].composits.length > 0) ? leading[l].composits[leading[l].composits.length - 1] : leading[l];
 						var tword = (trailing[t].composits && trailing[t].composits.length > 0) ? trailing[t].composits[0] : trailing[t];
 						// lookup the composit table.
-						var comp = (alltiny.Dictionary.compositLookup[lword.type] || {})[tword.type];
+						var comp = (context.composits[lword.type] || {})[tword.type];
 						if (comp) {
 							var w = '';
 							var composits = [];
@@ -712,266 +721,4 @@ alltiny.Finding.prototype.addVariant = function(variant) {
 
 alltiny.encodeAsHTML = function(text) {
 	return text && text.length > 0 ? text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;') : text;
-};
-
-alltiny.Dictionary.compositLookup = {
-'abbr': {
-	'hyphen'          : { join: false, type: 'composit' },
-	'interpunctuation': { join: false, type: 'composit' },
-	'punctuation'     : { join: false, type: 'composit', endOfSentence: true },
-	'rbracket'        : { join: false, type: 'composit' },
-	'rquotation'      : { join: false, type: 'composit' },
-	'structure'       : { join: false, type: 'composit' }
-},
-'adj': {
-	'adj'             : { join: true,  type: 'adj' },
-	'hyphen'          : { join: false, type: 'composit' },
-	'interpunctuation': { join: false, type: 'composit' },
-	'noun'            : { join: true,  type: 'noun', lupper: true, tlower: true },
-	'part'            : { join: true,  type: 'part' },
-	'particle'        : { join: true,  type: 'particle' },
-	'punctuation'     : { join: false, type: 'composit', endOfSentence: true },
-	'rbracket'        : { join: false, type: 'composit' },
-	'rquotation'      : { join: false, type: 'composit' },
-	'structure'       : { join: false, type: 'composit' }
-},
-'adv': {
-	'adv'             : { join: true,  type: 'adv' },
-	'hyphen'          : { join: false, type: 'composit' },
-	'interpunctuation': { join: false, type: 'composit' },
-	'noun'            : { join: true,  type: 'noun', lupper: true, tlower: true },
-	'part'            : { join: true,  type: 'part' },
-	'punctuation'     : { join: false, type: 'composit', endOfSentence: true },
-	'rbracket'        : { join: false, type: 'composit' },
-	'rquotation'      : { join: false, type: 'composit' },
-	'verb'            : { join: true,  type: 'verb' }
-},
-'article': {
-	'interpunctuation': { join: false, type: 'composit' },
-	'punctuation'     : { join: false, type: 'composit', endOfSentence: true }
-},
-'conjunction': {
-	'interpunctuation': { join: false, type: 'composit' },
-	'structure'       : { join: false, type: 'composit' }
-},
-'contraction': {},
-'dash': {
-	'number': { join: false, type: 'composit' }
-},
-'date': {
-	'interpunctuation': { join: false, type: 'composit' }
-},
-'fragment': {
-	'interpunctuation': { join: false, type: 'composit' },
-	'punctuation'     : { join: false, type: 'composit', endOfSentence: true },
-	'rbracket'        : { join: false, type: 'composit' },
-	'rquotation'      : { join: false, type: 'composit' }
-},
-'greeting': {
-	'interpunctuation': { join: false, type: 'composit' },
-	'punctuation'     : { join: false, type: 'composit', endOfSentence: true }
-},
-'hyphen': {
-	'fragment'        : { join: false, type: 'composit' },
-	'interpunctuation': { join: false, type: 'composit' },
-	'noun'            : { join: false, type: 'composit', tupper: true },
-	'number'          : { join: false, type: 'composit' },
-	'lquotation'      : { join: false, type: 'composit' }
-},
-'indefpronoun': {},
-'interjection': {
-	'interpunctuation': { join: false, type: 'composit' },
-	'punctuation'     : { join: false, type: 'composit', endOfSentence: true },
-	'rbracket'        : { join: false, type: 'composit' },
-	'rquotation'      : { join: false, type: 'composit' }
-},
-'interpunctuation': {
-	'rquotation'  : { join: false, type: 'composit' }
-},
-'lbracket': {
-	'abbr': { join: false, type: 'composit' },
-	'adj'         : { join: false, type: 'composit' },
-	'adv'         : { join: false, type: 'composit' },
-	'article'     : { join: false, type: 'composit' },
-	'conjunction' : { join: false, type: 'composit' },
-	'contraction' : { join: false, type: 'composit' },
-	'indefpronoun': { join: false, type: 'composit' },
-	'interjection': { join: false, type: 'composit' },
-	'lbracket'    : { join: false, type: 'composit' },
-	'lquotation'  : { join: false, type: 'composit' },
-	'mark'        : { join: false, type: 'composit' },
-	'name'        : { join: false, type: 'composit' },
-	'noun'        : { join: false, type: 'composit', tupper: true },
-	'number'      : { join: false, type: 'composit' },
-	'numeral'     : { join: false, type: 'composit' },
-	'part'        : { join: false, type: 'composit' },
-	'particle'    : { join: false, type: 'composit' },
-	'prenoun'     : { join: false, type: 'composit' },
-	'prepos'      : { join: false, type: 'composit' },
-	'pronoun'     : { join: false, type: 'composit' },
-	'subjunction' : { join: false, type: 'composit' },
-	'verb'        : { join: false, type: 'composit' }
-},
-'lquotation': {
-	'abbr': { join: false, type: 'composit' },
-	'adj'         : { join: false, type: 'composit' },
-	'adv'         : { join: false, type: 'composit' },
-	'article'     : { join: false, type: 'composit' },
-	'conjunction' : { join: false, type: 'composit' },
-	'contraction' : { join: false, type: 'composit' },
-	'indefpronoun': { join: false, type: 'composit' },
-	'interjection': { join: false, type: 'composit' },
-	'lquotation'  : { join: false, type: 'composit' },
-	'mark'        : { join: false, type: 'composit' },
-	'name'        : { join: false, type: 'composit' },
-	'noun'        : { join: false, type: 'composit', tupper: true },
-	'number'      : { join: false, type: 'composit' },
-	'numeral'     : { join: false, type: 'composit' },
-	'part'        : { join: false, type: 'composit' },
-	'particle'    : { join: false, type: 'composit' },
-	'prenoun'     : { join: false, type: 'composit' },
-	'prepos'      : { join: false, type: 'composit' },
-	'pronoun'     : { join: false, type: 'composit' },
-	'subjunction' : { join: false, type: 'composit' },
-	'verb'        : { join: false, type: 'composit' }
-},
-'mark': {
-	'rbracket'  : { join: false, type: 'composit' },
-	'rquotation': { join: false, type: 'composit' }
-},
-'name': {
-	'hyphen'          : { join: false, type: 'composit' },
-	'interpunctuation': { join: false, type: 'composit' },
-	'punctuation'     : { join: false, type: 'composit', endOfSentence: true },
-	'rbracket'        : { join: false, type: 'composit' },
-	'rquotation'      : { join: false, type: 'composit' }
-},
-'noun': {
-	'adj'             : { join: true,  type: 'adj'  },
-	'hyphen'          : { join: false, type: 'composit', lupper: true },
-	'interpunctuation': { join: false, type: 'composit', lupper: true },
-	'noun'            : { join: true,  type: 'noun', lupper: true, tlower: true },
-	'part'            : { join: true,  type: 'part' }, /* this is only valid for part1, for part2 it's not. */
-	'punctuation'     : { join: false, type: 'composit', lupper: true, endOfSentence: true },
-	'prenoun'         : { join: true,  type: 'prenoun', lupper: true, tlower: true},
-	'rbracket'        : { join: false, type: 'composit', lupper: true },
-	'rquotation'      : { join: false, type: 'composit', lupper: true },
-	'structure'       : { join: false, type: 'composit', lupper: true },
-	'verb'            : { join: true,  type: 'verb' }
-},
-'number': {
-	'dash'            : { join: false, type: 'composit' },
-	'hyphen'          : { join: false, type: 'composit' },
-	'interpunctuation': { join: false, type: 'composit' },
-	'punctuation'     : { join: false, type: 'composit', endOfSentence: true },
-	'rbracket'        : { join: false, type: 'composit' },
-	'rquotation'      : { join: false, type: 'composit' },
-	'structure'       : { join: false, type: 'composit' },
-	'unit'            : { join: false, type: 'composit' }
-},
-'numeral': {
-	'adj'             : { join: true,  type: 'adj' },
-	'hyphen'          : { join: false, type: 'composit' },
-	'interpunctuation': { join: false, type: 'composit' },
-	'punctuation'     : { join: false, type: 'composit', endOfSentence: true },
-	'noun'            : { join: true,  type: 'noun', lupper: true, tlower: true },
-	'numeral'         : { join: true,  type: 'numeral' }
-},
-'ordinal': {},
-'part': {
-	'hyphen'          : { join: false, type: 'composit' },
-	'interpunctuation': { join: false, type: 'composit' },
-	'punctuation'     : { join: false, type: 'composit', endOfSentence: true },
-	'rbracket'        : { join: false, type: 'composit' },
-	'rquotation'      : { join: false, type: 'composit' },
-	'structure'       : { join: false, type: 'composit' }
-},
-'particle': {
-	'adj'             : { join: true,  type: 'adj' },
-	'hyphen'          : { join: false, type: 'composit' },
-	'interpunctuation': { join: false, type: 'composit' },
-	'part'            : { join: true,  type: 'part' },
-	'punctuation'     : { join: false, type: 'composit', endOfSentence: true },
-	'verb'            : { join: true,  type: 'verb' }
-},
-'prefix': {
-	'adj'   : { join: true,  type: 'adj' },
-	'hyphen': { join: false, type: 'composit' },
-	'noun'  : { join: true,  type: 'noun', lupper: true, tlower: true },
-	'part'  : { join: true,  type: 'part' },
-	'verb'  : { join: true,  type: 'verb' }
-},
-'prepos': {
-	'adj'             : { join: true,  type: 'adj' },
-	'adv'             : { join: true,  type: 'adv' },
-	'interpunctuation': { join: false, type: 'composit' },
-	'noun'            : { join: true,  type: 'noun', lupper: true, tlower: true },
-	'rbracket'        : { join: false, type: 'composit' },
-	'rquotation'      : { join: false, type: 'composit' }
-},
-'prenoun': {
-	'adj'   : { join: true,  type: 'adj' },
-	'hyphen': { join: false, type: 'composit' },
-	'noun'  : { join: true,  type: 'noun', lupper: true, tlower: true },
-	'part'  : { join: true,  type: 'part' }
-},
-'preverb': {
-	'part' : { join: true, type: 'part' },
-	'verb' : { join: true, type: 'verb' }
-},
-'pronoun': {
-	'interpunctuation': { join: false, type: 'composit' },
-	'punctuation'     : { join: false, type: 'composit', endOfSentence: true },
-	'rbracket'        : { join: false, type: 'composit' },
-	'rquotation'      : { join: false, type: 'composit' },
-	'structure'       : { join: false, type: 'composit' }
-},
-'punctuation': {
-	'rbracket'  : { join: false, type: 'composit' },
-	'rquotation': { join: false, type: 'composit' }
-},
-'rbracket': {
-	'interpunctuation': { join: false, type: 'composit' },
-	'punctuation'     : { join: false, type: 'composit', endOfSentence: true },
-	'rbracket'        : { join: false, type: 'composit' },
-	'rquotation'      : { join: false, type: 'composit' }
-},
-'rquotation': {
-	'hyphen'          : { join: false, type: 'composit' },
-	'interpunctuation': { join: false, type: 'composit' },
-	'punctuation'     : { join: false, type: 'composit', endOfSentence: true },
-	'rbracket'        : { join: false, type: 'composit' },
-	'rquotation'      : { join: false, type: 'composit' }
-},
-'subjunction': {
-	'interpunctuation': { join: false, type: 'composit' }
-},
-'suffix': {},
-'structure': {
-	'adj'         : { join: false, type: 'composit' },
-	'abbr': { join: false, type: 'composit' },
-	'conjunction' : { join: false, type: 'composit' },
-	'fragment'    : { join: false, type: 'composit' },
-	'hyphen'      : { join: false, type: 'composit' },
-	'name'        : { join: false, type: 'composit' },
-	'noun'        : { join: false, type: 'composit', tupper: true },
-	'number'      : { join: false, type: 'composit' },
-	'part'        : { join: false, type: 'composit' },
-	'pronoun'     : { join: false, type: 'composit' }
-},
-'symbol': {},
-'unit': {
-	'hyphen'          : { join: false, type: 'composit' },
-	'interpunctuation': { join: false, type: 'composit' },
-	'punctuation'     : { join: false, type: 'composit', endOfSentence: true },
-	'rbracket'        : { join: false, type: 'composit' },
-	'rquotation'      : { join: false, type: 'composit' }
-},
-'verb': {
-	'hyphen'          : { join: false, type: 'composit' },
-	'interpunctuation': { join: false, type: 'composit' },
-	'punctuation'     : { join: false, type: 'composit', endOfSentence: true },
-	'rbracket'        : { join: false, type: 'composit' },
-	'rquotation'      : { join: false, type: 'composit' }
-}
 };

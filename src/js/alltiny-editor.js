@@ -7,7 +7,8 @@ alltiny.Editor = function(targetSelector, options) {
 		cursorCharacter : '\u2038',
 		assumeStartOfSentenceWithElements : ['div','p'],
 		beforeCheck : null, /*fuction(target) {}*/ // a call-back function which is being called before a check.
-		afterCheck : null /*fuction(target) {}*/ // a call-back function call after a check was done.
+		afterCheck : null, /*fuction(target) {}*/ // a call-back function call after a check was done.
+		language : null
 	}, options);
 	// ensure that given target is a content-editable.
 	jQuery(targetSelector).attr('contenteditable', 'true');
@@ -73,7 +74,7 @@ alltiny.Editor.prototype.performSpellcheck = function() {
 	// perform our spellcheck.
 	this.options.spellchecker.reset();
 	this.options.spellchecker.setAssumeStartOfSentence(true);
-	this.checkNode(this.$target);
+	this.checkNode(this.$target, {language: this.options.language});
 	// trigger the higher level analysis.
 	this.options.spellchecker.analyze();
 	// let the spellchecker highlight all findings.

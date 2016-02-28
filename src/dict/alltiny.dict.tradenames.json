@@ -153,6 +153,7 @@
 "ifrs":[{"w":"IFRS","type":"abbr","abbr":"International Financial Reporting Standards"}],
 "ifs":[{"w":"IFS","type":"abbr","abbr":"International Food Standard"}],
 "ilmor":[{"w":"Ilmor","type":"name"}],
+"ils":[{"w":"ILS","type":"name","object":"currency"}],
 "image":[{"w":"image","type":"name","name":"Adobe Image Ready"}],
 "immofund":[{"w":"Immofund","type":"name"}],
 "intel":[{"w":"Intel","type":"name"}],

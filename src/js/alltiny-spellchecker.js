@@ -190,7 +190,7 @@ alltiny.Spellchecker.prototype.analyze = function() {
 				if (isConjunction || trailingFinding.cleanWord.substring(trailingFinding.cleanWord.length - 2) == '-,' || trailingFinding.cleanWord[trailingFinding.cleanWord.length - 1] == '-') {
 					continue;
 				} else {
-					this.checkJoinable(current, trailingFinding);
+					this.checkJoinable(current, trailingFinding, current.checkOptions.context);
 					joinDone = true;
 					break;
 				}
@@ -215,7 +215,7 @@ alltiny.Spellchecker.prototype.analyze = function() {
 				if (isConjunction || otherFinding.cleanWord[0] == '-') {
 					continue;
 				} else {
-					this.checkJoinable(otherFinding, current);
+					this.checkJoinable(otherFinding, current, current.checkOptions.context);
 					joinDone = true;
 					break;
 				}
@@ -236,7 +236,7 @@ alltiny.Spellchecker.prototype.analyze = function() {
 				if (isConjunction || otherFinding.cleanWord[0] == '-') {
 					continue;
 				} else {
-					this.checkJoinable(this.findings[p], current);
+					this.checkJoinable(this.findings[p], current, current.checkOptions.context);
 					joinDone = true;
 					break;
 				}
@@ -252,7 +252,7 @@ alltiny.Spellchecker.prototype.analyze = function() {
 			var leading = this.checkWord(leadingWord, current.checkOptions);
 			var trailing = this.checkWord(trailingWord, current.checkOptions);
 			// check for trailing being an elission.
-			this.checkJoinable(leading, trailing);
+			this.checkJoinable(leading, trailing, current.checkOptions.context);
 			for (var l = 0; l < leading.variants.length; l++) {
 				var lvar = leading.variants[l];
 				for (t = 0; t < trailing.variants.length; t++) {

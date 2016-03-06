@@ -124,6 +124,7 @@
 "freehand":[{"w":"Freehand","type":"name"}],
 "gaap":[{"w":"GAAP","type":"abbr","abbr":"Generally Accepted Accounting Principles"}],
 "gazprom":[{"w":"Gazprom","type":"name"}],
+"getty":[{"w":"Getty","type":"name","name":"Getty Images"}],
 "gfk":[{"w":"Gfk","type":"name"}],
 "gm":[{"w":"GM","type":"abbr","abbr":"General Motors"}],
 "gmt":[{"w":"GMT","type":"abbr","abbr":"Greenwich Mean Time"}],

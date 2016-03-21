@@ -606,7 +606,7 @@ alltiny.Dictionary.prototype.addWord = function(word) {
 /* this method will return null if the word is unknown. */
 alltiny.Dictionary.prototype.findWord = function(word, context) {
 	// quick-check whether this word or break has allready been treid to lookup.
-	if (context.cachedWordFindings[word]) {
+	if (context.cachedWordFindings[word] && typeof context.cachedWordFindings[word] !== 'function') {
 		return context.cachedWordFindings[word];
 	}
 	context.composits = context.composits || {}; // ensure at least an empty map exists.
@@ -668,12 +668,12 @@ alltiny.Dictionary.prototype.findWord = function(word, context) {
 alltiny.Dictionary.prototype.lookupWord = function(word, context) {
 	// check for context specific symbols frist.
 	var contextSymbol = (context && context.symbols) ? context.symbols[word] : null;
-	if (contextSymbol) {
+	if (contextSymbol && typeof contextSymbol !== 'function') {
 		return jQuery.extend(true, [], contextSymbol); // create a deep-copy of the array to save the lookup map from modifications.
 	}
 	// query the standard symbol table.
 	var symbol = this.symbolLookupTable[word];
-	if (symbol) {
+	if (symbol && typeof symbol !== 'function') { // exclude array function members from being delivered.
 		return jQuery.extend(true, [], symbol); // create a deep-copy of the array to save the lookup map from modifications.
 	}
 

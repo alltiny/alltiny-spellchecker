@@ -1,0 +1,14 @@
+/* CSS rules for alltiny-selectbox */
+.selectbox .flyout {
+	position: absolute;
+}
+.selectbox .flyout ul {
+    margin: 0;
+    padding: 0;
+}
+.selectbox .flyout li {
+    list-style: none;
+}
+.selectbox .flyout li.selected {
+    display: none;
+}

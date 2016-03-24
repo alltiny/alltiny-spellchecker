@@ -32,6 +32,13 @@ alltiny.Spellchecker.prototype.addDictionary = function(dictionary) {
 };
 
 /**
+ * @return all currently loaded dictionaries.
+ */
+alltiny.Spellchecker.prototype.getDictionaries = function() {
+	return this.dictionaries;
+};
+
+/**
  * The spellchecker is a state-machine, allowing to connect multiple checks.
  * This method will reset the spellchecker.
  */
@@ -370,6 +377,9 @@ alltiny.Spellchecker.prototype.askDictionaries = function(word, context) {
 	var variantsFoundLookup = {}; // this is for avoiding duplicates in the variants array.
 	context = context || {};
 	for (var i = 0; i < this.dictionaries.length; i++) {
+		if (!this.dictionaries[i].isEnabled()) {
+			continue;
+		}
 		// reset the unsuccessful-finds-map
 		context.cachedWordFindings = {};
 		var foundWords = this.dictionaries[i].findWord(word, context);
@@ -545,6 +555,7 @@ alltiny.Spellchecker.mergeWordList = function(wordList1, wordList2) {
 
 alltiny.Dictionary = function(customOptions) {
 	this.options = jQuery.extend(true, {
+		enabled      : true,
 		name         : '',
 		language     : '',
 		dateformats  : [],
@@ -587,6 +598,27 @@ alltiny.Dictionary = function(customOptions) {
 		'\u20ac': [{w: '\u20ac', type: 'symbol', symbol: 'Euro Sign'}],
 		'\u271d': [{w: '\u271d', type: 'symbol', symbol: 'Latin Cross'}]
 	};
+};
+
+/**
+ * This method adds the given word to the dictionary.
+ */
+alltiny.Dictionary.prototype.setEnabled = function(enabled) {
+	this.options.enabled = enabled;
+};
+
+/**
+ * @return true if this dictionary is currently enabled.
+ */
+alltiny.Dictionary.prototype.isEnabled = function() {
+	return this.options.enabled;
+};
+
+/**
+ * @return language this dictionary is intended for.
+ */
+alltiny.Dictionary.prototype.getLocale = function() {
+	return this.options.locale;
 };
 
 /**

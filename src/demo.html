@@ -3,13 +3,15 @@
 <head>
 <meta charset="utf-8"/>
 <script type="text/javascript" src="lib/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="js/alltiny-selectbox.js"></script>
 <script type="text/javascript" src="js/alltiny-spellchecker.js"></script>
 <script type="text/javascript" src="lib/rangy-core.js"></script>
 <script type="text/javascript" src="lib/rangy-selectionsaverestore.js"></script>
 <script type="text/javascript" src="js/alltiny-editor.js"></script>
+<link type="text/css" href="css/alltiny-selectbox.css" rel="stylesheet"/>
 <style type="text/css">
 body { margin: 0; }
-#header { padding: 10px; }
+#logobox { padding: 10px; float:left; }
 #header span.logo { font-weight: bold; font-size: 24px; color: #f0f0f0; text-shadow: 0 0 7px #303030; }
 div.editor { border-radius: 5px; padding: 7px; box-shadow: inset 0 0 10px #181810; margin: 10px; min-height:30px; }
 div.report { margin: 10px; }
@@ -19,11 +21,15 @@ div.statistics table { width: 100%; color: #404040;}
 div.statistics table td { padding-left: 5px;}
 span.spellcheck { border-radius: 5px;}
 body.sport a, body.sport a:visited {color:inherit;}
+#language { float: left; margin-top: 8px; margin-left: 8px;}
+#language img.flag { display: block; height: 32px; width: 48px; opacity: 0.8; }
+#language img.flag:hover { opacity: 1; }
 /* get placeholders for contenteditable working */
 [contentEditable=true]:empty:not(:focus):before { content:attr(placeholder); color:grey; }
 /* themes */
 body.sport { background-color: #606360; color: #c8c8c0; font-family: tahoma; }
-body.sport #header { background-color: #e03020; }
+body.sport #header { background-color: #851c13; }
+body.sport #logobox { background-color: #e03020; border-radius: 0 0 7px 0; }
 body.sport div.editor { background-color: #383838; color: #c8c8c0;}
 body.sport td.ok { background-color: #40e010; }
 body.sport td.warn { background-color: #e0e030; }
@@ -35,7 +41,11 @@ body.sport span.spellcheck.warn { background-color: #eeee99; color:#404040;}
 </style>
 </head>
 <body class="sport">
-<div id="header"><span class="logo">alltiny spellchecker</span></div>
+<div id="header">
+	<div id="logobox"><span class="logo">alltiny spellchecker</span></div>
+	<div id="language"></div>
+	<div style="clear:both"></div>
+</div>
 <div id="content" class="editor" contenteditable="true" placeholder="Hier können Sie Ihren Text eingeben oder hineinkopieren um ihn prüfen zu lassen. Ihr Text wird nicht an einen Server übertragen, sondern bleibt ausschließlich auf Ihrem Rechner."></div>
 <div class="statistics"></div>
 <div class="report"></div>
@@ -51,27 +61,37 @@ jQuery(function($){
 });
 </script>
 <script type="text/javascript">
-// initialize the spellchecker.
-var spellchecker = new alltiny.Spellchecker({highlightKnownWords: true});
-// load the german dictionary.
-jQuery.ajax("dict/alltiny.dict.base.de_de.json", {
-	dataType: 'json',
-	success: function(data, status, jqXHR) {
-		spellchecker.addDictionary(new alltiny.Dictionary(data));
-	},
-	error: function(jqXHR, status, eror) {
-		console.log(foo);
+var languages = [
+	{value: 'en_GB', flag: 'resources/flag.UnitedKingdom.svg'},
+	{value: 'de_DE', flag: 'resources/flag.Germany.svg'}
+];
+// initialize the language selector.
+var languageSelector = new alltiny.SelectBox(jQuery('#language'), {
+	items       : languages,
+	itemRenderer: function($element, item) {
+		jQuery('<img class="flag">').attr('src', item.flag).attr('alt', item.value).appendTo($element);
 	}
 });
-jQuery.getJSON("dict/alltiny.dict.base.en_gb.json", function(dict) {
-	spellchecker.addDictionary(new alltiny.Dictionary(dict));
-});
-jQuery.getJSON("dict/alltiny.dict.base.de_ch.json", function(dict) {
-	spellchecker.addDictionary(new alltiny.Dictionary(dict));
-});
-jQuery.getJSON("dict/alltiny.dict.tradenames.json", function(dict) {
-	spellchecker.addDictionary(new alltiny.Dictionary(dict));
-});
+// use the current navigator language as default language.
+switch (navigator.language)  {
+	case 'de': languageSelector.setSelectedValue('de_DE'); break;
+	default  : languageSelector.setSelectedValue('en_UK');
+}
+// initialize the spellchecker.
+var spellchecker = new alltiny.Spellchecker({highlightKnownWords: true});
+// load the dictionaries.
+var addDictionary = function(dict) {
+	var dictionary = new alltiny.Dictionary(dict);
+	// disable the dictionary if it doesn'T match the current language.
+	if (dictionary.getLocale()) {
+		dictionary.setEnabled(dictionary.getLocale() === languageSelector.getSelectedValue());
+	}
+	spellchecker.addDictionary(dictionary);
+}
+jQuery.getJSON("dict/alltiny.dict.base.de_de.json", addDictionary);
+jQuery.getJSON("dict/alltiny.dict.base.en_gb.json", addDictionary);
+jQuery.getJSON("dict/alltiny.dict.base.de_ch.json", addDictionary);
+jQuery.getJSON("dict/alltiny.dict.tradenames.json", addDictionary);
 var checkStartTimestamp;
 var editor = new alltiny.Editor(jQuery('#content'), {
 	spellchecker: spellchecker,
@@ -104,7 +124,22 @@ var editor = new alltiny.Editor(jQuery('#content'), {
 			.append(jQuery('<span>').text('Check done in ' + (new Date().getTime() - checkStartTimestamp) + 'ms.'))
 			.append(jQuery('<span>').text(countSum + ' Words in total. Unknown words: ' + unknownWords.join(' ')));
 	},
-	language: 'de_DE'
+	language: languageSelector.getSelectedValue()
+});
+// attach a change listener to the language selector.
+languageSelector.change(function() {
+	var language = languageSelector.getSelectedValue();
+	// enable the correct dictionary.
+	for (var i = 0; i < spellchecker.getDictionaries().length; i++) {
+		var dictionary = spellchecker.getDictionaries()[i];
+		/* disable dictionaries which do not match the current language.
+		 * If a dictionary has no locale leave it enabled. */
+		if (dictionary.getLocale()) {
+			dictionary.setEnabled(dictionary.getLocale() === language);
+		}
+	}
+	editor.setLanguage(language);
+	editor.check();
 });
 </script>
 </body>

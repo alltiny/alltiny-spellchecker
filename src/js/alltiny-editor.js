@@ -1,6 +1,7 @@
 var alltiny = alltiny || {};
 alltiny.Editor = function(targetSelector, options) {
 	var thisObj = this;
+	this.targetSelector = targetSelector;
 	this.$target = jQuery(targetSelector);
 	this.options = jQuery.extend(true, {
 		spellchecker : null,
@@ -14,20 +15,28 @@ alltiny.Editor = function(targetSelector, options) {
 	jQuery(targetSelector).attr('contenteditable', 'true');
 	// hook a change listener onto the element.
 	jQuery(targetSelector).keyup(function(e) {
-		if (typeof thisObj.options.beforeCheck == 'function') {
-			thisObj.options.beforeCheck.call(thisObj, thisObj.$target);
-		}
-		// store current cursor postion.
-		var selection = thisObj.saveSelection(targetSelector);
-		// start checking.
-		thisObj.performSpellcheck();
-		// restore cursor postion.
-		thisObj.restoreSelection(selection);
-		// call call-back
-		if (typeof thisObj.options.afterCheck == 'function') {
-			thisObj.options.afterCheck.call(thisObj, thisObj.$target);
-		}
+		thisObj.check();
 	});
+};
+
+alltiny.Editor.prototype.check = function() {
+	if (typeof this.options.beforeCheck == 'function') {
+		this.options.beforeCheck.call(this, this.$target);
+	}
+	// store current cursor postion.
+	var selection = this.saveSelection(this.targetSelector);
+	// start checking.
+	this.performSpellcheck();
+	// restore cursor postion.
+	this.restoreSelection(selection);
+	// call call-back
+	if (typeof this.options.afterCheck == 'function') {
+		this.options.afterCheck.call(this, this.$target);
+	}
+};
+
+alltiny.Editor.prototype.setLanguage = function(language) {
+	this.options.language = language;
 };
 
 /**

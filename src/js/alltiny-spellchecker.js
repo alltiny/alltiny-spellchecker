@@ -344,7 +344,7 @@ alltiny.Spellchecker.prototype.upperCaseFirstCharacter = function(text) {
 	for (var i = 0; i < text.length; i++) {
 		var lower = text[i].toLowerCase();
 		var upper = text[i].toUpperCase();
-		if (lower != upper || lower == 'ß') {
+		if (lower != upper || lower == 'ÃŸ') {
 			return text.substring(0, i) + upper + text.substring(i + 1, text.length);
 			break;
 		}

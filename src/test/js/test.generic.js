@@ -32,3 +32,13 @@ QUnit.test("test word in range selection is found", function(assert) {
 	var output = spellchecker.checkText('\u2038<TEST>\u2038');
 	assert.equal(output, '\u2038&lt;TEST&gt;\u2038', "Word should have been found.");
 });
+QUnit.test("Smartwatch", function(assert) {
+	// initialize the spellchecker.
+	var spellchecker = new alltiny.Spellchecker({hyphenation : false, highlightKnownWords: false});
+	var dictionary = new alltiny.Dictionary();
+	dictionary.addWord({w:"smart",type:"adj"});
+	spellchecker.addDictionary(dictionary);
+	// search for the word filter
+	var output = spellchecker.checkText('Smartwatch');
+	assert.ok('no javascript exception should have been happend');
+});

@@ -593,8 +593,10 @@ alltiny.Dictionary = function(customOptions) {
 		'#'     : [{w: '#', type: 'symbol',symbol:'hash'}],
 		'+'     : [{w: '+', type: 'symbol'}],
 		'*'     : [{w: '*', type: 'symbol',symbol: 'born'}],
-		'\u00a9': [{w: '\u00a9', type: 'symbol', symbol: 'Copyright'}],
 		'\u00a7': [{w: '\u00a7', type: 'mark', symbol: 'Parapragh Sign'}],
+		'\u00a9': [{w: '\u00a9', type: 'symbol', symbol: 'Copyright'}],
+		'\u2013': [{w: '\u2013', type: 'symbol', symbol: 'EN Dash'}],
+		'\u2014': [{w: '\u2014', type: 'symbol', symbol: 'EM Dash'}],
 		'\u20ac': [{w: '\u20ac', type: 'symbol', symbol: 'Euro Sign'}],
 		'\u271d': [{w: '\u271d', type: 'symbol', symbol: 'Latin Cross'}]
 	};

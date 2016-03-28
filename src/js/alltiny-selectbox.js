@@ -38,7 +38,7 @@ alltiny.SelectBox = function(targetSelector, options) {
 		thisObj.$flyout.finish().slideToggle({duration: 200});
 	});
 	this.$target.mouseenter(function() {
-		thisObj.$flyout.finish().slideDown({duration: 200});
+		thisObj.$flyout.finish().slideDown({duration: 100});
 	});
 	this.$target.mouseleave(function() {
 		thisObj.$flyout.finish().slideUp({duration: 200});

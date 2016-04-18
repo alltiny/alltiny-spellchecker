@@ -128,7 +128,7 @@ alltiny.Spellchecker.prototype.checkWord = function(word, options) {
 		} else if (i == cursorPos.length - 1 && cursorPos[i] == lastPossiblePos) {
 			isCursorAtEnding = true;
 		} else {
-			isCursorInMiddle = true
+			isCursorInMiddle = true;
 		}
 	}
 	var cleanWord = word
@@ -552,7 +552,6 @@ alltiny.Spellchecker.mergeWordList = function(wordList1, wordList2) {
 	return result;
 };
 
-
 alltiny.Dictionary = function(customOptions) {
 	this.options = jQuery.extend(true, {
 		enabled      : true,
@@ -561,7 +560,9 @@ alltiny.Dictionary = function(customOptions) {
 		dateformats  : [],
 		numberformats: [],
 		words        : [],
-		processor    : function(variants){ return variants; }
+		processor    : function(variants) {
+			return variants;
+		}
 	}, customOptions);
 	// check whether process was given as string; interpret it as function if so.
 	if (typeof this.options.processor === 'string') {
@@ -584,15 +585,15 @@ alltiny.Dictionary = function(customOptions) {
 		'<'     : [{w: '<', type: 'lbracket'}],
 		'>'     : [{w: '>', type: 'rbracket'}],
 		'/'     : [{w: '/', type: 'structure'}],
-		'\\'    : [{w: '\\',type: 'structure'}],
+		'\\'    : [{w: '\\', type: 'structure'}],
 		'"'     : [{w: '"', type: 'lquotation'}, {w: '"', type: 'rquotation'}],
-		'\''    : [{w: '\'',type: 'lquotation'}, {w: '\'',type: 'rquotation'}],
+		'\''    : [{w: '\'', type: 'lquotation'}, {w: '\'', type: 'rquotation'}],
 		'%'     : [{w: '%', type: 'unit', unit: 'Percent'}],
 		'&'     : [{w: '&', type: 'symbol'}],
 		'$'     : [{w: '$', type: 'symbol'}],
-		'#'     : [{w: '#', type: 'symbol',symbol:'hash'}],
+		'#'     : [{w: '#', type: 'symbol', symbol: 'hash'}],
 		'+'     : [{w: '+', type: 'symbol'}],
-		'*'     : [{w: '*', type: 'symbol',symbol: 'born'}],
+		'*'     : [{w: '*', type: 'symbol', symbol: 'born'}],
 		'\u00a7': [{w: '\u00a7', type: 'mark', symbol: 'Parapragh Sign'}],
 		'\u00a9': [{w: '\u00a9', type: 'symbol', symbol: 'Copyright'}],
 		'\u2013': [{w: '\u2013', type: 'symbol', symbol: 'EN Dash'}],
@@ -691,7 +692,7 @@ alltiny.Dictionary.prototype.findWord = function(word, context) {
 			}
 		}
 	}
-	var processed = this.process(variants)
+	var processed = this.process(variants);
 	context.cachedWordFindings[word] = processed; // cache the result of this finding process.
 	return processed;
 };

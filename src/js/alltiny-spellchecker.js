@@ -134,7 +134,8 @@ alltiny.Spellchecker.prototype.checkWord = function(word, options) {
 	var cleanWord = word
 		.replace(new RegExp(checkOptions.cursorCharacter, 'g'), '') // remove the cursor character
 		.replace(/\u00ad/g, '')  // remove all soft-hyphens from the word.
-		.replace(/\u200b/g, ''); // remove zero-width-white-spaces from the word.
+		.replace(/\u200b/g, '')	 // remove zero-width-white-spaces from the word.
+		.replace(/\u2011/g, '-'); // replace non breakable hyphens with normal hyphens
 
 	return new alltiny.Finding({
 		word               : word,

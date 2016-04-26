@@ -58,6 +58,7 @@
 "ccr":[{"w":"CCR","type":"abbr","abbr":"Chip Card Reader"}],
 "cd":[{"w":"CD","type":"abbr","abbr":"Corporate Design"}],
 "ceo":[{"w":"CEO","type":"abbr","abbr":"Chief Executive Officer"}],
+"cern":[{"w":"CERN","type":"abbr","abbr":"Conseil Européen pour la Recherche Nucléaire"}],
 "chevrolet":[{"w":"Chevrolet","type":"name"}],
 "chrome":[{"w":"Chrome","type":"name","name":"Google Chrome"}],
 "ci":[{"w":"CI","type":"abbr","abbr":"Corporate Identity"}],

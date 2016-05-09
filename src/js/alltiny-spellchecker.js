@@ -656,7 +656,8 @@ alltiny.Dictionary.prototype.addWord = function(word) {
 	if (word && word.w && word.w.length > 0 && word.type) {
 		// add the given word to the index.
 		var lowerCaseWord = word.w.toLowerCase();
-		if (!this.options.words[lowerCaseWord]) {
+		// words like 'map' or 'push' will interfere with object standard methods, but we want to override them.
+		if (!this.options.words[lowerCaseWord] || typeof this.options.words[lowerCaseWord] === 'function') {
 			this.options.words[lowerCaseWord] = [];
 		}
 		this.options.words[lowerCaseWord].push(word);

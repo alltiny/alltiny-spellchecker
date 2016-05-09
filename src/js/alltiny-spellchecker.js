@@ -9,7 +9,9 @@ alltiny.Spellchecker = function(options) {
 		highlightCaseWarnings : true,
 		highlightNonStandalone: true, // with this option '!', '?', '.', ',', ';', ':' are marked when found standing alone.
 		cursorCharacter       : '\u2038',
-		autoResetAfterApply   : true
+		autoResetAfterApply   : true,
+		patternsToIgnore      : [/^-{3,}$/, /^\.{5,}$/, /^_{3,}$/], // regular expressions for custom patterns that should not be spellchecked (performance increasement cause they must not be analyzed)
+		patternsToMark        : [/-{2}/]  // regular expressions for custom patterns that should be marked as misspellings
 	}, options);
 	this.dictionaries = [];
 	this.assumeStartOfSentence = true; // if true the first word in a check is assumed to be the start of a sentence.
@@ -133,21 +135,43 @@ alltiny.Spellchecker.prototype.checkWord = function(word, options) {
 	}
 	var cleanWord = word
 		.replace(new RegExp(checkOptions.cursorCharacter, 'g'), '') // remove the cursor character
-		.replace(/\u00ad/g, '')  // remove all soft-hyphens from the word.
-		.replace(/\u200b/g, '')	 // remove zero-width-white-spaces from the word.
+		.replace(/\u00ad/g, '')   // remove all soft-hyphens from the word.
+		.replace(/\u200b/g, '')	  // remove zero-width-white-spaces from the word.
 		.replace(/\u2011/g, '-'); // replace non breakable hyphens with normal hyphens
 
-	return new alltiny.Finding({
+	var finding = new alltiny.Finding({
 		word               : word,
 		cleanWord          : cleanWord,
 		checkOptions       : checkOptions,
 		node               : checkOptions.node,
-		variants           : cleanWord.length > 0 ? thisObj.askCrossDictionaries(cleanWord, checkOptions.context) : null, // ask the dictionaries
+		variants           : null,
 		isCursorAtBeginning: isCursorAtBeginning,
 		isCursorAtEnding   : isCursorAtEnding,
 		isCursorInMiddle   : isCursorInMiddle
 	});
-};
+
+	for (var i = 0; i < this.options.patternsToIgnore.length; i++) {
+		if (cleanWord.match(this.options.patternsToIgnore[i])) {
+			finding.variants = [{
+				w   : cleanWord,
+				type: 'ignored'
+			}];
+			return finding;
+		}
+	}
+
+	for (var i = 0; i < this.options.patternsToMark.length; i++) {
+		if (cleanWord.match(this.options.patternsToMark[i])) {
+			finding.variants = [];
+			return finding;
+		}
+	}
+
+	finding.variants = cleanWord.length > 0 ? this.askCrossDictionaries(cleanWord, checkOptions.context) : null; // ask the dictionaries
+
+	return finding;
+}
+;
 
 /**
  * This method will analyze the current findings on higher levels.

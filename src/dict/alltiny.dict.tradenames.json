@@ -114,6 +114,7 @@
 "fed":[{"w":"Fed","type":"abbr","abbr":"Federal Reserve System"},{"w":"FED","type":"abbr","abbr":"Federal Reserve System"}],
 "ferrari":[{"w":"Fer|ra|ri","type":"name"}],
 "fia":[{"w":"Fia","type":"abbr","abbr":"Fédération Internationale de l'Automobile"},{"w":"FIA","type":"abbr","abbr":"Fédération Internationale de l'Automobile"}],
+"fiat":[{"w":"Fiat","type":"name"}],
 "fiesta":[{"w":"Fiesta","type":"name","name":"Ford Fiesta"}],
 "fifa":[{"w":"FIFA","type":"name"},{"w":"Fifa","type":"name"}],
 "firefox":[{"w":"Firefox","type":"name","name":"Mozilla Firefox"}],

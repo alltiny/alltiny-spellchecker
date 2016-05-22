@@ -16,6 +16,7 @@ alltiny.Spellchecker = function(options) {
 	this.dictionaries = [];
 	this.assumeStartOfSentence = true; // if true the first word in a check is assumed to be the start of a sentence.
 	this.caseInsensitiveForNextWord = false; // if true then for the next upcoming word case-sensitivity is disabled.
+	this.variantCache = [];
 	this.findings = [];
 };
 
@@ -167,7 +168,14 @@ alltiny.Spellchecker.prototype.checkWord = function(word, options) {
 		}
 	}
 
-	finding.variants = cleanWord.length > 0 ? this.askCrossDictionaries(cleanWord, checkOptions.context) : null; // ask the dictionaries
+	if (cleanWord.length === 0) {
+		finding.variants = null;
+	} else if (this.variantCache[cleanWord] &&  typeof this.variantCache[cleanWord] !== 'function') { // lookup the document-cache before searching with the dictionaries.
+		finding.variants = this.variantCache[cleanWord];
+	} else { // start searching the dictionaries.
+		finding.variants = this.askCrossDictionaries(cleanWord, checkOptions.context);
+		this.variantCache[cleanWord] = finding.variants;
+	}	
 
 	return finding;
 }

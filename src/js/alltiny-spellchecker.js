@@ -50,6 +50,14 @@ alltiny.Spellchecker.prototype.reset = function() {
 };
 
 /**
+ * This method exposes the internal findings the spellchecker hade for every word of the text.
+ * The findings can be used for analysis but should not be modified.
+ */
+alltiny.Spellchecker.prototype.getFindings = function() {
+	return this.findings;
+};
+
+/**
  * This method performs the spell check on the given text. This is a convenience
  * method relying on {@link #check()}.
  * @param text which content should be checked.

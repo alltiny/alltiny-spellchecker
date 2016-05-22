@@ -78,7 +78,7 @@ switch (navigator.language)  {
 	default  : languageSelector.setSelectedValue('en_UK');
 }
 // initialize the spellchecker.
-var spellchecker = new alltiny.Spellchecker({highlightKnownWords: true});
+var spellchecker = new alltiny.Spellchecker({autoResetAfterApply:false});
 // load the dictionaries.
 var addDictionary = function(dict) {
 	var dictionary = new alltiny.Dictionary(dict);
@@ -102,10 +102,10 @@ var editor = new alltiny.Editor(jQuery('#content'), {
 		// create reports.
 		var unknownWords = [];
 		// calculate some statistics.
-		var countKnown   = jQuery(target).find('span.spellcheck.highlight.ok').length;
+		var countSum = spellchecker.getFindings().length;
 		var countError   = jQuery(target).find('span.spellcheck.highlight.error').length;
 		var countWarning = jQuery(target).find('span.spellcheck.highlight.warn').length;
-		var countSum = countKnown + countError + countWarning;
+		var countKnown   = countSum - countError - countWarning;
 		// render a table as diagram.
 		var $tbody = jQuery('<tbody></tbody>');
 		jQuery('div.statistics').empty().append(jQuery('<table cellspacing="0"></table>').append($tbody));

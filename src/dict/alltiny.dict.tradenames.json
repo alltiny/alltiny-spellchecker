@@ -183,7 +183,7 @@
 "ipod":[{"w":"iPod","type":"name"}],
 "isbn":[{"w":"ISBN","type":"abbr","abbr":"International Standard Book Number"}],
 "java":[{"w":"Java","type":"name"}],
-"javascript":[{"w":"Javascript","type":"name"}],
+"javascript":[{"w":"Javascript","type":"name"},{"w":"JavaScript","type":"name"}],
 "jsf":[{"w":"JSF","type":"abbr","abbr":"JavaServer Faces"}],
 "json":[{"w":"JSON","type":"abbr","abbr":"JavaScript Object Notation"}],
 "jsp":[{"w":"JSP","type":"abbr","abbr":"JavaServer Pages"}],

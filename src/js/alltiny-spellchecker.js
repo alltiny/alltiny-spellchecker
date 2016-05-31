@@ -69,7 +69,7 @@ alltiny.Spellchecker.prototype.getFindings = function() {
 alltiny.Spellchecker.prototype.checkText = function(text, options) {
 	this.check(text, options);
 	this.analyze();
-	return this.applyFindings(jQuery.extend(true, {content: text}, options));
+	return this.applyFindings(alltiny.clone({content: text}, options));
 };
 
 /**
@@ -85,7 +85,7 @@ alltiny.Spellchecker.prototype.checkText = function(text, options) {
 alltiny.Spellchecker.prototype.check = function(text, options) {
 	var thisObj = this;
 	// determine the check options; fall-back to the spellchecker options if not given.
-	var checkOptions = jQuery.extend(true, jQuery.extend(true, {}, this.options), options); // deep copy to avoid overrides. uses this.options as defaults.
+	var checkOptions = alltiny.clone(this.options, options); // deep copy to avoid overrides. uses this.options as defaults.
 
 	checkOptions.context = checkOptions.context || {};
 	/* prepare the symbol map: if a language locale is defined only use symbols
@@ -126,7 +126,7 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 alltiny.Spellchecker.prototype.checkWord = function(word, options) {
 	var thisObj = this;
 	// determine the check options; fall-back to the spellchecker options if not given.
-	var checkOptions = jQuery.extend(true, jQuery.extend(true, {}, this.options), options); // deep copy to avoid overrides. uses this.options as defaults.
+	var checkOptions = options || this.options;
 
 	var cursorPos = thisObj.getCursorPositions(word, checkOptions.cursorCharacter);
 	var isCursorAtBeginning = false;
@@ -324,7 +324,7 @@ alltiny.Spellchecker.prototype.analyze = function() {
  * Calling this method will trigger the spellchecker to apply all current findings.
  */
 alltiny.Spellchecker.prototype.applyFindings = function(options) {
-	var checkOptions = jQuery.extend(true, jQuery.extend(true, {}, this.options), options); // deep copy to avoid overrides. uses this.options as defaults.
+	var checkOptions = alltiny.clone(this.options, options); // deep copy to avoid overrides. uses this.options as defaults.
 	var currentNode = null;
 	var currentContent = checkOptions.content || '';
 	for (var i = this.findings.length - 1; i >= 0; i--) {
@@ -560,7 +560,7 @@ alltiny.Spellchecker.mergeDictionaries = function(dictionary1, dictionary2) {
 	var result = {};
 	for (var w in dictionary1) {
 		if (w) {
-			result[w] = jQuery.extend(true, [], dictionary1[w]); // use jQuery to create a deep-copy of this entry.
+			result[w] = alltiny.clone(dictionary1[w]); // create a clone of this entry to prevent unwanted modifications.
 		}
 	}
 	for (var w in dictionary2) {
@@ -568,7 +568,7 @@ alltiny.Spellchecker.mergeDictionaries = function(dictionary1, dictionary2) {
 			if (result[w]) {
 				result[w] = alltiny.Spellchecker.mergeWordList(result[w], dictionary2[w]);
 			} else {
-				result[w] = jQuery.extend(true, [], dictionary2[w]); // use jQuery to create a deep-copy of this entry.
+				result[w] = alltiny.clone(dictionary2[w]); // create a clone of this entry to prevent unwanted modifications.
 			}
 		}
 	}
@@ -586,7 +586,7 @@ alltiny.Spellchecker.mergeWordList = function(wordList1, wordList2) {
 		var word = list[i];
 		var key = word.type + '#' + word.w;
 		if (!wordsFoundLookup[key]) {
-			result.push(jQuery.extend(true, {}, word)); // create a deep copy.
+			result.push(alltiny.clone(word)); // create a deep copy to avoid modifications of the dictionary.
 			wordsFoundLookup[key] = true;
 		}
 	}
@@ -746,12 +746,12 @@ alltiny.Dictionary.prototype.lookupWord = function(word, context) {
 	// check for context specific symbols frist.
 	var contextSymbol = (context && context.symbols) ? context.symbols[word] : null;
 	if (contextSymbol && typeof contextSymbol !== 'function') {
-		return jQuery.extend(true, [], contextSymbol); // create a deep-copy of the array to save the lookup map from modifications.
+		return alltiny.clone(contextSymbol); // create a deep-copy of the array to save the lookup map from modifications.
 	}
 	// query the standard symbol table.
 	var symbol = this.symbolLookupTable[word];
 	if (symbol && typeof symbol !== 'function') { // exclude array function members from being delivered.
-		return jQuery.extend(true, [], symbol); // create a deep-copy of the array to save the lookup map from modifications.
+		return alltiny.clone(symbol); // create a deep-copy of the array to save the lookup map from modifications.
 	}
 
 	// check predefined formats.
@@ -766,7 +766,7 @@ alltiny.Dictionary.prototype.lookupWord = function(word, context) {
 	}
 	// if undefined in the dictionary, this call can return the prototype functions of arrays (filter, concat, join, ...).
 	var words = this.options.words[word.toLowerCase()];
-	return typeof words === 'function' ? null : jQuery.extend(true, [], words); // create a deep-copy of the array to save the lookup map from modifications.
+	return typeof words === 'function' ? null : alltiny.clone(words); // create a deep-copy of the array to save the lookup map from modifications.
 };
 
 alltiny.Dictionary.prototype.process = function(words) {
@@ -798,4 +798,27 @@ alltiny.Finding.prototype.addVariant = function(variant) {
 
 alltiny.encodeAsHTML = function(text) {
 	return text && text.length > 0 ? text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;') : text;
+};
+
+alltiny.clone = function(object, extension) {
+	// do not clone undfined objects, primitive types or DOM nodes.
+	if (!object || typeof object !== 'object' || object instanceof Node || object instanceof RegExp) {
+		return object;
+	}
+	var clone = (object instanceof Date) ? new Date(object) : object.constructor();
+	if (extension) {
+		for (var attribute in object) {
+			clone[attribute] = alltiny.clone((extension[attribute]) ? extension[attribute] : object[attribute]);
+		}
+		for (var attribute in extension) {
+			if (!clone[attribute]) {
+				clone[attribute] = alltiny.clone(extension[attribute]);
+			}
+		}
+	} else {
+		for (var attribute in object) {
+			clone[attribute] = alltiny.clone(object[attribute]);
+		}
+	}
+	return clone;
 };

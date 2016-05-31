@@ -186,8 +186,7 @@ alltiny.Spellchecker.prototype.checkWord = function(word, options) {
 	}	
 
 	return finding;
-}
-;
+};
 
 /**
  * This method will analyze the current findings on higher levels.
@@ -394,7 +393,6 @@ alltiny.Spellchecker.prototype.upperCaseFirstCharacter = function(text) {
 		var upper = text[i].toUpperCase();
 		if (lower != upper || lower == 'ß') {
 			return text.substring(0, i) + upper + text.substring(i + 1, text.length);
-			break;
 		}
 	}
 	return text;

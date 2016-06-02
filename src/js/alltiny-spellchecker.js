@@ -50,7 +50,7 @@ alltiny.Spellchecker.prototype.reset = function() {
 };
 
 /**
- * This method exposes the internal findings the spellchecker hade for every word of the text.
+ * This method exposes the internal findings the spellchecker had for every word of the text.
  * The findings can be used for analysis but should not be modified.
  */
 alltiny.Spellchecker.prototype.getFindings = function() {
@@ -96,7 +96,7 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 			checkOptions.context.symbols = alltiny.Spellchecker.mergeDictionaries(checkOptions.context.symbols, dictionary.options.symbols);
 		}
 	}
-	/* load the demanded coposit map. */
+	/* load the demanded composit map. */
 	for (var i = 0; i < this.dictionaries.length; i++) {
 		var dictionary = this.dictionaries[i];
 		if ((!checkOptions.language || dictionary.options.locale == checkOptions.language) && dictionary.options.composits) {
@@ -290,7 +290,7 @@ alltiny.Spellchecker.prototype.analyze = function() {
 			}
 		}
 
-		// if the current finding contains '/-' then test for an ellision.
+		// if the current finding contains '/-' then test for an elision.
 		var slashPos = current.cleanWord.length > 0 ? current.cleanWord.indexOf('/-') : -1;
 		if (slashPos > -1) {
 			var leadingWord = current.cleanWord.substring(0, slashPos);
@@ -298,7 +298,7 @@ alltiny.Spellchecker.prototype.analyze = function() {
 			// search the leading part separately.
 			var leading = this.checkWord(leadingWord, current.checkOptions);
 			var trailing = this.checkWord(trailingWord, current.checkOptions);
-			// check for trailing being an elission.
+			// check for trailing being an elision.
 			this.checkJoinable(leading, trailing, current.checkOptions.context);
 			for (var l = 0; l < leading.variants.length; l++) {
 				var lvar = leading.variants[l];
@@ -326,6 +326,7 @@ alltiny.Spellchecker.prototype.applyFindings = function(options) {
 	var checkOptions = alltiny.clone(this.options, options); // deep copy to avoid overrides. uses this.options as defaults.
 	var currentNode = null;
 	var currentContent = checkOptions.content || '';
+	// work backwards through the findings since the offsets are no longer true after a replacement.
 	for (var i = this.findings.length - 1; i >= 0; i--) {
 		var finding = this.findings[i];
 		if (finding.node != currentNode) {
@@ -399,7 +400,7 @@ alltiny.Spellchecker.prototype.upperCaseFirstCharacter = function(text) {
 };
 
 /**
- * This method determines all cursor postions. Note that with multiselection
+ * This method determines all cursor positions. Note that with multi-selection
  * more than one cursor position can exist.
  */
 alltiny.Spellchecker.prototype.getCursorPositions = function(word, cursorCharacter) {
@@ -552,7 +553,7 @@ alltiny.Spellchecker.prototype.checkJoinable = function(leadingFinding, trailing
 };
 
 /**
- * This a helper method for merging two dictionary together.
+ * This a helper method for merging two dictionaries together.
  */
 alltiny.Spellchecker.mergeDictionaries = function(dictionary1, dictionary2) {
 	var result = {};
@@ -578,7 +579,7 @@ alltiny.Spellchecker.mergeDictionaries = function(dictionary1, dictionary2) {
  */
 alltiny.Spellchecker.mergeWordList = function(wordList1, wordList2) {
 	var result = [];
-	var wordsFoundLookup = {}; // this helps for checking whether a word is allready contained.
+	var wordsFoundLookup = {}; // this helps for checking whether a word is already contained.
 	var list = wordList1.concat(wordList2);
 	for (var i = 0; i < list.length; i++) {
 		var word = list[i];
@@ -680,7 +681,7 @@ alltiny.Dictionary.prototype.addWord = function(word) {
 
 /* this method will return null if the word is unknown. */
 alltiny.Dictionary.prototype.findWord = function(word, context) {
-	// quick-check whether this word or break has allready been treid to lookup.
+	// quick-check whether this word or break has already been tried to lookup.
 	if (context.cachedWordFindings[word] && typeof context.cachedWordFindings[word] !== 'function') {
 		return context.cachedWordFindings[word];
 	}
@@ -741,7 +742,7 @@ alltiny.Dictionary.prototype.findWord = function(word, context) {
  * This method looks up a word in the dictionary's index.
  */
 alltiny.Dictionary.prototype.lookupWord = function(word, context) {
-	// check for context specific symbols frist.
+	// check for context specific symbols first.
 	var contextSymbol = (context && context.symbols) ? context.symbols[word] : null;
 	if (contextSymbol && typeof contextSymbol !== 'function') {
 		return alltiny.clone(contextSymbol); // create a deep-copy of the array to save the lookup map from modifications.
@@ -799,7 +800,7 @@ alltiny.encodeAsHTML = function(text) {
 };
 
 alltiny.clone = function(object, extension) {
-	// do not clone undfined objects, primitive types or DOM nodes.
+	// do not clone undefined objects, primitive types or DOM nodes.
 	if (!object || typeof object !== 'object' || object instanceof Node || object instanceof RegExp) {
 		return object;
 	}

@@ -1,17 +1,18 @@
 var alltiny = alltiny || {};
 alltiny.Spellchecker = function(options) {
 	this.options = jQuery.extend(true, {
-		hyphenation           : true,
-		highlighting          : true,
-		highlightUnknownWords : true,
-		highlightKnownWords   : false,
-		highlightMismatches   : true,
-		highlightCaseWarnings : true,
-		highlightNonStandalone: true, // with this option '!', '?', '.', ',', ';', ':' are marked when found standing alone.
-		cursorCharacter       : '\u2038',
-		autoResetAfterApply   : true,
-		patternsToIgnore      : [/^-{3,}$/, /^\.{5,}$/, /^_{3,}$/], // regular expressions for custom patterns that should not be spellchecked (performance increasement cause they must not be analyzed)
-		patternsToMark        : [/-{2}/]  // regular expressions for custom patterns that should be marked as misspellings
+		hyphenation               : true,
+		highlighting              : true,
+		highlightUnknownWords     : true,
+		highlightKnownWords       : false,
+		highlightMismatches       : true,
+		highlightCaseWarnings     : true,
+		highlightNonStandalone    : true, // with this option '!', '?', '.', ',', ';', ':' are marked when found standing alone.
+		highlightMissingWhitespace: true,
+		cursorCharacter           : '\u2038',
+		autoResetAfterApply       : true,
+		patternsToIgnore          : [/^-{3,}$/, /^\.{5,}$/, /^_{3,}$/], // regular expressions for custom patterns that should not be spellchecked (performance increase cause they must not be analyzed)
+		patternsToMark            : [/-{2}/]  // regular expressions for custom patterns that should be marked as misspellings
 	}, options);
 	this.dictionaries = [];
 	this.assumeStartOfSentence = true; // if true the first word in a check is assumed to be the start of a sentence.
@@ -105,6 +106,10 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 		}
 	}
 
+	// ignore if the text only contains of the cursor character.
+	if (text === checkOptions.cursorCharacter) {
+		return;
+	}
 	// use the word regex to split text into words.
 	text.replace(/[^\s]+/ig, function(word, offset, content) {
 		var current = thisObj.checkWord(word, checkOptions);
@@ -117,6 +122,10 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 
 		thisObj.findings.push(current);
 	});
+	// if the text is white-spaces-only, then flag the previous finding.
+	if (/^\s+$/.test(text.replace(new RegExp(checkOptions.cursorCharacter, 'g'), '')) && thisObj.findings.length > 0) {
+		thisObj.findings[thisObj.findings.length - 1].checkOptions.checkWhitespaceAtEnd = false;
+	}
 };
 
 /**
@@ -192,6 +201,7 @@ alltiny.Spellchecker.prototype.checkWord = function(word, options) {
  * This method will analyze the current findings on higher levels.
  */
 alltiny.Spellchecker.prototype.analyze = function() {
+	alltiny.Spellchecker.analyzeMissingWhiteSpaces(this.findings, this);
 	var previous = null;
 	for (var i = 0; i < this.findings.length; i++) {
 		var current = this.findings[i];
@@ -361,6 +371,12 @@ alltiny.Spellchecker.prototype.createReplacement = function(current) {
 	// if this is an interpunctuation then check against the previous finding that it is not standing alone.
 	if (current.variants.length == 1 && (current.variants[0].type == 'interpunctuation' || current.variants[0].type == 'punctuation')) {
 		return (checkOptions.highlighting && checkOptions.highlightNonStandalone && !current.isTouchingPrevious) ? '<span class="spellcheck highlight error standalone">' + alltiny.encodeAsHTML(current.word) + '</span>' : alltiny.encodeAsHTML(current.word);
+	}
+	if (current.hasMissingWhitespaceAtBegin) {
+		return (checkOptions.highlighting && checkOptions.highlightMissingWhitespace) ? '<span class="spellcheck highlight error missing-whitespace-begin">' + alltiny.encodeAsHTML(current.word) + '</span>' : alltiny.encodeAsHTML(current.word);
+	}
+	if (current.hasMissingWhitespaceAtEnd) {
+		return (checkOptions.highlighting && checkOptions.highlightMissingWhitespace) ? '<span class="spellcheck highlight error missing-whitespace-end">' + alltiny.encodeAsHTML(current.word) + '</span>' : alltiny.encodeAsHTML(current.word);
 	}
 	// check whether one of the variants is an exact hit.
 	for (var v = 0; v < current.variants.length; v++) {
@@ -590,6 +606,28 @@ alltiny.Spellchecker.mergeWordList = function(wordList1, wordList2) {
 		}
 	}
 	return result;
+};
+
+alltiny.Spellchecker.analyzeMissingWhiteSpaces = function(findings, spellchecker) {
+	var current = findings.length > 0 ? findings[0] : null;
+	for (var i = 1; i < findings.length; i++) {
+		var next = findings[i];
+		// only check between the both findings if they belong to different nodes.
+		if (current.checkOptions.checkWhitespaceAtEnd && next.checkOptions.checkWhitespaceAtBegin && current.checkOptions.node !== next.checkOptions.node) {
+			var currentHasMissingWhiteSpace = current.offset + current.word.length === current.node.nodeValue.length;
+			var nextHasMissingWhiteSpace = next.offset === 0;
+			// are both finding lacking a white-space?
+			if (currentHasMissingWhiteSpace && nextHasMissingWhiteSpace) {
+				// since both nodes lacking a white-space check, whether joining them would acceptable.
+				var variants = spellchecker.askCrossDictionaries(current.cleanWord + next.cleanWord, current.checkOptions.context);
+				if (!variants || variants.length === 0) { // nothing found?
+					current.hasMissingWhitespaceAtEnd = true;
+					next.hasMissingWhitespaceAtBegin = true;
+				}
+			}
+		}
+		current = next;
+	}
 };
 
 alltiny.Dictionary = function(customOptions) {

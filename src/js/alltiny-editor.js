@@ -1,3 +1,33 @@
+/**
+ * This method will return the first leaf of the given node.
+ * If the node itself is a leaf then the node is returned.
+ */
+(function($) {
+	$.fn.firstLeaf = function() {
+		var node = jQuery(this)[0];
+		// find the very first child of the current node.
+		while (node && node.firstChild) {
+			node = node.firstChild;
+		}
+		return jQuery(node);
+	};
+})(jQuery);
+
+/**
+ * This method will return the last leaf of the given node.
+ * If the node itself is a leaf then the node is returned.
+ */
+(function($) {
+	$.fn.lastLeaf = function() {
+		var node = jQuery(this)[0];
+		// find the very last child of the current node.
+		while (node && node.lastChild) {
+			node = node.lastChild;
+		}
+		return jQuery(node);
+	};
+})(jQuery);
+
 var alltiny = alltiny || {};
 alltiny.Editor = function(targetSelector, options) {
 	var thisObj = this;
@@ -95,7 +125,10 @@ alltiny.Editor.prototype.checkNode = function(node, customOptions) {
 	var options = jQuery.extend(true, {}, customOptions); // make a deep copy.
 
 	jQuery.each(jQuery(node).contents().get(), function(index, element) {
-		if (element.nodeType === 1) { // if this is a node again.
+		if (jQuery(element).is('br')) {
+			options.node = element;
+			thisObj.options.spellchecker.check('\n', options);
+		} else if (element.nodeType === 1) { // if this is a node again.
 			if (jQuery(element).is('li')) { // if this node is an list item then activate the set the spellchecker to be case-insensitive for the next coming word.
 				thisObj.options.spellchecker.setCaseInsensitiveForNextWord(true);
 			}
@@ -106,6 +139,11 @@ alltiny.Editor.prototype.checkNode = function(node, customOptions) {
 			thisObj.checkNode(element, options);
 		} else if (element.nodeType === 3) { // if this is a text node then check it with the spellChecker.
 			options.node = element;
+			var $liParent = jQuery(element).closest('li');
+			// don't check for white space at begin if this is the first node of an li-element.
+			options.checkWhitespaceAtBegin = !($liParent.length > 0 && $liParent.firstLeaf()[0] === element);
+			// don't check for white space at end if this is the last node of an li-element.
+			options.checkWhitespaceAtEnd = !($liParent.length > 0 && $liParent.lastLeaf()[0] === element);
 			thisObj.options.spellchecker.check(element.nodeValue, options);
 		}
 	});

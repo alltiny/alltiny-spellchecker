@@ -302,7 +302,7 @@ alltiny.Spellchecker.prototype.analyze = function() {
 			this.checkJoinable(leading, trailing, current.checkOptions.context);
 			for (var l = 0; l < leading.variants.length; l++) {
 				var lvar = leading.variants[l];
-				for (t = 0; t < trailing.variants.length; t++) {
+				for (var t = 0; t < trailing.variants.length; t++) {
 					var tvar = trailing.variants[t];
 					if (tvar.type == 'elision') {
 						current.addVariant({

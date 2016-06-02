@@ -485,7 +485,7 @@ alltiny.Spellchecker.prototype.setCaseInsensitiveForNextWord = function(isInsens
  */
 alltiny.Spellchecker.prototype.checkJoinable = function(leadingFinding, trailingFinding, context) {
 	if (trailingFinding.variants && (leadingFinding.cleanWord[leadingFinding.cleanWord.length - 1] == '-' || leadingFinding.cleanWord.substring(leadingFinding.cleanWord.length - 2) == '-,')) {
-		var elisionChar = (leadingFinding.cleanWord[leadingFinding.cleanWord.length - 1] == '-') ? '-' : '-,'
+		var elisionChar = (leadingFinding.cleanWord[leadingFinding.cleanWord.length - 1] == '-') ? '-' : '-,';
 		var leadingWord = leadingFinding.cleanWord.substring(0, leadingFinding.cleanWord.length - elisionChar.length);
 		for (var v = 0; v < trailingFinding.variants.length; v++) {
 			var trailingVariant = trailingFinding.variants[v];

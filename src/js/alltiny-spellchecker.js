@@ -346,7 +346,7 @@ alltiny.Spellchecker.prototype.applyFindings = function(options) {
 			currentNode = finding.node;
 			currentContent = currentNode.nodeValue;
 		}
-		if (currentContent != null) {
+		if (currentContent != null && checkOptions.highlighting) {
 			currentContent = currentContent.substring(0, finding.offset) + this.createReplacement(finding) + currentContent.substring(finding.offset + finding.word.length);
 		}
 	}
@@ -365,18 +365,26 @@ alltiny.Spellchecker.prototype.createReplacement = function(current) {
 	if (current.cleanWord.length == 0) { // this happens when the cursor character has been the word to check.
 		return alltiny.encodeAsHTML(current.word);
 	}
-	if (current.variants.length == 0) {
-		return (checkOptions.highlighting && checkOptions.highlightUnknownWords) ? '<span class="spellcheck highlight error unknown">' + alltiny.encodeAsHTML(current.word) + '</span>' : alltiny.encodeAsHTML(current.word);
+	var errorClasses = '';
+	// show error unknown
+	if (checkOptions.highlightUnknownWords && current.variants.length === 0) {
+		errorClasses += ' unknown';
+	};
+	// show error standalone
+	if (checkOptions.highlightNonStandalone && !current.isTouchingPrevious && current.variants.length == 1 && (current.variants[0].type == 'interpunctuation' || current.variants[0].type == 'punctuation')) {
+		errorClasses += ' standalone';
 	}
-	// if this is an interpunctuation then check against the previous finding that it is not standing alone.
-	if (current.variants.length == 1 && (current.variants[0].type == 'interpunctuation' || current.variants[0].type == 'punctuation')) {
-		return (checkOptions.highlighting && checkOptions.highlightNonStandalone && !current.isTouchingPrevious) ? '<span class="spellcheck highlight error standalone">' + alltiny.encodeAsHTML(current.word) + '</span>' : alltiny.encodeAsHTML(current.word);
+	// show error for missing whitespace at begin
+	if (checkOptions.highlightMissingWhitespace && current.hasMissingWhitespaceAtBegin) {
+		errorClasses += ' missing-whitespace-begin';
 	}
-	if (current.hasMissingWhitespaceAtBegin) {
-		return (checkOptions.highlighting && checkOptions.highlightMissingWhitespace) ? '<span class="spellcheck highlight error missing-whitespace-begin">' + alltiny.encodeAsHTML(current.word) + '</span>' : alltiny.encodeAsHTML(current.word);
+	// show error for missing whitespace at end
+	if (checkOptions.highlightMissingWhitespace && current.hasMissingWhitespaceAtEnd) {
+		errorClasses += ' missing-whitespace-end';
 	}
-	if (current.hasMissingWhitespaceAtEnd) {
-		return (checkOptions.highlighting && checkOptions.highlightMissingWhitespace) ? '<span class="spellcheck highlight error missing-whitespace-end">' + alltiny.encodeAsHTML(current.word) + '</span>' : alltiny.encodeAsHTML(current.word);
+	// render a error span if on of the errors needs to be shown.
+	if (errorClasses.length > 0) {
+		return '<span class="spellcheck highlight error' + errorClasses + '">' + alltiny.encodeAsHTML(current.word) + '</span>';
 	}
 	// check whether one of the variants is an exact hit.
 	for (var v = 0; v < current.variants.length; v++) {
@@ -388,7 +396,7 @@ alltiny.Spellchecker.prototype.createReplacement = function(current) {
 				? ((current.isCursorAtBeginning ? checkOptions.cursorCharacter : '') + foundWord.replace(/\|/g, '\u00ad') + (current.isCursorAtEnding ? checkOptions.cursorCharacter : ''))
 				: current.word;
 			// highlight the word if option tells so.
-			return (checkOptions.highlighting && checkOptions.highlightKnownWords) ? '<span class="spellcheck highlight ok">' + alltiny.encodeAsHTML(content) + '</span>' : alltiny.encodeAsHTML(content);
+			return checkOptions.highlightKnownWords ? '<span class="spellcheck highlight ok">' + alltiny.encodeAsHTML(content) + '</span>' : alltiny.encodeAsHTML(content);
 		}
 	}
 	// if this point is reached then none of the found variants did match exactly. Do a case-insensitive check.
@@ -398,10 +406,10 @@ alltiny.Spellchecker.prototype.createReplacement = function(current) {
 		if (variant.w.replace(/\|/g, '').toLowerCase() == lowerCaseWord) { // is this variant an exact hit?
 			var expectedWord = current.assumeStartOfSentence ? this.upperCaseFirstCharacter(variant.w) : variant.w;
 			// highlight the word if option tells so.
-			return (checkOptions.highlighting && checkOptions.highlightCaseWarnings && !current.caseInsensitive) ? '<span class="spellcheck highlight warn case" data-spellcheck-correction="' + expectedWord + '">' + alltiny.encodeAsHTML(current.word) + '</span>' : alltiny.encodeAsHTML(current.word);
+			return (checkOptions.highlightCaseWarnings && !current.caseInsensitive) ? '<span class="spellcheck highlight warn case" data-spellcheck-correction="' + expectedWord + '">' + alltiny.encodeAsHTML(current.word) + '</span>' : alltiny.encodeAsHTML(current.word);
 		}
 	}
-	return (checkOptions.highlighting && checkOptions.highlightMismatches) ? '<span class="spellcheck highlight warn mismatch">' + alltiny.encodeAsHTML(current.word) + '</span>' : alltiny.encodeAsHTML(current.word);
+	return checkOptions.highlightMismatches ? '<span class="spellcheck highlight warn mismatch">' + alltiny.encodeAsHTML(current.word) + '</span>' : alltiny.encodeAsHTML(current.word);
 };
 
 alltiny.Spellchecker.prototype.upperCaseFirstCharacter = function(text) {

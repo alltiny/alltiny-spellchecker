@@ -490,9 +490,22 @@ alltiny.Spellchecker.prototype.askCrossDictionaries = function(word, context) {
  * This method will remove any check result highlights from the given target.
  */
 alltiny.Spellchecker.prototype.removeAnyHighlights = function(target) {
-	jQuery(target).find('span.spellcheck.highlight').each(function() {
-		jQuery(this).replaceWith(jQuery(this).html());
-	});
+	while (this.dissolveNode(document.querySelector('span.spellcheck.highlight'))) {}
+};
+
+/**
+ * This method will replace the given node by its children.
+ */
+alltiny.Spellchecker.prototype.dissolveNode = function(node) {
+	if (node) {
+		// move all children before the span.
+		while (node.childNodes.length > 0) {
+			node.parentNode.insertBefore(node.childNodes[0], node);
+		}
+		// remove the now empty span.
+		node.parentNode.removeChild(node);
+	}
+	return node;
 };
 
 alltiny.Spellchecker.prototype.setAssumeStartOfSentence = function(isStart) {

@@ -490,7 +490,7 @@ alltiny.Spellchecker.prototype.askCrossDictionaries = function(word, context) {
  * This method will remove any check result highlights from the given target.
  */
 alltiny.Spellchecker.prototype.removeAnyHighlights = function(target) {
-	while (this.dissolveNode(document.querySelector('span.spellcheck.highlight'))) {}
+	while (this.dissolveNode(jQuery(target)[0].querySelector('span.spellcheck.highlight'))) {}
 };
 
 /**

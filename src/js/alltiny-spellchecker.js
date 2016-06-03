@@ -75,8 +75,8 @@ alltiny.Spellchecker.prototype.checkText = function(text, options) {
 
 /**
  * This method performs the spell check on the given text. Calling this method will
- * add all finding to the internal array. You should use analyze() and applyFindings()
- * after all text is checked.
+ * add all findings to the internal array. You should use analyze() and applyFindings()
+ * after all the text is checked.
  * @param text which content should be checked.
  * @param options by default the options given to this spellchecker while
  *        initialization are used, but with this option you can give a different
@@ -496,7 +496,7 @@ alltiny.Spellchecker.prototype.removeAnyHighlights = function(target) {
 };
 
 alltiny.Spellchecker.prototype.setAssumeStartOfSentence = function(isStart) {
-	this.assumeStartOfSentence = isStart
+	this.assumeStartOfSentence = isStart;
 };
 
 alltiny.Spellchecker.prototype.setCaseInsensitiveForNextWord = function(isInsensitive) {

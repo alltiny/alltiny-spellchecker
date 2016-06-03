@@ -1,17 +1,18 @@
 var alltiny = alltiny || {};
 alltiny.Spellchecker = function(options) {
 	this.options = jQuery.extend(true, {
-		hyphenation           : true,
-		highlighting          : true,
-		highlightUnknownWords : true,
-		highlightKnownWords   : false,
-		highlightMismatches   : true,
-		highlightCaseWarnings : true,
-		highlightNonStandalone: true, // with this option '!', '?', '.', ',', ';', ':' are marked when found standing alone.
-		cursorCharacter       : '\u2038',
-		autoResetAfterApply   : true,
-		patternsToIgnore      : [/^-{3,}$/, /^\.{5,}$/, /^_{3,}$/], // regular expressions for custom patterns that should not be spellchecked (performance increasement cause they must not be analyzed)
-		patternsToMark        : [/-{2}/]  // regular expressions for custom patterns that should be marked as misspellings
+		hyphenation               : true,
+		highlighting              : true,
+		highlightUnknownWords     : true,
+		highlightKnownWords       : false,
+		highlightMismatches       : true,
+		highlightCaseWarnings     : true,
+		highlightNonStandalone    : true, // with this option '!', '?', '.', ',', ';', ':' are marked when found standing alone.
+		highlightMissingWhitespace: true,
+		cursorCharacter           : '\u2038',
+		autoResetAfterApply       : true,
+		patternsToIgnore          : [/^-{3,}$/, /^\.{5,}$/, /^_{3,}$/], // regular expressions for custom patterns that should not be spellchecked (performance increase cause they must not be analyzed)
+		patternsToMark            : [/-{2}/]  // regular expressions for custom patterns that should be marked as misspellings
 	}, options);
 	this.dictionaries = [];
 	this.assumeStartOfSentence = true; // if true the first word in a check is assumed to be the start of a sentence.
@@ -50,7 +51,7 @@ alltiny.Spellchecker.prototype.reset = function() {
 };
 
 /**
- * This method exposes the internal findings the spellchecker hade for every word of the text.
+ * This method exposes the internal findings the spellchecker had for every word of the text.
  * The findings can be used for analysis but should not be modified.
  */
 alltiny.Spellchecker.prototype.getFindings = function() {
@@ -74,8 +75,8 @@ alltiny.Spellchecker.prototype.checkText = function(text, options) {
 
 /**
  * This method performs the spell check on the given text. Calling this method will
- * add all finding to the internal array. You should use analyze() and applyFindings()
- * after all text is checked.
+ * add all findings to the internal array. You should use analyze() and applyFindings()
+ * after all the text is checked.
  * @param text which content should be checked.
  * @param options by default the options given to this spellchecker while
  *        initialization are used, but with this option you can give a different
@@ -96,7 +97,7 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 			checkOptions.context.symbols = alltiny.Spellchecker.mergeDictionaries(checkOptions.context.symbols, dictionary.options.symbols);
 		}
 	}
-	/* load the demanded coposit map. */
+	/* load the demanded composit map. */
 	for (var i = 0; i < this.dictionaries.length; i++) {
 		var dictionary = this.dictionaries[i];
 		if ((!checkOptions.language || dictionary.options.locale == checkOptions.language) && dictionary.options.composits) {
@@ -105,6 +106,10 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 		}
 	}
 
+	// ignore if the text only contains of the cursor character.
+	if (text === checkOptions.cursorCharacter) {
+		return;
+	}
 	// use the word regex to split text into words.
 	text.replace(/[^\s]+/ig, function(word, offset, content) {
 		var current = thisObj.checkWord(word, checkOptions);
@@ -117,6 +122,10 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 
 		thisObj.findings.push(current);
 	});
+	// if the text is white-spaces-only, then flag the previous finding.
+	if (/^\s+$/.test(text.replace(new RegExp(checkOptions.cursorCharacter, 'g'), '')) && thisObj.findings.length > 0) {
+		thisObj.findings[thisObj.findings.length - 1].checkOptions.checkWhitespaceAtEnd = false;
+	}
 };
 
 /**
@@ -192,6 +201,7 @@ alltiny.Spellchecker.prototype.checkWord = function(word, options) {
  * This method will analyze the current findings on higher levels.
  */
 alltiny.Spellchecker.prototype.analyze = function() {
+	alltiny.Spellchecker.analyzeMissingWhiteSpaces(this.findings, this);
 	var previous = null;
 	for (var i = 0; i < this.findings.length; i++) {
 		var current = this.findings[i];
@@ -290,7 +300,7 @@ alltiny.Spellchecker.prototype.analyze = function() {
 			}
 		}
 
-		// if the current finding contains '/-' then test for an ellision.
+		// if the current finding contains '/-' then test for an elision.
 		var slashPos = current.cleanWord.length > 0 ? current.cleanWord.indexOf('/-') : -1;
 		if (slashPos > -1) {
 			var leadingWord = current.cleanWord.substring(0, slashPos);
@@ -298,11 +308,11 @@ alltiny.Spellchecker.prototype.analyze = function() {
 			// search the leading part separately.
 			var leading = this.checkWord(leadingWord, current.checkOptions);
 			var trailing = this.checkWord(trailingWord, current.checkOptions);
-			// check for trailing being an elission.
+			// check for trailing being an elision.
 			this.checkJoinable(leading, trailing, current.checkOptions.context);
 			for (var l = 0; l < leading.variants.length; l++) {
 				var lvar = leading.variants[l];
-				for (t = 0; t < trailing.variants.length; t++) {
+				for (var t = 0; t < trailing.variants.length; t++) {
 					var tvar = trailing.variants[t];
 					if (tvar.type == 'elision') {
 						current.addVariant({
@@ -326,6 +336,7 @@ alltiny.Spellchecker.prototype.applyFindings = function(options) {
 	var checkOptions = alltiny.clone(this.options, options); // deep copy to avoid overrides. uses this.options as defaults.
 	var currentNode = null;
 	var currentContent = checkOptions.content || '';
+	// work backwards through the findings since the offsets are no longer true after a replacement.
 	for (var i = this.findings.length - 1; i >= 0; i--) {
 		var finding = this.findings[i];
 		if (finding.node != currentNode) {
@@ -335,7 +346,7 @@ alltiny.Spellchecker.prototype.applyFindings = function(options) {
 			currentNode = finding.node;
 			currentContent = currentNode.nodeValue;
 		}
-		if (currentContent != null) {
+		if (currentContent != null && checkOptions.highlighting) {
 			currentContent = currentContent.substring(0, finding.offset) + this.createReplacement(finding) + currentContent.substring(finding.offset + finding.word.length);
 		}
 	}
@@ -354,12 +365,26 @@ alltiny.Spellchecker.prototype.createReplacement = function(current) {
 	if (current.cleanWord.length == 0) { // this happens when the cursor character has been the word to check.
 		return alltiny.encodeAsHTML(current.word);
 	}
-	if (current.variants.length == 0) {
-		return (checkOptions.highlighting && checkOptions.highlightUnknownWords) ? '<span class="spellcheck highlight error unknown">' + alltiny.encodeAsHTML(current.word) + '</span>' : alltiny.encodeAsHTML(current.word);
+	var errorClasses = '';
+	// show error unknown
+	if (checkOptions.highlightUnknownWords && current.variants.length === 0) {
+		errorClasses += ' unknown';
+	};
+	// show error standalone
+	if (checkOptions.highlightNonStandalone && !current.isTouchingPrevious && current.variants.length == 1 && (current.variants[0].type == 'interpunctuation' || current.variants[0].type == 'punctuation')) {
+		errorClasses += ' standalone';
 	}
-	// if this is an interpunctuation then check against the previous finding that it is not standing alone.
-	if (current.variants.length == 1 && (current.variants[0].type == 'interpunctuation' || current.variants[0].type == 'punctuation')) {
-		return (checkOptions.highlighting && checkOptions.highlightNonStandalone && !current.isTouchingPrevious) ? '<span class="spellcheck highlight error standalone">' + alltiny.encodeAsHTML(current.word) + '</span>' : alltiny.encodeAsHTML(current.word);
+	// show error for missing whitespace at begin
+	if (checkOptions.highlightMissingWhitespace && current.hasMissingWhitespaceAtBegin) {
+		errorClasses += ' missing-whitespace-begin';
+	}
+	// show error for missing whitespace at end
+	if (checkOptions.highlightMissingWhitespace && current.hasMissingWhitespaceAtEnd) {
+		errorClasses += ' missing-whitespace-end';
+	}
+	// render a error span if on of the errors needs to be shown.
+	if (errorClasses.length > 0) {
+		return '<span class="spellcheck highlight error' + errorClasses + '">' + alltiny.encodeAsHTML(current.word) + '</span>';
 	}
 	// check whether one of the variants is an exact hit.
 	for (var v = 0; v < current.variants.length; v++) {
@@ -371,7 +396,7 @@ alltiny.Spellchecker.prototype.createReplacement = function(current) {
 				? ((current.isCursorAtBeginning ? checkOptions.cursorCharacter : '') + foundWord.replace(/\|/g, '\u00ad') + (current.isCursorAtEnding ? checkOptions.cursorCharacter : ''))
 				: current.word;
 			// highlight the word if option tells so.
-			return (checkOptions.highlighting && checkOptions.highlightKnownWords) ? '<span class="spellcheck highlight ok">' + alltiny.encodeAsHTML(content) + '</span>' : alltiny.encodeAsHTML(content);
+			return checkOptions.highlightKnownWords ? '<span class="spellcheck highlight ok">' + alltiny.encodeAsHTML(content) + '</span>' : alltiny.encodeAsHTML(content);
 		}
 	}
 	// if this point is reached then none of the found variants did match exactly. Do a case-insensitive check.
@@ -381,10 +406,10 @@ alltiny.Spellchecker.prototype.createReplacement = function(current) {
 		if (variant.w.replace(/\|/g, '').toLowerCase() == lowerCaseWord) { // is this variant an exact hit?
 			var expectedWord = current.assumeStartOfSentence ? this.upperCaseFirstCharacter(variant.w) : variant.w;
 			// highlight the word if option tells so.
-			return (checkOptions.highlighting && checkOptions.highlightCaseWarnings && !current.caseInsensitive) ? '<span class="spellcheck highlight warn case" data-spellcheck-correction="' + expectedWord + '">' + alltiny.encodeAsHTML(current.word) + '</span>' : alltiny.encodeAsHTML(current.word);
+			return (checkOptions.highlightCaseWarnings && !current.caseInsensitive) ? '<span class="spellcheck highlight warn case" data-spellcheck-correction="' + expectedWord + '">' + alltiny.encodeAsHTML(current.word) + '</span>' : alltiny.encodeAsHTML(current.word);
 		}
 	}
-	return (checkOptions.highlighting && checkOptions.highlightMismatches) ? '<span class="spellcheck highlight warn mismatch">' + alltiny.encodeAsHTML(current.word) + '</span>' : alltiny.encodeAsHTML(current.word);
+	return checkOptions.highlightMismatches ? '<span class="spellcheck highlight warn mismatch">' + alltiny.encodeAsHTML(current.word) + '</span>' : alltiny.encodeAsHTML(current.word);
 };
 
 alltiny.Spellchecker.prototype.upperCaseFirstCharacter = function(text) {
@@ -399,7 +424,7 @@ alltiny.Spellchecker.prototype.upperCaseFirstCharacter = function(text) {
 };
 
 /**
- * This method determines all cursor postions. Note that with multiselection
+ * This method determines all cursor positions. Note that with multi-selection
  * more than one cursor position can exist.
  */
 alltiny.Spellchecker.prototype.getCursorPositions = function(word, cursorCharacter) {
@@ -465,13 +490,26 @@ alltiny.Spellchecker.prototype.askCrossDictionaries = function(word, context) {
  * This method will remove any check result highlights from the given target.
  */
 alltiny.Spellchecker.prototype.removeAnyHighlights = function(target) {
-	jQuery(target).find('span.spellcheck.highlight').each(function() {
-		jQuery(this).replaceWith(jQuery(this).html());
-	});
+	while (this.dissolveNode(jQuery(target)[0].querySelector('span.spellcheck.highlight'))) {}
+};
+
+/**
+ * This method will replace the given node by its children.
+ */
+alltiny.Spellchecker.prototype.dissolveNode = function(node) {
+	if (node) {
+		// move all children before the span.
+		while (node.childNodes.length > 0) {
+			node.parentNode.insertBefore(node.childNodes[0], node);
+		}
+		// remove the now empty span.
+		node.parentNode.removeChild(node);
+	}
+	return node;
 };
 
 alltiny.Spellchecker.prototype.setAssumeStartOfSentence = function(isStart) {
-	this.assumeStartOfSentence = isStart
+	this.assumeStartOfSentence = isStart;
 };
 
 alltiny.Spellchecker.prototype.setCaseInsensitiveForNextWord = function(isInsensitive) {
@@ -484,7 +522,7 @@ alltiny.Spellchecker.prototype.setCaseInsensitiveForNextWord = function(isInsens
  */
 alltiny.Spellchecker.prototype.checkJoinable = function(leadingFinding, trailingFinding, context) {
 	if (trailingFinding.variants && (leadingFinding.cleanWord[leadingFinding.cleanWord.length - 1] == '-' || leadingFinding.cleanWord.substring(leadingFinding.cleanWord.length - 2) == '-,')) {
-		var elisionChar = (leadingFinding.cleanWord[leadingFinding.cleanWord.length - 1] == '-') ? '-' : '-,'
+		var elisionChar = (leadingFinding.cleanWord[leadingFinding.cleanWord.length - 1] == '-') ? '-' : '-,';
 		var leadingWord = leadingFinding.cleanWord.substring(0, leadingFinding.cleanWord.length - elisionChar.length);
 		for (var v = 0; v < trailingFinding.variants.length; v++) {
 			var trailingVariant = trailingFinding.variants[v];
@@ -552,7 +590,7 @@ alltiny.Spellchecker.prototype.checkJoinable = function(leadingFinding, trailing
 };
 
 /**
- * This a helper method for merging two dictionary together.
+ * This a helper method for merging two dictionaries together.
  */
 alltiny.Spellchecker.mergeDictionaries = function(dictionary1, dictionary2) {
 	var result = {};
@@ -578,7 +616,7 @@ alltiny.Spellchecker.mergeDictionaries = function(dictionary1, dictionary2) {
  */
 alltiny.Spellchecker.mergeWordList = function(wordList1, wordList2) {
 	var result = [];
-	var wordsFoundLookup = {}; // this helps for checking whether a word is allready contained.
+	var wordsFoundLookup = {}; // this helps for checking whether a word is already contained.
 	var list = wordList1.concat(wordList2);
 	for (var i = 0; i < list.length; i++) {
 		var word = list[i];
@@ -589,6 +627,28 @@ alltiny.Spellchecker.mergeWordList = function(wordList1, wordList2) {
 		}
 	}
 	return result;
+};
+
+alltiny.Spellchecker.analyzeMissingWhiteSpaces = function(findings, spellchecker) {
+	var current = findings.length > 0 ? findings[0] : null;
+	for (var i = 1; i < findings.length; i++) {
+		var next = findings[i];
+		// only check between the both findings if they belong to different nodes.
+		if (current.checkOptions.checkWhitespaceAtEnd && next.checkOptions.checkWhitespaceAtBegin && current.checkOptions.node !== next.checkOptions.node) {
+			var currentHasMissingWhiteSpace = current.offset + current.word.length === current.node.nodeValue.length;
+			var nextHasMissingWhiteSpace = next.offset === 0;
+			// are both finding lacking a white-space?
+			if (currentHasMissingWhiteSpace && nextHasMissingWhiteSpace) {
+				// since both nodes lacking a white-space check, whether joining them would acceptable.
+				var variants = spellchecker.askCrossDictionaries(current.cleanWord + next.cleanWord, current.checkOptions.context);
+				if (!variants || variants.length === 0) { // nothing found?
+					current.hasMissingWhitespaceAtEnd = true;
+					next.hasMissingWhitespaceAtBegin = true;
+				}
+			}
+		}
+		current = next;
+	}
 };
 
 alltiny.Dictionary = function(customOptions) {
@@ -680,7 +740,7 @@ alltiny.Dictionary.prototype.addWord = function(word) {
 
 /* this method will return null if the word is unknown. */
 alltiny.Dictionary.prototype.findWord = function(word, context) {
-	// quick-check whether this word or break has allready been treid to lookup.
+	// quick-check whether this word or break has already been tried to lookup.
 	if (context.cachedWordFindings[word] && typeof context.cachedWordFindings[word] !== 'function') {
 		return context.cachedWordFindings[word];
 	}
@@ -741,7 +801,7 @@ alltiny.Dictionary.prototype.findWord = function(word, context) {
  * This method looks up a word in the dictionary's index.
  */
 alltiny.Dictionary.prototype.lookupWord = function(word, context) {
-	// check for context specific symbols frist.
+	// check for context specific symbols first.
 	var contextSymbol = (context && context.symbols) ? context.symbols[word] : null;
 	if (contextSymbol && typeof contextSymbol !== 'function') {
 		return alltiny.clone(contextSymbol); // create a deep-copy of the array to save the lookup map from modifications.
@@ -799,7 +859,7 @@ alltiny.encodeAsHTML = function(text) {
 };
 
 alltiny.clone = function(object, extension) {
-	// do not clone undfined objects, primitive types or DOM nodes.
+	// do not clone undefined objects, primitive types or DOM nodes.
 	if (!object || typeof object !== 'object' || object instanceof Node || object instanceof RegExp) {
 		return object;
 	}

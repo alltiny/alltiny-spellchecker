@@ -139,11 +139,11 @@ alltiny.Editor.prototype.checkNode = function(node, customOptions) {
 			thisObj.checkNode(element, options);
 		} else if (element.nodeType === 3) { // if this is a text node then check it with the spellChecker.
 			options.node = element;
-			var $liParent = jQuery(element).closest('li');
+			var $blockParent = jQuery(element).closest('li,h1,h2,h3,h4,h5,p,div');
 			// don't check for white space at begin if this is the first node of an li-element.
-			options.checkWhitespaceAtBegin = !($liParent.length > 0 && $liParent.firstLeaf()[0] === element);
+			options.checkWhitespaceAtBegin = !($blockParent.length > 0 && $blockParent.firstLeaf()[0] === element);
 			// don't check for white space at end if this is the last node of an li-element.
-			options.checkWhitespaceAtEnd = !($liParent.length > 0 && $liParent.lastLeaf()[0] === element);
+			options.checkWhitespaceAtEnd = !($blockParent.length > 0 && $blockParent.lastLeaf()[0] === element);
 			thisObj.options.spellchecker.check(element.nodeValue, options);
 		}
 	});

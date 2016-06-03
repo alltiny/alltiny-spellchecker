@@ -154,21 +154,5 @@ alltiny.Editor.prototype.checkNode = function(node, customOptions) {
  * This method will rejoin all the textNodes.
  */
 alltiny.Editor.prototype.rejoinTextNodes = function($target) {
-	var thisObj = this;
-	var previousTextNode = null;
-	jQuery.each(jQuery($target).contents(), function() {
-		if (this.nodeType === 3) { // if this is a text node then rejoin with previous node.
-			if (previousTextNode !== null) {
-				previousTextNode.appendData(jQuery(this).text());
-				jQuery(this).remove();
-			} else {
-				previousTextNode = this;
-			}
-		}
-		if (this.nodeType === 1) { // if this is again an node then recursivly walk the children.
-			thisObj.rejoinTextNodes(jQuery(this));
-			// reset the previous node to freshly start over.
-			previousTextNode = null;
-		}
-	});
+	jQuery($target)[0].normalize();
 };

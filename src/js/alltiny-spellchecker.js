@@ -369,7 +369,7 @@ alltiny.Spellchecker.prototype.createReplacement = function(current) {
 	// show error unknown
 	if (checkOptions.highlightUnknownWords && current.variants.length === 0) {
 		errorClasses += ' unknown';
-	};
+	}
 	// show error standalone
 	if (checkOptions.highlightNonStandalone && !current.isTouchingPrevious && current.variants.length == 1 && (current.variants[0].type == 'interpunctuation' || current.variants[0].type == 'punctuation')) {
 		errorClasses += ' standalone';

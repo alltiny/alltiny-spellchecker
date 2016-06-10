@@ -30,7 +30,10 @@ alltiny.Spellchecker = function(options) {
  * }
  */
 alltiny.Spellchecker.prototype.addDictionary = function(dictionary) {
+	var thisObj = this;
 	if (dictionary) {
+		// hook a change listener into the given dictionary.
+		dictionary.addOnChangeListener(function(){ thisObj.onDictionariesChanged(); });
 		this.dictionaries.push(dictionary);
 	}
 };
@@ -43,8 +46,16 @@ alltiny.Spellchecker.prototype.getDictionaries = function() {
 };
 
 /**
+ * This method is hooked into the dictionary given to this spellchecker as change listener.
+ */
+alltiny.Spellchecker.prototype.onDictionariesChanged = function() {
+	this.variantCache = []; // empty the variants cache.
+};
+
+
+/**
  * The spellchecker is a state-machine, allowing to connect multiple checks.
- * This method will reset the spellchecker.
+ * This method will reset the spellcheckers findings.
  */
 alltiny.Spellchecker.prototype.reset = function() {
 	this.findings = [];
@@ -663,6 +674,7 @@ alltiny.Dictionary = function(customOptions) {
 			return variants;
 		}
 	}, customOptions);
+	this.onChangeListeners = [];
 	// check whether process was given as string; interpret it as function if so.
 	if (typeof this.options.processor === 'string') {
 		this.options.processor = new Function('variants', this.options.processor);
@@ -702,11 +714,26 @@ alltiny.Dictionary = function(customOptions) {
 	};
 };
 
+alltiny.Dictionary.prototype.addOnChangeListener = function(listener) {
+	if (typeof listener === 'function') { // ensure the given listener is a function
+		this.onChangeListeners.push(listener);
+	}
+};
+
+alltiny.Dictionary.prototype.triggerChangeEvent = function() {
+	for (var i = 0; i < this.onChangeListeners.length; i++) {
+		this.onChangeListeners[i].call(this);
+	}
+};
+
 /**
  * This method adds the given word to the dictionary.
  */
 alltiny.Dictionary.prototype.setEnabled = function(enabled) {
-	this.options.enabled = enabled;
+	if (this.options.enabled !== enabled) {
+		this.options.enabled = enabled;
+		this.triggerChangeEvent();
+	}
 };
 
 /**
@@ -735,6 +762,7 @@ alltiny.Dictionary.prototype.addWord = function(word) {
 			this.options.words[lowerCaseWord] = [];
 		}
 		this.options.words[lowerCaseWord].push(word);
+		this.triggerChangeEvent();
 	}
 };
 

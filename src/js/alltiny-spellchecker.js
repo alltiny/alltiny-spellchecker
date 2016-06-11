@@ -393,7 +393,7 @@ alltiny.Spellchecker.prototype.createReplacement = function(current) {
 	if (checkOptions.highlightMissingWhitespace && current.hasMissingWhitespaceAtEnd) {
 		errorClasses += ' missing-whitespace-end';
 	}
-	// render a error span if on of the errors needs to be shown.
+	// render a error span if one of the errors needs to be shown.
 	if (errorClasses.length > 0) {
 		return '<span class="spellcheck highlight error' + errorClasses + '">' + alltiny.encodeAsHTML(current.word) + '</span>';
 	}

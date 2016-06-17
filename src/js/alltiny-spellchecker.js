@@ -128,7 +128,7 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 		current.contentLength = content.length;
 		current.caseInsensitive = thisObj.caseInsensitiveForNextWord;
 		thisObj.caseInsensitiveForNextWord = false;
-		current.assumeStartOfSentence = thisObj.assumeStartOfSentence;
+		current.assumeStartOfSentence = thisObj.assumeStartOfSentence ? 1 : undefined;
 		thisObj.assumeStartOfSentence = false;
 
 		thisObj.findings.push(current);
@@ -203,7 +203,7 @@ alltiny.Spellchecker.prototype.checkWord = function(word, options) {
 	} else { // start searching the dictionaries.
 		finding.variants = this.askCrossDictionaries(cleanWord, checkOptions.context);
 		this.variantCache[cleanWord] = finding.variants;
-	}	
+	}
 
 	return finding;
 };
@@ -216,23 +216,31 @@ alltiny.Spellchecker.prototype.analyze = function() {
 	var previous = null;
 	for (var i = 0; i < this.findings.length; i++) {
 		var current = this.findings[i];
-		if (previous && previous.endOfSentence) {
-			current.assumeStartOfSentence = true;
+		if (typeof current.assumeStartOfSentence === 'undefined') {
+			current.assumeStartOfSentence = (previous) ? previous.endOfSentence : 0;
 		}
+		current.endOfSentence = 0;
 		if (!current.variants || current.variants.length == 0) {
 			var lastChar = current.cleanWord.length > 0 ? current.cleanWord[current.cleanWord.length - 1] : '';
-			current.endOfSentence = lastChar == '.' || lastChar == '!' || lastChar == '?';
+			current.endOfSentence = (lastChar == '.' || lastChar == '!' || lastChar == '?') ? 1 : 0;
 		}
 		// if this is an interpunctuation then check against the previous finding that it is not standing alone.
 		if (current.variants && current.variants.length > 0) {
 			var allVariantsAreEndOfSentence = true;
+			var allVariantsAreNotEndOfSentence = true;
 			for (var v = 0; v < current.variants.length; v++) {
 				if (!current.variants[v].endOfSentence) {
 					allVariantsAreEndOfSentence = false;
+				} else {
+					allVariantsAreNotEndOfSentence = false;
 				}
 			}
-			if (allVariantsAreEndOfSentence) {
-				current.endOfSentence = true;
+			if (allVariantsAreEndOfSentence && !allVariantsAreNotEndOfSentence) {
+				current.endOfSentence = 1;
+			} else if (!allVariantsAreEndOfSentence && allVariantsAreNotEndOfSentence) {
+				current.endOfSentence = 0;
+			} else {
+				current.endOfSentence = 0.5;
 			}
 			if (current.variants.length == 1 && (current.variants[0].type == 'interpunctuation' || current.variants[0].type == 'punctuation')) {
 				current.isTouchingPrevious = current.offset == 0 && previous && (previous.contentLength - previous.offset - previous.word.length == 0);
@@ -397,27 +405,46 @@ alltiny.Spellchecker.prototype.createReplacement = function(current) {
 	if (errorClasses.length > 0) {
 		return '<span class="spellcheck highlight error' + errorClasses + '">' + alltiny.encodeAsHTML(current.word) + '</span>';
 	}
+
 	// check whether one of the variants is an exact hit.
 	for (var v = 0; v < current.variants.length; v++) {
 		var variant = current.variants[v];
-		var foundWord = current.assumeStartOfSentence ? this.upperCaseFirstCharacter(variant.w) : variant.w;
-		if (foundWord.replace(/\|/g, '') == current.cleanWord) { // is this variant an exact hit?
-			// apply the word from the dictionary, to apply hyphenation.
-			var content = (checkOptions.hyphenation && !current.isCursorInMiddle)
-				? ((current.isCursorAtBeginning ? checkOptions.cursorCharacter : '') + foundWord.replace(/\|/g, '\u00ad') + (current.isCursorAtEnding ? checkOptions.cursorCharacter : ''))
-				: current.word;
-			// highlight the word if option tells so.
-			return checkOptions.highlightKnownWords ? '<span class="spellcheck highlight ok">' + alltiny.encodeAsHTML(content) + '</span>' : alltiny.encodeAsHTML(content);
+		var expectedWords = [];
+		if (current.assumeStartOfSentence >= 0.5) {
+			expectedWords.push(this.upperCaseFirstCharacter(variant.w));
+		}
+		if (current.assumeStartOfSentence <= 0.5) {
+			expectedWords.push(variant.w);
+		}
+		for (var i = 0; i < expectedWords.length; i++) {
+			var expectedWord = expectedWords[i];
+			if (expectedWord.replace(/\|/g, '') == current.cleanWord) { // is this variant an exact hit?
+				// apply the word from the dictionary, to apply hyphenation.
+				var content = (checkOptions.hyphenation && !current.isCursorInMiddle)
+					? ((current.isCursorAtBeginning ? checkOptions.cursorCharacter : '') + expectedWord.replace(/\|/g, '\u00ad') + (current.isCursorAtEnding ? checkOptions.cursorCharacter : ''))
+					: current.word;
+				// highlight the word if option tells so.
+				return checkOptions.highlightKnownWords ? '<span class="spellcheck highlight ok">' + alltiny.encodeAsHTML(content) + '</span>' : alltiny.encodeAsHTML(content);
+			}
 		}
 	}
 	// if this point is reached then none of the found variants did match exactly. Do a case-insensitive check.
 	var lowerCaseWord = current.cleanWord.toLowerCase();
 	for (var v = 0; v < current.variants.length; v++) {
 		var variant = current.variants[v];
-		if (variant.w.replace(/\|/g, '').toLowerCase() == lowerCaseWord) { // is this variant an exact hit?
-			var expectedWord = current.assumeStartOfSentence ? this.upperCaseFirstCharacter(variant.w) : variant.w;
-			// highlight the word if option tells so.
-			return (checkOptions.highlightCaseWarnings && !current.caseInsensitive) ? '<span class="spellcheck highlight warn case" data-spellcheck-correction="' + expectedWord + '">' + alltiny.encodeAsHTML(current.word) + '</span>' : alltiny.encodeAsHTML(current.word);
+		var expectedWords = [];
+		if (current.assumeStartOfSentence >= 0.5) {
+			expectedWords.push(this.upperCaseFirstCharacter(variant.w));
+		}
+		if (current.assumeStartOfSentence <= 0.5) {
+			expectedWords.push(variant.w);
+		}
+		for (var i = 0; i < expectedWords.length; i++) {
+			var expectedWord = expectedWords[i];
+			if (variant.w.replace(/\|/g, '').toLowerCase() == lowerCaseWord) { // is this variant an exact hit?
+				// highlight the word if option tells so.
+				return (checkOptions.highlightCaseWarnings && !current.caseInsensitive) ? '<span class="spellcheck highlight warn case" data-spellcheck-correction="' + expectedWord + '">' + alltiny.encodeAsHTML(current.word) + '</span>' : alltiny.encodeAsHTML(current.word);
+			}
 		}
 	}
 	return checkOptions.highlightMismatches ? '<span class="spellcheck highlight warn mismatch">' + alltiny.encodeAsHTML(current.word) + '</span>' : alltiny.encodeAsHTML(current.word);

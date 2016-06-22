@@ -18,6 +18,7 @@
 "adac":[{"w":"ADAC","type":"abbr","abbr":"Automobil Club Deutschland"}],
 "adidas":[{"w":"Adidas","type":"name"}],
 "adobe":[{"w":"Adobe","type":"name"}],
+"adsl":[{"w":"ADSL","type":"abbr","abbr":"Asymmetric Digital Subscriber Line"}],
 "afb":[{"w":"AfB","type":"name"}],
 "afp":[{"w":"AFP","type":"abbr","abbr":"Agence France Presse"},{"w":"afp","type":"name"}],
 "agence":[{"w":"Agence","type":"name","name":"Agence France Presse"}],

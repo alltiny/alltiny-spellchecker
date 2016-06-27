@@ -728,15 +728,18 @@ alltiny.Dictionary = function(customOptions) {
 		'\''    : [{w: '\'', type: 'lquotation'}, {w: '\'', type: 'rquotation'}],
 		'%'     : [{w: '%', type: 'unit', unit: 'Percent'}],
 		'&'     : [{w: '&', type: 'symbol'}],
-		'$'     : [{w: '$', type: 'symbol'}],
+		'$'     : [{w: '$', type: 'unit', unit: 'Dollar'}],
 		'#'     : [{w: '#', type: 'symbol', symbol: 'hash'}],
 		'+'     : [{w: '+', type: 'symbol'}],
 		'*'     : [{w: '*', type: 'symbol', symbol: 'born'}],
+		'\u00a3': [{w: '\u00a3', type: 'unit', unit: 'Pound'}],
+		'\u00a5': [{w: '\u00a5', type: 'unit', unit: 'Yen'}],
 		'\u00a7': [{w: '\u00a7', type: 'mark', symbol: 'Parapragh Sign'}],
 		'\u00a9': [{w: '\u00a9', type: 'symbol', symbol: 'Copyright'}],
 		'\u2013': [{w: '\u2013', type: 'symbol', symbol: 'EN Dash'}],
 		'\u2014': [{w: '\u2014', type: 'symbol', symbol: 'EM Dash'}],
-		'\u20ac': [{w: '\u20ac', type: 'symbol', symbol: 'Euro Sign'}],
+		'\u20a4': [{w: '\u20a4', type: 'unit', unit: 'Lira'}],
+		'\u20ac': [{w: '\u20ac', type: 'unit', unit: 'Euro'}],
 		'\u271d': [{w: '\u271d', type: 'symbol', symbol: 'Latin Cross'}]
 	};
 };

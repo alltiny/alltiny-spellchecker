@@ -59,6 +59,7 @@ alltiny.Spellchecker.prototype.onDictionariesChanged = function() {
  */
 alltiny.Spellchecker.prototype.reset = function() {
 	this.findings = [];
+	this.assumeStartOfSentence = false;
 };
 
 /**

@@ -74,6 +74,11 @@ task verifyDictionaryDeCH {
 	verifyDictionary(new JsonSlurper().parse(new File("${projectDir}/src/dict/alltiny.dict.base.de_ch.json")))
 }
 
+task verifyDictionaryDeAT {
+	description = 'verifies the dictionary to be syntactical correct'
+	verifyDictionary(new JsonSlurper().parse(new File("${projectDir}/src/dict/alltiny.dict.base.de_at.json")))
+}
+
 task verifyDictionaryEnGB {
 	description = 'verifies the dictionary to be syntactical correct'
 	verifyDictionary(new JsonSlurper().parse(new File("${projectDir}/src/dict/alltiny.dict.base.en_gb.json")))

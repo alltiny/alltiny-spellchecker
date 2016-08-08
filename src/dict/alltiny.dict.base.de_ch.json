@@ -28,6 +28,8 @@
 "oberems":[{"w":"Ober|ems","type":"name"}],
 "prevôtoise":[{"w":"Prevôtoise","type":"name"}],
 "rappen":[{"w":"rap|pen","type":"noun","object":"currency"}],
+"sanität":[{"w":"sa|ni|tät","type":"noun"}],
+"sanitäts":[{"w":"sa|ni|täts","type":"prenoun"}],
 "schöllihorn":[{"w":"Schöl|li|horn","type":"name"}],
 "solothurn":[{"w":"So|lo|thurn","type":"name","object":"Kanton"}],
 "svp":[{"w":"SVP","type":"abbr","abbr":"Schweizerische Volkspartei"}],

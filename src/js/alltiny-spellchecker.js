@@ -919,9 +919,19 @@ alltiny.encodeAsHTML = function(text) {
 
 alltiny.clone = function(object, extension) {
 	// do not clone undefined objects, primitive types or DOM nodes.
-	if (!object || typeof object !== 'object' || object instanceof Node || object instanceof RegExp) {
+	if (!object || typeof object !== 'object' || object instanceof RegExp) {
 		return object;
 	}
+	if (typeof Node !== 'undefined') { // the browser implements DOM Core Spec 1
+		if (object instanceof Node) {
+			return object;
+		}
+	} else { // for IE8
+		if (typeof object.nodeType === 'number') {
+			return object;
+		}
+	}
+
 	var clone = (object instanceof Date) ? new Date(object) : object.constructor();
 	if (extension) {
 		for (var attribute in object) {

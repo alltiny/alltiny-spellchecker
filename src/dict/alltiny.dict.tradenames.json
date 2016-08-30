@@ -26,6 +26,7 @@
 "air":[{"w":"Air","type":"name","name":"Air France"}],
 "airbus":[{"w":"Airbus","type":"name"}],
 "airways":[{"w":"Airways","type":"name","name":"British Airways"}],
+"ajax":[{"w":"Ajax","type":"abbr","abbr":"Asynchronous JavaScript and XML"},{"w":"AJAX","type":"abbr","abbr":"Asynchronous JavaScript and XML"}],
 "alpina":[{"w":"Alpina","type":"name"}],
 "amazon":[{"w":"Amazon","type":"name"}],
 "amg":[{"w":"AMG","type":"name"}],

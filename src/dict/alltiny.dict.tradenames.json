@@ -408,6 +408,7 @@
 "sap":[{"w":"SAP","type":"name"}],
 "sd":[{"w":"SD","type":"name","name":"Secure Digital"}],
 "se":[{"w":"SE","type":"abbr","abbr":"Societas Europaea"}],
+"sea":[{"w":"SEA","type":"abbr","abbr":"Search Engine Advertising"}],
 "seat":[{"w":"Seat","type":"name"}],
 "seo":[{"w":"SEO","type":"abbr","abbr":"Search Engine Optimization"}],
 "sharepoint":[{"w":"Sharepoint","type":"name","name":"Microsoft Sharepoint"}],

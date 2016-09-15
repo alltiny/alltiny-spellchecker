@@ -123,7 +123,7 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 		return;
 	}
 	// use the word regex to split text into words.
-	text.replace(/[^\s]+/ig, function(word, offset, content) {
+	text.replace(/[^\s\u00a0]+/ig, function(word, offset, content) {
 		var current = thisObj.checkWord(word, checkOptions);
 		current.offset = offset;
 		current.contentLength = content.length;

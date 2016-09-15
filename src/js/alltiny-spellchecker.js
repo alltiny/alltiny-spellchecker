@@ -935,7 +935,7 @@ alltiny.clone = function(object, extension) {
 	var clone = (object instanceof Date) ? new Date(object) : object.constructor();
 	if (extension) {
 		for (var attribute in object) {
-			clone[attribute] = alltiny.clone((extension[attribute]) ? extension[attribute] : object[attribute]);
+			clone[attribute] = alltiny.clone((typeof extension[attribute] != 'undefined') ? extension[attribute] : object[attribute]);
 		}
 		for (var attribute in extension) {
 			if (!clone[attribute]) {

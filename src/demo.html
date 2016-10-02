@@ -5,6 +5,7 @@
 <script type="text/javascript" src="lib/jquery-1.11.0.min.js"></script>
 <script type="text/javascript" src="js/alltiny-selectbox.js"></script>
 <script type="text/javascript" src="js/alltiny-spellchecker.js"></script>
+<script type="text/javascript" src="js/alltiny-i18n.js"></script>
 <script type="text/javascript" src="lib/rangy-core.js"></script>
 <script type="text/javascript" src="lib/rangy-selectionsaverestore.js"></script>
 <script type="text/javascript" src="js/alltiny-editor.js"></script>
@@ -45,7 +46,7 @@ body.sport span.spellcheck.warn { background-color: #eeee99; color:#404040;}
 	<div id="language"></div>
 	<div style="clear:both"></div>
 </div>
-<div id="content" class="editor" contenteditable="true" placeholder="Hier können Sie Ihren Text eingeben oder hineinkopieren um ihn prüfen zu lassen. Ihr Text wird nicht an einen Server übertragen. Die Rechtschreibprüfung findet ausschließlich auf Ihrem Rechner statt."></div>
+<div id="content" class="editor" contenteditable="true"></div>
 <div class="statistics"></div>
 <div class="report"></div>
 <script type="text/javascript">
@@ -71,11 +72,21 @@ var languageSelector = new alltiny.SelectBox(jQuery('#language'), {
 		jQuery('<img class="flag">').attr('src', item.flag).attr('alt', item.value).appendTo($element);
 	}
 });
+// initialize i18n.
+var i18n = new alltiny.i18n({
+	wordingFileURLPattern   : 'i18n/spellchecker.{language}.js',
+	currentLanguageRetriever: function() { return languageSelector.getSelectedValue(); }
+});
+languageSelector.change(function() {
+	jQuery('#content').attr('placeholder', i18n.get('editor_placeholder_text'))
+});
 // use the current navigator language as default language.
 switch (navigator.language)  {
 	case 'de': languageSelector.setSelectedValue('de_DE'); break;
 	default  : languageSelector.setSelectedValue('en_UK');
 }
+
+
 // initialize the spellchecker.
 var spellchecker = new alltiny.Spellchecker({autoResetAfterApply:false});
 // load the dictionaries.

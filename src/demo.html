@@ -5,7 +5,6 @@
 <script type="text/javascript" src="lib/jquery-1.11.0.min.js"></script>
 <script type="text/javascript" src="js/alltiny-selectbox.js"></script>
 <script type="text/javascript" src="js/alltiny-spellchecker.js"></script>
-<script type="text/javascript" src="js/alltiny-i18n.js"></script>
 <script type="text/javascript" src="lib/rangy-core.js"></script>
 <script type="text/javascript" src="lib/rangy-selectionsaverestore.js"></script>
 <script type="text/javascript" src="js/alltiny-editor.js"></script>
@@ -72,20 +71,11 @@ var languageSelector = new alltiny.SelectBox(jQuery('#language'), {
 		jQuery('<img class="flag">').attr('src', item.flag).attr('alt', item.value).appendTo($element);
 	}
 });
-// initialize i18n.
-var i18n = new alltiny.i18n({
-	wordingFileURLPattern   : 'i18n/spellchecker.{language}.js',
-	currentLanguageRetriever: function() { return languageSelector.getSelectedValue(); }
-});
-languageSelector.change(function() {
-	jQuery('#content').attr('placeholder', i18n.get('editor_placeholder_text'))
-});
 // use the current navigator language as default language.
 switch (navigator.language)  {
 	case 'de': languageSelector.setSelectedValue('de_DE'); break;
 	default  : languageSelector.setSelectedValue('en_UK');
 }
-
 
 // initialize the spellchecker.
 var spellchecker = new alltiny.Spellchecker({autoResetAfterApply:false});

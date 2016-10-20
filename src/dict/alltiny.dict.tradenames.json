@@ -447,6 +447,7 @@
 "snv":[{"w":"SNV","type":"abbr","abbr":"Schweizerische Normen-Vereinigung"}],
 "soa":[{"w":"SOA","type":"abbr","abbr":"Service-Oriented Architecture"}],
 "soap":[{"w":"SOAP","type":"abbr","abbr":"Simple Object Access Protocol"}],
+"solaris":[{"w":"Solaris","type":"name"}],
 "song":[{"w":"Song","type":"name","name":"Eurovision Song Contest"}],
 "sony":[{"w":"Sony","type":"name"}],
 "source":[{"w":"Source","type":"name","name":"Open Source"}],

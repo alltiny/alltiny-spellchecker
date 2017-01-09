@@ -463,6 +463,7 @@
 "street":[{"w":"Street","type":"name","name":"Wall Street Journal"}],
 "studio":[{"w":"Studio","type":"name","name":"Visual Studio"}],
 "su":[{"w":"SU","type":"abbr","abbr":"Suchoi"}],
+"suhrkamp":[{"w":"Suhrkamp","type":"name"}],
 "svn":[{"w":"SVN","type":"abbr","abbr":"Apache Subversion"}],
 "swing":[{"w":"Swing","type":"name"}],
 "t-systems":[{"w":"T-Systems","type":"name"}],

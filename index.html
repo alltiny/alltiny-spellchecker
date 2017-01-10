@@ -55,7 +55,7 @@ var languageSelector = new alltiny.SelectBox(jQuery('#language'), {
 	itemRenderer: function($element, item) {
 		jQuery('<img class="flag">').attr('src', item.flag).attr('alt', item.value).appendTo($element);
 	},
-	selectionItemOffsetPx: 72
+	selectionItemOffsetYPx: 72
 });
 // initialize i18n.
 var i18n = new alltiny.i18n({

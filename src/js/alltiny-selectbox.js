@@ -7,7 +7,8 @@ alltiny.SelectBox = function(targetSelector, options) {
 		itemValuer   : function(item) { return item.value; }, // this function returns the value of an item. Override it if item value must be retrieved differently.
 		itemRenderer : function($element, item) {},
 		selectedValue: null,
-		selectionItemOffsetPx: 0
+		selectionItemOffsetXPx: 0,
+		selectionItemOffsetYPx: 0
 	}, options);
 	// render a hidder input field to carry the currently selected value.
 	this.$input = jQuery('<input type="text" style="display:none">').appendTo(this.$target);
@@ -41,7 +42,7 @@ alltiny.SelectBox = function(targetSelector, options) {
 	this.hideTimeoutHandle = null;
 	this.$representer.click(function() {
 		var items = thisObj.$flyout.find('li:not(.selected)');
-		if (items.length > 0 && jQuery(items[0]).css('right') !== '0px') {
+		if (items.length > 0 && (jQuery(items[0]).css('right') !== '0px' || jQuery(items[0]).css('top') !== '0px')) {
 			thisObj.hideSelectionItems(300);
 		} else {
 			thisObj.showSelectionItems(300);
@@ -69,7 +70,8 @@ alltiny.SelectBox.prototype.showSelectionItems = function(animationDuration) {
 		if (jQuery(item).hasClass('selected')) { // move the selected item always to position 0.
 			jQuery(item).animate({'top':0,'right':0}, animationDuration || 600);
 		} else {
-			jQuery(item).animate({'top':0,'right': (pos++) * thisObj.options.selectionItemOffsetPx}, animationDuration || 600);
+			jQuery(item).animate({'top': pos * thisObj.options.selectionItemOffsetXPx,'right': pos * thisObj.options.selectionItemOffsetYPx}, animationDuration || 600);
+			pos++;
 		}
 	});
 };

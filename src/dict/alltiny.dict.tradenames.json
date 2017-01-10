@@ -339,6 +339,7 @@
 "mitten":[{"w":"mit|ten","type":"noun"}],
 "mitts":[{"w":"mitts","type":"noun","numerus":"p"}],
 "mix":[{"w":"mix","type":"verb"},{"w":"mix","type":"noun"}],
+"moma":[{"w":"MoMA","type":"abbr","abbr":"Museum of Modern Art"}],
 "morris":[{"w":"Morris","type":"abbr","abbr":"Morris Mini Cooper"}],
 "moviestar":[{"w":"Moviestar","type":"name"}],
 "mozilla":[{"w":"Mozilla","type":"name","name":"Mozilla"}],

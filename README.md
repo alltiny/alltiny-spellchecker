@@ -3,7 +3,7 @@ Is a dictionary-based spellchecker written in JavaScript and ready to be build d
 It provides spellchecking and also hyphenation/syllabification.
 All checks are done completely in the client's browser. The content must not be transmitted to a server.
 
-Spellchecker in action: http://alltiny.github.io/alltiny-spellchecker/
+Spellchecker in action: https://alltiny.github.io/alltiny-spellchecker/
 
 Integration in your page is fairly easy:
 

@@ -7,7 +7,9 @@ alltiny.i18n = function(customOptions) {
 			return message.replace(/\{([^\}]+)\}/g, function(key) {
 				return map[key] || key;
 			});
-		}
+		},
+		attributeNameText       : 'data-i18n-text',
+		attributeNamePlaceholder: 'data-i18n-placeholder'
 	};
 	this.wording = {};
 	jQuery.extend(this.options, customOptions);
@@ -75,3 +77,14 @@ alltiny.i18n.prototype.getForLanguage = function(language, key, replacementMap, 
 	}
 };
 
+alltiny.i18n.prototype.apply = function(targetSelector) {
+	var thisObj = this;
+	jQuery(targetSelector).find('[' + thisObj.options.attributeNameText + ']').each(function() {
+		var i18nKey = jQuery(this).attr(thisObj.options.attributeNameText);
+		jQuery(this).text(thisObj.get(i18nKey));
+	});
+	jQuery(targetSelector).find('[' + thisObj.options.attributeNamePlaceholder + ']').each(function() {
+		var i18nKey = jQuery(this).attr(thisObj.options.attributeNamePlaceholder);
+		jQuery(this).attr('placeholder', thisObj.get(i18nKey));
+	});
+};

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<link type="text/css" href="src/css/default.css" rel="stylesheet"/>
+<link type="text/css" href="src/css/dark.css" rel="stylesheet"/>
+<script type="text/javascript" src="src/lib/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="src/js/alltiny-selectbox.js"></script>
+<script type="text/javascript" src="src/js/alltiny-spellchecker.js"></script>
+<script type="text/javascript" src="src/lib/rangy-core.js"></script>
+<script type="text/javascript" src="src/lib/rangy-selectionsaverestore.js"></script>
+<script type="text/javascript" src="src/js/alltiny-editor.js"></script>
+<script type="text/javascript" src="src/js/alltiny-i18n.js"></script>
+</head>
+<body class="dark-theme">
+<div id="language"></div>
+<div id="header"></div>
+<div id="main">
+	<div id="editor-viewport">
+		<div id="editor" class="editor" contenteditable="true" data-i18n-placeholder="editor_placeholder_text"></div>
+	</div>
+	<div id="right-viewport">
+		<div id="right"></div>
+	</div>
+</div>
+<script type="text/javascript">
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-90041001-1', 'auto');
+	ga('send', 'pageview');
+</script>
+<script type="text/javascript">
+// to get the placeholder working also after something was inserted and then removed from the contenteditable.
+jQuery(function($){
+    $("[contenteditable]").blur(function(){
+        var $element = $(this);
+        if (!$element.text().trim().length) {
+            $element.empty();
+        }
+    });
+});
+</script>
+
+<script type="text/javascript">
+var languages = [
+	{value: 'en_GB', flag: 'src/resources/flag.UnitedKingdom.svg'},
+	{value: 'de_DE', flag: 'src/resources/flag.Germany.svg'}
+];
+// initialize the language selector.
+var languageSelector = new alltiny.SelectBox(jQuery('#language'), {
+	items       : languages,
+	itemRenderer: function($element, item) {
+		jQuery('<img class="flag">').attr('src', item.flag).attr('alt', item.value).appendTo($element);
+	},
+	selectionItemOffsetPx: 72
+});
+// initialize i18n.
+var i18n = new alltiny.i18n({
+	wordingFileURLPattern   : 'src/i18n/spellchecker.{language}.js',
+	currentLanguageRetriever: function() { return languageSelector.getSelectedValue(); }
+});
+languageSelector.change(function() {
+	i18n.apply(jQuery('body'))
+});
+
+// use the current navigator language as default language.
+switch (navigator.language)  {
+	case 'de': languageSelector.setSelectedValue('de_DE'); break;
+	default  : languageSelector.setSelectedValue('en_UK');
+}
+// initialize the spellchecker.
+var spellchecker = new alltiny.Spellchecker({autoResetAfterApply:false});
+// load the dictionaries.
+var addDictionary = function(dict) {
+	var dictionary = new alltiny.Dictionary(dict);
+	// disable the dictionary if it doesn'T match the current language.
+	if (dictionary.getLocale()) {
+		dictionary.setEnabled(dictionary.getLocale() === languageSelector.getSelectedValue());
+	}
+	spellchecker.addDictionary(dictionary);
+}
+jQuery.getJSON("src/dict/alltiny.dict.base.de_de.json", addDictionary);
+jQuery.getJSON("src/dict/alltiny.dict.base.en_gb.json", addDictionary);
+jQuery.getJSON("src/dict/alltiny.dict.base.de_ch.json", addDictionary);
+jQuery.getJSON("src/dict/alltiny.dict.tradenames.json", addDictionary);
+var checkStartTimestamp;
+var editor = new alltiny.Editor(jQuery('#editor'), {
+	spellchecker: spellchecker,
+	beforeCheck : function(target) {
+		checkStartTimestamp = new Date().getTime();
+	},
+	afterCheck  : function(target) {
+		// create reports.
+		var unknownWords = [];
+		// calculate some statistics.
+		var countSum = spellchecker.getFindings().length;
+		var countError   = jQuery(target).find('span.spellcheck.highlight.error').length;
+		var countWarning = jQuery(target).find('span.spellcheck.highlight.warn').length;
+		var countKnown   = countSum - countError - countWarning;
+		// render a table as diagram.
+		var $tbody = jQuery('<tbody></tbody>');
+		jQuery('div.statistics').empty().append(jQuery('<table cellspacing="0"></table>').append($tbody));
+		$tbody.append(jQuery('<td class="ok"></td>').text('OK (' + (100 * countKnown / countSum).toFixed(2) + '%)').attr('title','OK - Words found in the dictionary assuming they are correct').css({'width': ((100 * countKnown / countSum) + '%')}));
+		$tbody.append(jQuery('<td class="warn"></td>').attr('title','Warning - Words found but not matching the dictionary entry').css({'width': ((100 * countWarning / countSum) + '%')}));
+		$tbody.append(jQuery('<td class="error"></td>').attr('title','Unknown - Words could not be found in dictionary').css({'width': 100 * countError / countSum + '%'}));
+		// write donw all unknown word into a separate div.
+		jQuery(target).find('span.error.unknown').each(function(index, span) {
+			var word = jQuery(span).text();
+			if (unknownWords.indexOf(word) < 0) {
+				unknownWords.push(word);
+			}
+		});
+		unknownWords = unknownWords.sort();
+		jQuery('div.report').empty()
+			.append(jQuery('<span>').text('Check done in ' + (new Date().getTime() - checkStartTimestamp) + 'ms.'))
+			.append(jQuery('<span>').text(countSum + ' Words in total. Unknown words: ' + unknownWords.join(' ')));
+	},
+	language: languageSelector.getSelectedValue()
+});
+// attach a change listener to the language selector.
+languageSelector.change(function() {
+	var language = languageSelector.getSelectedValue();
+	// enable the correct dictionary.
+	for (var i = 0; i < spellchecker.getDictionaries().length; i++) {
+		var dictionary = spellchecker.getDictionaries()[i];
+		/* disable dictionaries which do not match the current language.
+		 * If a dictionary has no locale leave it enabled. */
+		if (dictionary.getLocale()) {
+			dictionary.setEnabled(dictionary.getLocale() === language);
+		}
+	}
+	editor.setLanguage(language);
+	editor.check();
+});
+</script>
+
+</body>
+</html>

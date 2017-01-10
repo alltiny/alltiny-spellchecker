@@ -6,23 +6,27 @@ alltiny.SelectBox = function(targetSelector, options) {
 		items        : [], // array of items;
 		itemValuer   : function(item) { return item.value; }, // this function returns the value of an item. Override it if item value must be retrieved differently.
 		itemRenderer : function($element, item) {},
-		selectedValue: null
+		selectedValue: null,
+		selectionItemOffsetPx: 0
 	}, options);
 	// render a hidder input field to carry the currently selected value.
 	this.$input = jQuery('<input type="text" style="display:none">').appendTo(this.$target);
 	// render a visible representator of the currently selected value.
 	this.$representer = jQuery('<div class="representer">').appendTo(this.$target);
 	// render a flyout with all available items.
-	this.$flyout = jQuery('<div class="flyout">').hide().appendTo(this.$target);
+	this.$flyout = jQuery('<div class="flyout">').appendTo(this.$target);
 	// create and fill a item list in the flyout.
 	this.$list = jQuery('<ul>').appendTo(this.$flyout);
 	for (var i = 0; i < this.options.items.length; i++) {
 		var item = this.options.items[i];
-		var $item = jQuery('<li>').attr('data-value', this.options.itemValuer(item)).appendTo(this.$list);
+		var $item = jQuery('<li>')
+			.attr('data-value', this.options.itemValuer(item))
+			.css({'position':'absolute','top':0,'right':0,'z-index':-(1+i)})
+			.appendTo(this.$list);
 		this.options.itemRenderer($item, item);
 		// append a click listener to the item.
 		$item.click(function() {
-			thisObj.$flyout.finish().slideUp({duration: 200});
+			thisObj.hideSelectionItems();
 			thisObj.setSelectedValue(jQuery(this).attr('data-value'));
 		});
 	}
@@ -34,15 +38,44 @@ alltiny.SelectBox = function(targetSelector, options) {
 		thisObj.$flyout.find('li.selected').removeClass('selected');
 		thisObj.$flyout.find('li[data-value="' + thisObj.options.itemValuer(thisObj.selectedItem) + '"]').addClass('selected');
 	});
+	this.hideTimeoutHandle = null;
 	this.$representer.click(function() {
-		thisObj.$flyout.finish().slideToggle({duration: 200});
+		var items = thisObj.$flyout.find('li:not(.selected)');
+		if (items.length > 0 && jQuery(items[0]).css('right') !== '0px') {
+			thisObj.hideSelectionItems(300);
+		} else {
+			thisObj.showSelectionItems(300);
+		}
 	});
 	this.$target.mouseenter(function() {
-		thisObj.$flyout.finish().slideDown({duration: 100});
+		if (thisObj.hideTimeoutHandle !== null) {
+			window.clearTimeout(thisObj.hideTimeoutHandle);
+			thisObj.hideTimeoutHandle = null;
+		}
+		thisObj.showSelectionItems();
 	});
 	this.$target.mouseleave(function() {
-		thisObj.$flyout.finish().slideUp({duration: 200});
+		thisObj.hideTimeoutHandle = window.setTimeout(function() {
+			thisObj.hideSelectionItems(1000);
+			thisObj.hideTimeoutHandle = null;
+		}, 1000);
 	});
+};
+
+alltiny.SelectBox.prototype.showSelectionItems = function(animationDuration) {
+	var thisObj = this;
+	var pos = 1;
+	this.$flyout.find('li').stop().each(function(index, item) {
+		if (jQuery(item).hasClass('selected')) { // move the selected item always to position 0.
+			jQuery(item).animate({'top':0,'right':0}, animationDuration || 600);
+		} else {
+			jQuery(item).animate({'top':0,'right': (pos++) * thisObj.options.selectionItemOffsetPx}, animationDuration || 600);
+		}
+	});
+};
+
+alltiny.SelectBox.prototype.hideSelectionItems = function(animationDuration) {
+	this.$flyout.find('li').stop().animate({'top':0,'right':0}, animationDuration || 400);
 };
 
 alltiny.SelectBox.prototype.change = function(handler) {

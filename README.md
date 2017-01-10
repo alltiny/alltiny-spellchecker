@@ -1,7 +1,9 @@
 # alltiny-spellchecker
-Is a dictionary-based spellchecker written in JavaScript and ready to be build into your page.
-It not only provides spellchecking but also hyphenation/syllabification for the words in your text.
-All checks are done completely in the client's browser. No content must be transmitted to the server.
+Is a dictionary-based spellchecker written in JavaScript and ready to be build directly into web-pages.
+It provides spellchecking and also hyphenation/syllabification.
+All checks are done completely in the client's browser. The content must not be transmitted to a server.
+
+Spellchecker in action: http://alltiny.github.io/alltiny-spellchecker/
 
 Integration in your page is fairly easy:
 

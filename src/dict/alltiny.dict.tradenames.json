@@ -348,6 +348,7 @@
 "mozilla":[{"w":"Mozilla","type":"name","name":"Mozilla"}],
 "ms":[{"w":"MS","type":"abbr","abbr":"Microsoft"}],
 "mx":[{"w":"MX","type":"name","name":"Makromedia Freehand MX"}],
+"mysql":[{"w":"MySQL","type":"name"}],
 "naftogaz":[{"w":"Naftogaz","type":"name"}],
 "navy":[{"w":"Navy","type":"noun"}],
 "nbc":[{"w":"NBC","type":"abbr","abbr":"National Broadcasting Company"}],

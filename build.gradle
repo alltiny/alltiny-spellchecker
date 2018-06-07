@@ -36,6 +36,7 @@ def verifyDictionary(dict) {
 					if (word.type == 'adj' ||
 						word.type == 'adv' ||
 						word.type == 'article' ||
+						word.type == 'chem-element' ||
 						word.type == 'conjunction' ||
 						word.type == 'dash' ||
 						word.type == 'fragment' ||
@@ -95,6 +96,11 @@ task verifyDictionaryDeAT {
 task verifyDictionaryEnGB {
 	description = 'verifies the dictionary to be syntactical correct'
 	verifyDictionary(new JsonSlurper().parse(new File("${projectDir}/src/dict/alltiny.dict.base.en_gb.json")))
+}
+
+task verifyDictionaryChemicals {
+	description = 'verifies the dictionary to be syntactical correct'
+	verifyDictionary(new JsonSlurper().parse(new File("${projectDir}/src/dict/alltiny.dict.chemicals.json")))
 }
 
 task verifyDictionaryTradenames {

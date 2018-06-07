@@ -112,9 +112,8 @@ alltiny.Spellchecker.prototype.check = function(text, options) {
 	/* load the demanded composit map. */
 	for (var i = 0; i < this.dictionaries.length; i++) {
 		var dictionary = this.dictionaries[i];
-		if ((!checkOptions.language || dictionary.options.locale == checkOptions.language) && dictionary.options.composits) {
-			checkOptions.context.composits = dictionary.options.composits;
-			break;
+		if (!checkOptions.language || !dictionary.options || !dictionary.options.locale ||dictionary.options.locale == checkOptions.language) {
+			checkOptions.context.composits = alltiny.Spellchecker.mergeDictionaries(checkOptions.context.composits, dictionary.options.composits);
 		}
 	}
 
@@ -641,7 +640,11 @@ alltiny.Spellchecker.mergeDictionaries = function(dictionary1, dictionary2) {
 	for (var w in dictionary2) {
 		if (w) {
 			if (result[w]) {
-				result[w] = alltiny.Spellchecker.mergeWordList(result[w], dictionary2[w]);
+				if (result[w] instanceof Array) {
+					result[w] = alltiny.Spellchecker.mergeWordList(result[w], dictionary2[w]);
+				} else {
+					result[w] = alltiny.Spellchecker.mergeDictionaries(result[w], dictionary2[w]);
+				}
 			} else {
 				result[w] = alltiny.clone(dictionary2[w]); // create a clone of this entry to prevent unwanted modifications.
 			}
@@ -808,7 +811,7 @@ alltiny.Dictionary.prototype.findWord = function(word, context) {
 	var variants = this.lookupWord(word, context) || [];
 	// look for all possible break downs.
 	for (var i = word.length - 1; i > 0; i--) {
-		var leading = this.lookupWord(word.substring(0, i), context);
+		var leading = this.findWord(word.substring(0, i), context);
 		if (leading && leading.length > 0) {
 			var trailing = this.findWord(word.substring(i), context);
 			if (trailing && trailing.length > 0) {

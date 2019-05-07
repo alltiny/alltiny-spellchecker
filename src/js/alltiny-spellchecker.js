@@ -917,7 +917,7 @@ alltiny.Finding.prototype.addVariant = function(variant) {
 };
 
 alltiny.encodeAsHTML = function(text) {
-	return text && text.length > 0 ? text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;') : text;
+	return text && text.length > 0 ? text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') : text;
 };
 
 alltiny.clone = function(object, extension) {

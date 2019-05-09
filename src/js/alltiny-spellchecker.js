@@ -363,7 +363,7 @@ alltiny.Spellchecker.prototype.applyFindings = function(options) {
 				jQuery(currentNode).replaceWith(currentContent);
 			}
 			currentNode = finding.node;
-			currentContent = currentNode.nodeValue;
+			currentContent = finding.checkOptions.highlighting ? currentNode.nodeValue : alltiny.encodeAsHTML(currentNode.nodeValue);
 		}
 		if (currentContent != null && finding.checkOptions.highlighting) {
 			currentContent = currentContent.substring(0, finding.offset) + this.createReplacement(finding) + currentContent.substring(finding.offset + finding.word.length);
